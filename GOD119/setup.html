@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#0b1629">
+<title>GOD119 · 강사 설치 안내</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0b1629;color:#e8f2ff;font:16px/1.75 system-ui,"Malgun Gothic",sans-serif}main{max-width:940px;margin:0 auto;padding:42px 22px 100px}
+a{color:#8be7d0}h1{font-size:clamp(29px,4vw,49px);margin:4px 0}h2{font-size:23px;margin:0 0 10px}p{margin:0 0 13px}
+.head{color:#9db2d4;font-size:13px;letter-spacing:.16em;font-weight:800}.sub{color:#bacce3;font-size:17px;margin-bottom:30px}
+nav{display:flex;gap:10px;flex-wrap:wrap;margin:24px 0 30px}nav a{border:1px solid #466780;border-radius:10px;padding:9px 15px;text-decoration:none;background:#142743}
+.card{padding:22px 27px;background:#142641;border:1px solid #36506c;border-radius:15px;margin:16px 0}
+.num{color:#69ebd0;font-weight:850;letter-spacing:.06em}.warn{background:#2b241a;border-color:#a37f4e;color:#ffdda9}
+code{font-size:13px;color:#a9f1de;background:#0b2031;padding:3px 6px;border-radius:6px;word-break:break-all}
+ol{margin:6px 0;padding-left:22px}li{margin-bottom:8px}
+pre{white-space:pre-wrap;word-break:break-word;background:#091828;padding:16px;border:1px solid #304c68;border-radius:9px;overflow:auto;font-size:12px}
+small{color:#acbfd9}.note{font-size:13px;color:#becdde}
+footer{border-top:1px solid #35506b;margin-top:35px;padding-top:20px;color:#9db2cc}
+</style></head>
+<body><main>
+<div class="head">GOD119 · AI MINISTRY LIVE</div><h1>실시간 강의실 연결 안내</h1><p class="sub">기존 GitHub 사이트를 유지하면서 강사 PC와 참석자 PC의 화면을 연동하는 설정입니다.</p>
+<nav><a href="./">참석자 화면 열기</a><a href="./?teacher=1">강사 화면 열기</a><a href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer">Firebase Console 열기</a></nav>
+<section class="card warn"><h2>먼저 확인하세요</h2><p>현재 사이트는 원본 PPT 이미지와 노트북의 개인 영상·문서를 업로드하지 않은 <strong>보안 미리보기</strong>입니다. Firebase 설정이 끝나야 실제 두 노트북 사이의 슬라이드 이동·필기가 실시간 전달됩니다.</p><p>Firebase는 저장소가 아니므로 GitHub Pages만으로는 실시간 공유 기능을 사용할 수 없습니다.</p></section>
+<section class="card"><p class="num">01 / Firebase 프로젝트</p><h2>프로젝트 생성</h2><ol><li><a href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer">Firebase Console</a>에서 Google 계정으로 로그인합니다.</li><li>새 프로젝트를 만든 뒤 웹 앱(<code>&lt;/&gt;</code>)을 등록합니다.</li><li>웹 앱에 표시되는 <code>firebaseConfig</code>의 <code>apiKey</code>, <code>authDomain</code>, <code>databaseURL</code>, <code>projectId</code>, <code>appId</code> 항목을 확인합니다. <strong>서비스 계정 비밀키를 내려받거나 웹사이트에 넣지 마세요.</strong></li></ol></section>
+<section class="card"><p class="num">02 / 실시간 데이터베이스</p><h2>Realtime Database 만들기</h2><ol><li>Firebase 왼쪽 메뉴에서 <strong>Build → Realtime Database</strong>를 열고 데이터베이스를 생성합니다.</li><li>시작 보안 모드는 <strong>잠금 모드(Locked mode)</strong>를 선택하세요. 테스트 모드에서는 불특정 사용자가 데이터를 기록할 수 있습니다.</li><li><code>databaseURL</code>을 웹 설정에 포함합니다.</li></ol></section>
+<section class="card"><p class="num">03 / 강사 로그인</p><h2>Google 인증 활성화</h2><ol><li><strong>Authentication → Sign-in method</strong>에서 Google 로그인 제공업체를 활성화합니다.</li><li><strong>Authentication → Settings → Authorized domains</strong>에 <code>kang-pastor79.github.io</code>를 추가합니다.</li><li>이제 강사 화면에서 Google 계정 로그인 버튼을 이용할 수 있습니다.</li></ol></section>
+<section class="card"><p class="num">04 / 사이트 연결</p><h2>공개용 웹 설정 입력</h2><p>GitHub <a href="https://github.com/KANG-PASTOR79/Onch-0691/blob/main/GOD119/config.js" target="_blank" rel="noopener noreferrer">GOD119/config.js</a>를 열어 <strong>Edit</strong>에서 Firebase 웹 앱 설정 값을 넣고 저장합니다. 형식을 바꾸지 말고 따옴표 안의 값만 입력하세요.</p><p>Firebase Web Config는 브라우저에 표시되는 식별 정보입니다. 접근 권한은 API 키를 숨기는 방법이 아니라 <strong>실시간 데이터베이스 보안 규칙</strong>으로 보호해야 합니다.</p></section>
+<section class="card"><p class="num">05 / 강사 권한</p><h2>강사 UID 등록</h2><ol><li>강사 화면(<a href="./?teacher=1">GOD119 강사 제어실</a>)에 접속하여 Google 로그인을 합니다.</li><li>화면에서 <strong>내 UID</strong>를 복사합니다. 이 문자열을 참석자에게 보낼 필요는 없습니다.</li><li>GitHub에 저장된 <a href="https://github.com/KANG-PASTOR79/Onch-0691/blob/main/GOD119/firebase-rules.example.json" target="_blank" rel="noopener noreferrer">보안 규칙 예시 파일</a>을 확인합니다.</li><li>Firebase <strong>Realtime Database → Rules</strong>에서 예시 규칙을 붙여넣고 <code>REPLACE_WITH_PRESENTER_UID</code>를 강사 UID로 바꿉니다.</li><li><strong>Publish</strong>를 누르고, 수정한 규칙을 공개 GitHub 저장소에 다시 올리지 않습니다.</li></ol><p class="note">이 설정에서는 참석자 인증 없이 실시간 슬라이드 번호·판서 데이터는 읽을 수 있지만, 변경할 수 있는 사람은 지정된 강사 UID뿐입니다. 공개 열람 데이터에는 개인정보를 기록하지 마세요.</p></section>
+<section class="card"><p class="num">06 / 두 대의 기기로 확인</p><h2>실제 동기화 테스트</h2><ol><li>강사 노트북: <a href="./?teacher=1">강사 링크</a>를 열고 로그인합니다.</li><li>참석자 노트북: <a href="./">참석자 링크</a>를 엽니다(로그인 불필요).</li><li>강사 화면에서 슬라이드를 한 장 넘깁니다 → 참석자 화면 페이지 번호가 바뀌는지 확인합니다.</li><li>강사 화면에서 펜으로 동그라미를 그립니다 → 참석자 화면에도 그려지는지 확인합니다.</li><li>연동이 되지 않으면 먼저 Firebase 웹 설정·승인 도메인·Realtime Database Rules를 점검합니다.</li></ol></section>
+<section class="card warn"><h2>개인정보 및 저작권 보호</h2><p>원본 PPT의 교회 사진, 가족·성도 이름, 개인 이메일·전화번호, 개인 영상, 노트북 로컬 파일 경로는 내용 검토와 허락 전까지 공개 사이트에 게시하지 마세요. GitHub 공개 저장소에 업로드한 파일은 검색·복사·다운로드될 수 있습니다.</p><p>강의 자료를 참석자만 볼 수 있도록 제한하려면 공개 GitHub Pages가 아닌 접근 통제가 가능한 별도 배포 방식이 필요합니다.</p></section>
+<footer>GOD119 — 목회자를 위한 실시간 AI 강의실 · 준비 안내</footer>
+</main></body></html>
