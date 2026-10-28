@@ -4,7 +4,7 @@ window.GOD119_CONFIG = {
   firebase: {
     apiKey: "",
     authDomain: "",
-    databaseURL: "",
+    databaseURL: "https://god119-default-rtdb.firebaseio.com",
     projectId: "",
     appId: ""
   }
