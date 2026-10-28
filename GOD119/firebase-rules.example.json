@@ -1,5 +1,7 @@
 {
   "rules": {
+    ".read": false,
+    ".write": false,
     "rooms": {
       "god119-seminar": {
         ".read": true,
@@ -8,12 +10,12 @@
           ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 56"
         },
         "pointer": {
-          ".validate": "newData.hasChildren(['x', 'y', 'active', 'at'])"
+          ".validate": "newData.hasChildren(['x','y','active','at']) && newData.child('x').isNumber() && newData.child('x').val() >= 0 && newData.child('x').val() <= 1 && newData.child('y').isNumber() && newData.child('y').val() >= 0 && newData.child('y').val() <= 1 && newData.child('active').isBoolean() && newData.child('at').isNumber()"
         },
         "strokes": {
           "$slide": {
             "$stroke": {
-              ".validate": "newData.hasChildren(['id', 'tool', 'color', 'points', 'at'])"
+              ".validate": "newData.hasChildren(['id','tool','color','points','at']) && newData.child('id').isString() && newData.child('tool').isString() && newData.child('color').isString() && newData.child('at').isNumber() && newData.child('points').exists()"
             }
           }
         }
