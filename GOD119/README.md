@@ -1,23 +1,30 @@
-# GOD119 강의실
+# GOD119 · AI 목회자 세미나 실시간 강의실
 
-기존 교회 홈페이지를 보존하면서 GOD119/ 경로에 독립 설치한 AI 목회자 세미나용 웹페이지입니다.
+GOD119는 기존 교회 홈페이지를 변경하지 않고 `Onch-0691/GOD119/` 경로에 별도로 설치한 강의 페이지입니다.
 
-## 현재 상태
-원본 PPT, 노트북 로컬 영상, 개인 문서, 개인 파일 경로는 공개하지 않았습니다. 56장 슬라이드의 목차 미리보기를 제공합니다.
-강사 제어 화면은 ?teacher=1 이며, Firebase 설정 이전에는 해당 브라우저에서만 시연됩니다.
+- 참석자 화면: https://kang-pastor79.github.io/Onch-0691/GOD119/
+- 강사 화면: https://kang-pastor79.github.io/Onch-0691/GOD119/?teacher=1
+- 설정 안내: https://kang-pastor79.github.io/Onch-0691/GOD119/setup.html
 
-## GitHub Pages 설정
-저장소 Settings > Pages > Deploy from a branch > main / root > Save. 게시 후 예상 주소: https://kang-pastor79.github.io/Onch-0691/GOD119/
+## 현재 구현 상태
 
-## 실시간 Firebase 설정
-1. Firebase Console에서 프로젝트, Web App 및 Realtime Database를 만듭니다.
-2. Authentication에서 Google 로그인 활성화. Authorized domains에 kang-pastor79.github.io를 추가합니다.
-3. 웹 앱 구성을 GOD119/config.js에 입력합니다. 서비스 계정 비밀키를 절대 넣지 마세요.
-4. 강사 화면에서 Google 로그인 후 보이는 UID를 복사합니다.
-5. Firebase Realtime Database Rules 콘솔에 firebase-rules.example.json을 붙여넣고 REPLACE_WITH_PRESENTER_UID를 UID로 교체한 뒤 게시합니다. 교체된 규칙을 공개 GitHub 파일에 올리지 마세요.
-6. 참석자와 강사 링크를 서로 다른 기기로 열어 슬라이드 이동 및 판서를 검증합니다.
+- GitHub에 강사용·참석자용 웹 화면, 페이지 이동, 펜·형광펜·지우개·레이저 포인터 코드 등록
+- 실시간 동기화는 **Firebase Realtime Database 연결 전**이므로 현재 다른 노트북에 전송되지 않음
+- Firebase 인증 설정이 완료되면 참석자는 로그인 없이 보기만 하고, 인증된 지정 강사 UID만 수정할 수 있도록 규칙 예시 마련
+- 현재 원본 56장 PPT 슬라이드 이미지, 노트북 파일, 연결 동영상, 개인 경로는 **공개 저장소에 게시하지 않음**. 강의 페이지는 제목 기반의 안전한 미리보기를 표시
 
-주의: 참석자 로그인 없는 공개 열람 방식입니다. 사이트와 데이터베이스에 개인정보, 참석자 명부나 비밀 강의자료를 게시하지 마세요.
+## 진행 순서
 
-## 원본 슬라이드
-실제 슬라이드 JPG 파일은 보안 검토와 게시 승인 전까지 GitHub에 올리지 않았습니다. 승인 후 GOD119/slides/slide-01.jpg 부터 slide-56.jpg까지 업로드하면 이미지가 표시됩니다.
+1. [강사 연결 안내](setup.html)에서 Firebase 프로젝트 생성 및 Google 로그인 설정
+2. Realtime Database를 **잠금 모드**로 생성
+3. [config.js](config.js)에 Firebase 웹 앱 설정 기입 (서비스 계정 비밀키는 절대 기입하지 않기)
+4. 강사 화면에 Google 로그인하여 UID 확인
+5. [firebase-rules.example.json](firebase-rules.example.json)을 Firebase 콘솔의 Realtime Database 규칙에 붙여넣고 UID 교체 후 게시
+6. 두 노트북으로 슬라이드 이동·판서·지우개를 실제 테스트
+7. 개인 정보·초상권·저작권 검토를 마친 자료만 공개 게시
+
+## 중요한 보안 안내
+
+GitHub Pages와 현재 제공하는 참석자 링크는 **공개 접근 가능한 웹사이트**입니다. `noindex`는 검색엔진에 대한 권고일 뿐 접근 통제가 아닙니다. 강의자료와 참여자 정보를 비공개로 해야 한다면 참석자 인증이 가능한 별도 서비스 구성이 필요합니다.
+
+Firebase의 웹 설정(API 키 등)은 공개 웹 앱의 식별 정보이며 백엔드 비밀키가 아닙니다. 데이터 접근 권한은 **Firebase Security Rules**로 제한해야 합니다. 공개 GitHub에 서비스 계정 JSON, OAuth 비밀키, 비밀번호, 개인 노트북 파일을 올리지 마세요.
