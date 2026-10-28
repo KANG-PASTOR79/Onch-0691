@@ -1,0 +1,23 @@
+{
+  "rules": {
+    "rooms": {
+      "god119-seminar": {
+        ".read": true,
+        ".write": "auth != null && auth.uid === 'REPLACE_WITH_PRESENTER_UID'",
+        "currentSlide": {
+          ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 56"
+        },
+        "pointer": {
+          ".validate": "newData.hasChildren(['x', 'y', 'active', 'at'])"
+        },
+        "strokes": {
+          "$slide": {
+            "$stroke": {
+              ".validate": "newData.hasChildren(['id', 'tool', 'color', 'points', 'at'])"
+            }
+          }
+        }
+      }
+    }
+  }
+}
