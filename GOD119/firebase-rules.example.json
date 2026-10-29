@@ -63,6 +63,33 @@
           }
         }
       }
+    },
+    "attendance": {
+      "god119-seminar": {
+        ".read": "auth != null && auth.uid === 'REPLACE_WITH_PRESENTER_UID'",
+        "$uid": {
+          ".read": "auth != null && auth.uid === $uid",
+          "profile": {
+            ".write": "auth != null && auth.uid === $uid && newData.exists()",
+            ".validate": "newData.hasChildren(['name','church','registeredAt','updatedAt'])",
+            "name": {
+              ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 35"
+            },
+            "church": {
+              ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 45"
+            },
+            "registeredAt": {
+              ".validate": "newData.isNumber() && ((!data.exists() && newData.val() >= now - 300000 && newData.val() <= now + 10000) || (data.exists() && newData.val() === data.val()))"
+            },
+            "updatedAt": {
+              ".validate": "newData.isNumber() && newData.val() >= now - 300000 && newData.val() <= now + 10000"
+            },
+            "$other": {
+              ".validate": false
+            }
+          }
+        }
+      }
     }
   }
 }
