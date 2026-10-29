@@ -25,9 +25,39 @@ input[type=range].pen-range{width:100%;padding:0;border:0;background:transparent
 #penCanvas{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:contain}
 .stage{-webkit-user-select:none;user-select:none}
 .submit-banner{border:1px solid #907244;background:linear-gradient(115deg,#342a1e,#173345);border-radius:13px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 15px;flex-wrap:wrap}.submit-banner strong{font-size:16px;color:#ffe1aa}.submit-banner p{color:#cedbea;font-size:12px;margin:4px 0 0}.submit-button{display:inline-block;text-decoration:none;background:#f0be72;color:#12253a;font-weight:850;padding:12px 16px;border-radius:10px;white-space:nowrap;min-height:43px}.submit-button:hover{background:#ffe0a0}.submit-teacher-link{display:block;text-align:center;padding:11px;border-radius:10px;background:#273f53;color:#ffe0a6;text-decoration:none;border:1px solid #607183;margin:9px 0}.submit-teacher-link:hover{background:#345269}
+
+.attendance-card{border:1px solid #4f8e87;border-radius:16px;background:linear-gradient(140deg,#123d41,#132b49);padding:23px;margin:0 0 20px}
+.attendance-card h2{font-size:clamp(20px,2.6vw,26px);color:#ffdaa1;margin:0 0 8px}
+.attendance-card p{font-size:13px;color:#c5d9e4;line-height:1.7}
+.attendance-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}
+.attendance-fields label{display:block;font-size:13px;margin-bottom:6px}
+.attendance-fields input{font-size:15px;min-height:45px}
+.attendance-card .att-consent{display:flex;align-items:flex-start;gap:10px;font-size:12px;line-height:1.55;color:#d7e8ea}
+.attendance-card .att-consent input{width:18px;min-width:18px;height:18px;margin-top:2px}
+.attendance-card .att-note{font-size:12px;color:#ffdba1;min-height:22px;margin-top:12px}
+.attendance-card button{font-size:15px;margin-top:11px;min-height:46px}
+.attendance-badge{border:1px solid #427d69;background:#16382f;border-radius:10px;padding:10px 13px;margin-bottom:15px;display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;font-size:13px}
+.attendance-badge button{padding:7px 10px}
+#attendanceGate[hidden],#attendanceBadge[hidden]{display:none!important}
+#layout.viewer:not(.registered) .submit-banner,#layout.viewer:not(.registered) .stage-wrap,#layout.viewer:not(.registered) .row,#layout.viewer:not(.registered) .links,#layout.viewer:not(.registered) .notice,#layout.viewer:not(.registered) .subtitle{display:none!important}
+@media(max-width:650px){.attendance-fields{grid-template-columns:1fr}.attendance-card{padding:16px}}
 </style><script src="config.js"></script></head>
 <body><header><div class="brand"><div class="logo">GOD119</div><div><strong>GOD119</strong><small>AI MINISTRY LIVE SEMINAR</small></div></div><div id="status" class="status">○ 설정 전</div></header>
-<main id="layout" class="viewer"><section><h1>생성형 AI와 목회 현장</h1><p class="subtitle"><span class="gold" id="number">01 / 56</span>　<span id="subtitle">실시간 공유 강의실</span></p>
+<main id="layout" class="viewer"><section><h1>생성형 AI와 목회 현장</h1>
+<div id="attendanceGate" class="attendance-card" hidden>
+<h2>GOD119 · 참석자 입장 등록</h2>
+<p>강의실에 입장하려면 이름과 교회·소속을 입력해 주세요. Google 로그인이 필요 없으며 무료 Firebase 익명 인증을 사용합니다. 등록하면 강사의 비공개 출석 현황판에 표시됩니다.</p>
+<div class="attendance-fields">
+<div><label for="attName">이름</label><input id="attName" type="text" maxlength="35" autocomplete="name" placeholder="예: 홍길동"></div>
+<div><label for="attChurch">교회·소속</label><input id="attChurch" type="text" maxlength="45" autocomplete="organization" placeholder="예: 창원온천교회"></div>
+</div>
+<label class="att-consent"><input id="attConsent" type="checkbox"><span>출석 확인과 실습 제출 대조를 위해 이름·소속을 Firebase에 저장하는 데 동의합니다. 다른 참석자는 이 정보를 볼 수 없으며 강사가 전체 명단을 확인합니다. 행사 종료 후 불필요한 개인정보는 삭제합니다.</span></label>
+<button id="attRegister" class="primary" type="button">이름 등록하고 강의실 입장 →</button>
+<p id="attStatus" class="att-note" role="status" aria-live="polite">참석자 등록은 Firebase 보안 규칙을 적용한 뒤 사용할 수 있습니다.</p>
+</div>
+<div id="attendanceBadge" class="attendance-badge" hidden>
+<span id="attLabel">✓ 출석 등록됨</span><button id="attEdit" type="button">이름·소속 수정</button>
+</div><p class="subtitle"><span class="gold" id="number">01 / 56</span>　<span id="subtitle">실시간 공유 강의실</span></p>
 <div class="submit-banner" role="region" aria-label="실습 결과물 제출">
 <div><strong>📂 세미나 실습 결과물 제출</strong><p>이미지 · PDF · TXT · MP4 | MEGA 무료 제출함 · 파일 1개 200MB 이하 권장</p></div>
 <a class="submit-button" href="./submit.html">실습 결과물 제출하기 ↗</a>
@@ -78,6 +108,7 @@ const teacher=params.get("teacher")==="1", conf=(window.GOD119_CONFIG&&window.GO
 const configured=!!(conf.apiKey&&conf.projectId&&conf.databaseURL&&conf.authDomain&&conf.appId);
 const audience=location.origin+location.pathname+"?room="+room;
 let slide=1, tool="cursor", color="#ef425f", strokes={},drawing=null,db=null,F=null,auth=null,user=null,allowed=teacher&&!configured,unsubscribe=null,laserTimeout=0,lastPush=0,lastPointer=0,seq=0;
+let authAPI=null,attendanceUnsubscribe=null,attendeeProfile=null,attendanceSaveBusy=false;
 const canvas=$("penCanvas"),ctx=canvas.getContext("2d");
 const penTest=$("penTest"),penTestCtx=penTest.getContext("2d");
 const penSettingsKey="god119-apple-pencil-v1";
@@ -117,6 +148,49 @@ $("penTestClear").onclick=()=>{penTestCtx.clearRect(0,0,penTest.width,penTest.he
 reflectPenPrefs();
 
 $("instructor").hidden=!teacher;$("layout").className=teacher?"":"viewer";if(teacher)$("publicLink").value=audience;
+$("attendanceGate").hidden=teacher;$("attendanceBadge").hidden=true;
+function attMessage(text){$("attStatus").textContent=text}
+function showRegistration(ready){
+ if(teacher)return;
+ $("layout").classList.toggle("registered",!!ready);
+ $("attendanceGate").hidden=!!ready;
+ $("attendanceBadge").hidden=!ready;
+ if(ready && attendeeProfile)$("attLabel").textContent="✓ 출석 등록: "+attendeeProfile.name+" / "+attendeeProfile.church;
+}
+function loadAttendeeProfile(u){
+ if(teacher)return;
+ if(attendanceUnsubscribe){attendanceUnsubscribe();attendanceUnsubscribe=null}
+ if(!u||!db||!F){attendeeProfile=null;showRegistration(false);attMessage("이름과 교회를 등록하면 강의실에 입장할 수 있습니다.");return}
+ attMessage("기존 출석 등록 정보를 확인하고 있습니다…");
+ attendanceUnsubscribe=F.onValue(F.ref(db,"attendance/"+room+"/"+u.uid+"/profile"),s=>{
+  attendeeProfile=s.val()||null;
+  if(attendeeProfile){
+   $("attName").value=attendeeProfile.name||"";
+   $("attChurch").value=attendeeProfile.church||"";
+   showRegistration(true);
+  }else{showRegistration(false);attMessage("이름·소속을 입력하고 등록 버튼을 누르세요.")}
+ },err=>{showRegistration(false);attMessage("출석 정보를 읽을 수 없습니다. 강사에게 Firebase 출석 보안 규칙 확인을 요청하세요.")});
+}
+$("attEdit").onclick=()=>{if(!teacher)showRegistration(false)};
+$("attRegister").onclick=async()=>{
+ if(teacher||attendanceSaveBusy)return;
+ const name=$("attName").value.trim().slice(0,35),church=$("attChurch").value.trim().slice(0,45);
+ if(!name||!church){attMessage("이름과 교회·소속을 모두 입력해 주세요.");return}
+ if(!$("attConsent").checked){attMessage("개인정보 저장 안내에 동의해야 출석을 등록할 수 있습니다.");return}
+ if(!db||!F||!auth||!authAPI){attMessage("Firebase 연결을 확인 중입니다. 새로고침하거나 강사에게 문의해 주세요.");return}
+ attendanceSaveBusy=true;$("attRegister").disabled=true;
+ attMessage("출석 정보를 안전하게 등록하고 있습니다…");
+ try{
+  let u=auth.currentUser;
+  if(!u)u=(await authAPI.signInAnonymously(auth)).user;
+  const profile={name,church,registeredAt:attendeeProfile?.registeredAt||F.serverTimestamp(),updatedAt:F.serverTimestamp()};
+  await F.set(F.ref(db,"attendance/"+room+"/"+u.uid+"/profile"),profile);
+  attendeeProfile={...profile,registeredAt:attendeeProfile?.registeredAt||Date.now(),updatedAt:Date.now()};
+  showRegistration(true);
+ }catch(e){attMessage(String(e?.code||"").includes("operation-not-allowed")?
+ "익명 로그인 사용 설정이 필요합니다. 강사에게 문의해 주세요.":"출석 등록을 저장하지 못했습니다. Firebase 출석 보안 규칙이 게시되었는지 확인해 주세요.")}
+ finally{attendanceSaveBusy=false;$("attRegister").disabled=false}
+};
 function notify(s){$("pop").textContent=s;$("pop").style.display="block";setTimeout(()=>$("pop").style.display="none",2600)}
 function status(s,ok){$("status").textContent=(ok?"● ":"○ ")+s;$("status").style.color=ok?"#88e4ba":"#f2c985"}
 async function copy(s){try{await navigator.clipboard.writeText(s);notify("복사했습니다.")}catch(e){notify("주소를 선택하여 복사해 주세요.")}}
@@ -323,11 +397,11 @@ window.onkeydown=e=>{if(!teacher||!allowed||["INPUT","SELECT","TEXTAREA"].includ
 new ResizeObserver(fit).observe(canvas);
 async function connect(){
 if(!configured){status("로컬 미리보기",false);permission();return}
-try{const host="https://www.gstatic.com/firebasejs/11.10.0/";const [a,b,d]=await Promise.all([import(host+"firebase-app.js"),import(host+"firebase-auth.js"),import(host+"firebase-database.js")]);F=d;const app=a.initializeApp(conf);db=d.getDatabase(app);auth=b.getAuth(app);
+try{const host="https://www.gstatic.com/firebasejs/11.10.0/";const [a,b,d]=await Promise.all([import(host+"firebase-app.js"),import(host+"firebase-auth.js"),import(host+"firebase-database.js")]);F=d;authAPI=b;const app=a.initializeApp(conf);db=d.getDatabase(app);auth=b.getAuth(app);
 d.onValue(d.ref(db,".info/connected"),s=>{status(s.val()?"실시간 연결됨":"연결 끊김",s.val()===true);$("notice").textContent=s.val()?"실시간 동기화 연결됨. 원본 PPT 이미지는 개인정보 확인 후 게시됩니다.":"실시간 연결이 끊겼습니다. Firebase 설정을 확인하세요.";});
 d.onValue(d.ref(db,remote("currentSlide")),s=>{const n=Number(s.val());if(n>=1&&n<=56&&n!==slide){slide=n;show()}});
 d.onValue(d.ref(db,remote("pointer")),s=>{if(teacher&&allowed&&tool==="laser")return;const p=s.val();$("laser").hidden=!(p&&p.active&&Date.now()-(p.at||0)<2500);if(!$("laser").hidden){$("laser").style.left=p.x*100+"%";$("laser").style.top=p.y*100+"%";clearTimeout(laserTimeout);laserTimeout=setTimeout(()=>$("laser").hidden=true,750)}});
-binding();b.onAuthStateChanged(auth,u=>{user=u;allowed=teacher&&!!u;permission()});
+binding();b.onAuthStateChanged(auth,u=>{user=u;allowed=teacher&&!!u;permission();if(!teacher)loadAttendeeProfile(u)});
 $("login").onclick=async()=>{try{await b.signInWithPopup(auth,new b.GoogleAuthProvider())}catch(e){notify("Google 로그인 설정을 확인하세요.")}};
 $("logout").onclick=()=>b.signOut(auth);
 }catch(e){allowed=false;permission();status("Firebase 설정 오류",false)}}
