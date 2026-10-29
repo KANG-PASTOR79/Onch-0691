@@ -32,7 +32,7 @@ input:focus{outline:2px solid #dbbc82;outline-offset:1px}
  </section>
  <section class="card">
   <h2>1 · 제출자 정보 확인</h2>
-  <p class="muted">이 정보는 목사님께 자동 전송되거나 서버에 저장되지 않습니다. 파일 이름을 정확히 만드는 데만 사용됩니다.</p>
+  <p class="muted">이름과 소속은 파일 이름을 만드는 데 사용됩니다. 아래에서 ‘제출 완료 신고’를 누르면 이 정보와 신고한 파일명이 Firebase에 비공개 저장되며 강사 화면에만 표시됩니다.</p>
   <div class="formgrid">
    <div><label for="submitName">이름</label><input id="submitName" type="text" maxlength="35" placeholder="예: 홍길동" autocomplete="name"></div>
    <div><label for="submitChurch">교회 · 소속</label><input id="submitChurch" type="text" maxlength="45" placeholder="예: 창원온천교회" autocomplete="organization"></div>
@@ -56,31 +56,84 @@ input:focus{outline:2px solid #dbbc82;outline-offset:1px}
   <div class="step"><b>③</b><p>아래 버튼으로 MEGA 파일 요청 페이지를 엽니다. 업로드 과정에서 이름을 묻는 경우 실제 제출자 이름을 적습니다.</p></div>
   <a class="cta" id="megaLink" href="https://mega.nz/filerequest/MwN2xydC7XQ" target="_blank" rel="noopener noreferrer">↗ MEGA에 실습 결과물 제출하기</a>
   <p class="smallNote">새 탭에서 MEGA 사이트가 열립니다. 파일을 실제로 업로드하고 MEGA의 완료 안내를 확인해야 제출이 끝납니다.</p>
-  <p class="smallNote">GOD119는 업로드 파일을 보관하거나 제출 완료 여부를 자동 확인하지 않습니다. 파일은 MEGA에 저장되고 강사가 MEGA 폴더에서 확인합니다.</p>
+  <p class="smallNote">GOD119는 업로드 파일을 보관하거나 MEGA의 실제 파일 수신을 자동 확인하지 않습니다. 업로드 후 아래에서 신고하면 강사 현황판에 ‘미확인 신고’로 표시되고, 강사가 MEGA에서 확인한 뒤 ‘수신 확인 완료’로 변경합니다.</p>
+ </section>
+ <section class="card" id="reportSection">
+  <h2>3 · MEGA 업로드 완료 신고</h2>
+  <p>MEGA에서 파일 업로드를 마치고 완료 안내를 확인한 경우에만 아래 체크 후 신고해 주세요.</p>
+  <label class="flex" style="align-items:flex-start"><input id="uploadConfirmed" type="checkbox" style="width:19px;min-width:19px;min-height:19px;margin-top:4px"> <span><strong>MEGA 업로드 완료 화면을 직접 확인했습니다.</strong><br><span class="smallNote">이름·교회·파일 종류·신고 파일명이 강사에게 전달됩니다. 실제 업로드 여부는 강사가 별도로 확인합니다.</span></span></label>
+  <div class="actions"><button id="reportButton" type="button" class="primary" disabled>강사에게 제출 완료 알리기</button></div>
+  <p class="smallNote" id="reportStatus" role="status" aria-live="polite">이름과 교회·소속을 입력하고 업로드 완료를 체크하세요. 신고에는 Firebase 익명 인증이 사용됩니다.</p>
+  <p class="smallNote">신고하기 버튼을 누르면 MEGA의 실제 업로드가 자동 확인되는 것은 아닙니다. 이름을 바꾸거나 다른 기기로 신고하면 중복될 수 있습니다.</p>
  </section>
  <section class="card">
-  <h2>3 · 제출 전 확인</h2>
+  <h2>4 · 제출 전 확인</h2>
   <p>파일명에 <strong>이름·교회명·실습결과</strong>가 있는지, 파일 크기가 권장 용량 이내인지 확인해 주세요. 파일 업로드에 문제가 있으면 강사에게 알려주세요.</p>
   <a href="./">강의 화면으로 돌아가기</a>
  </section>
  <footer>GOD119 · AI 목회자 세미나 | 외부 클라우드 MEGA 파일 요청 사용</footer>
 </main>
-<script>
-(function(){
- const byId=id=>document.getElementById(id);
- const name=byId("submitName"),church=byId("submitChurch"),kind=byId("submitKind"),display=byId("suggestedName");
- function clean(t){return t.trim().replace(/[\\/:*?"<>|\u0000-\u001F]/g,"").replace(/\s+/g,"_").slice(0,50)}
- function filename(){return (clean(name.value)||"이름")+"_"+(clean(church.value)||"교회명")+"_실습결과"+kind.value}
- function update(){display.textContent=filename()}
- [name,church,kind].forEach(el=>el.addEventListener("input",update));
- byId("copyFilename").addEventListener("click",async()=>{
-  const value=filename(),feedback=byId("copyFeedback");
-  if(!clean(name.value)||!clean(church.value)){feedback.textContent="먼저 이름과 교회·소속을 입력해 주세요.";return}
-  try{await navigator.clipboard.writeText(value);feedback.textContent="복사했습니다. 실제 파일명을 변경하고 확장자는 원본 형식에 맞춰 유지하세요."}
-  catch(_){feedback.textContent="복사가 안 되면 위 파일명을 직접 선택하여 복사하세요."}
- });
- update();
-})();
+<script src="./config.js"></script>
+<script type="module">
+const $=id=>document.getElementById(id),name=$("submitName"),church=$("submitChurch"),kind=$("submitKind"),display=$("suggestedName");
+const conf=window.GOD119_CONFIG?.firebase||{},configured=!!(conf.apiKey&&conf.projectId&&conf.authDomain&&conf.databaseURL&&conf.appId);
+let auth=null,db=null,a=null,d=null,ready=false,watch=null;
+function clean(t){return String(t).trim().replace(/[\\/:*?"<>|\u0000-\u001F]/g,"").replace(/\s+/g,"_").slice(0,50)}
+function filename(){return(clean(name.value)||"이름")+"_"+(clean(church.value)||"교회명")+"_실습결과"+kind.value}
+function reportKind(){return kind.value===".mp4"?"mp4":kind.value===".pdf"?"pdf":kind.value===".txt"?"text":"image"}
+function update(){
+ display.textContent=filename();
+ $("reportButton").disabled=!ready||!name.value.trim()||!church.value.trim()||!$("uploadConfirmed").checked;
+}
+[name,church,kind,$("uploadConfirmed")].forEach(el=>el.addEventListener("input",update));
+$("copyFilename").onclick=async()=>{
+ const feedback=$("copyFeedback");
+ if(!clean(name.value)||!clean(church.value)){feedback.textContent="먼저 이름과 교회·소속을 입력해 주세요.";return}
+ try{await navigator.clipboard.writeText(filename());feedback.textContent="복사했습니다. 실제 파일명을 변경하고 확장자는 원본 형식에 맞춰 유지하세요."}
+ catch(e){feedback.textContent="복사가 안 되면 위 파일명을 직접 선택하여 복사하세요."}
+};
+function msg(message,isError=false){$("reportStatus").textContent=message;$("reportStatus").className=isError?"error":"smallNote"}
+function ownRecord(user){
+ if(watch){watch();watch=null}
+ if(!user||!db||!d)return;
+ watch=d.onValue(d.ref(db,"submissions/god119-seminar/"+user.uid),snap=>{
+  const data=snap.val();
+  if(!data?.report)return;
+  const text=data.review?.checked===true?"강사님이 MEGA 파일 수신을 확인했습니다.":"제출 신고가 접수되었습니다. 강사님의 MEGA 파일 확인을 기다리는 중입니다.";
+  msg(text+" (신고: "+String(data.report.name||"")+" / "+String(data.report.church||"")+")");
+ },error=>msg("제출 신고 확인 권한이 없습니다. Firebase 데이터베이스 보안 규칙 게시 여부를 확인해 주세요.",true));
+}
+async function connect(){
+ if(!configured){msg("현재 Firebase 연결 설정이 없어 제출 완료 신고 기능을 사용할 수 없습니다.",true);return}
+ try{
+  const host="https://www.gstatic.com/firebasejs/11.10.0/";
+  const [app,authentication,database]=await Promise.all([import(host+"firebase-app.js"),import(host+"firebase-auth.js"),import(host+"firebase-database.js")]);
+  a=authentication;d=database;auth=a.getAuth(app.initializeApp(conf));db=d.getDatabase();
+  ready=true;update();
+  msg("MEGA 업로드 후 정보를 입력하고 '제출 완료 알리기'를 눌러주세요.");
+  a.onAuthStateChanged(auth,user=>{ownRecord(user)});
+ }catch(e){msg("Firebase 연결에 실패했습니다. 인터넷 연결 후 새로고침하세요.",true)}
+}
+$("reportButton").onclick=async()=>{
+ if(!ready||!name.value.trim()||!church.value.trim()||!$("uploadConfirmed").checked)return;
+ const report={name:name.value.trim().slice(0,35),church:church.value.trim().slice(0,45),kind:reportKind(),fileName:filename().slice(0,140),at:d.serverTimestamp()};
+ const button=$("reportButton");button.disabled=true;
+ msg("제출 신고를 전송하고 있습니다…");
+ try{
+  // Only the participant's anonymous Firebase UID can write this person's report.
+  // If already signed in with a Google account, keep that session instead of replacing it.
+  let user=auth.currentUser;
+  if(!user)user=(await a.signInAnonymously(auth)).user;
+  await d.set(d.ref(db,"submissions/god119-seminar/"+user.uid+"/report"),report);
+  msg("제출 신고가 강사에게 전달되었습니다. 실제 파일 확인은 강사님이 MEGA에서 진행합니다.");
+ }catch(e){
+  const errorCode=String(e?.code||"");
+  msg(errorCode.includes("operation-not-allowed")?
+   "Firebase에서 익명 로그인이 비활성화되어 있습니다. 강사에게 알려주세요.":
+   "제출 신고 전송에 실패했습니다. Firebase의 익명 로그인 및 제출 보안 규칙 설정을 확인하고 다시 시도하세요.",true);
+ }finally{update()}
+};
+update();connect();
 </script>
 </body>
 </html>
