@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#081525">
+<title>GOD119 | 실습 결과물 제출 안내</title>
+<link rel="stylesheet" href="./submission-style.css">
+<style>
+.step{display:flex;align-items:flex-start;gap:12px;margin:15px 0}
+.step b{flex:0 0 32px;width:32px;height:32px;display:grid;place-items:center;border-radius:50%;background:#365e79;color:#fff}
+.step p{margin:1px 0 0}
+.filename{border:1px solid #486987;background:#0a1e33;border-radius:10px;padding:14px;margin:11px 0;word-break:break-all;font-weight:700;color:#f3c886}
+.cta{display:block;text-align:center;background:linear-gradient(110deg,#f7d48f,#f0ae56);color:#18283a!important;text-decoration:none;font-weight:800;padding:15px 16px;border-radius:12px;margin:17px 0 6px}
+.smallNote{font-size:12px;color:#bbcbdb}
+input:focus{outline:2px solid #dbbc82;outline-offset:1px}
+</style>
+</head>
+<body>
+<header>
+ <div><span class="logo">GOD119</span><span class="sublogo">AI MINISTRY SEMINAR · 실습 제출함</span></div>
+ <nav><a href="./">← 강의 화면으로 돌아가기</a></nav>
+</header>
+<main>
+ <h1>실습 결과물 제출</h1>
+ <p class="muted">세미나에서 완성한 이미지 · PDF · TXT · MP4 파일을 목사님께 제출하는 안내 페이지입니다.</p>
+ <section class="card notice">
+  <strong>무료 클라우드 제출 안내</strong>
+  <p>1인당 파일 1개, 200MB 이하를 권장합니다. MEGA 무료 저장 공간에는 현재 15GB 한도가 표시되어 있습니다. <b>200MB 제한은 안내 사항이며, MEGA에서 자동 차단되지 않습니다.</b> 필요한 경우 여러 파일을 압축하여 1개로 제출해 주세요.</p>
+  <p>파일 요청 링크를 가진 누구나 업로드할 수 있습니다. 개인정보, 비밀번호, 교인 명단 등 민감한 내용은 포함하지 마세요.</p>
+ </section>
+ <section class="card">
+  <h2>1 · 제출자 정보 확인</h2>
+  <p class="muted">이 정보는 목사님께 자동 전송되거나 서버에 저장되지 않습니다. 파일 이름을 정확히 만드는 데만 사용됩니다.</p>
+  <div class="formgrid">
+   <div><label for="submitName">이름</label><input id="submitName" type="text" maxlength="35" placeholder="예: 홍길동" autocomplete="name"></div>
+   <div><label for="submitChurch">교회 · 소속</label><input id="submitChurch" type="text" maxlength="45" placeholder="예: 창원온천교회" autocomplete="organization"></div>
+  </div>
+  <label for="submitKind">파일 종류</label>
+  <select id="submitKind">
+   <option value=".pdf">PDF 문서 (.pdf)</option>
+   <option value=".jpg">이미지 (.jpg / .png 등)</option>
+   <option value=".txt">텍스트 (.txt / .md)</option>
+   <option value=".mp4">동영상 (.mp4)</option>
+  </select>
+  <p style="margin-top:15px;font-weight:750">권장 파일 이름</p>
+  <div class="filename" id="suggestedName" aria-live="polite">이름_교회명_실습결과.pdf</div>
+  <div class="actions"><button id="copyFilename" type="button">권장 파일명 복사</button></div>
+  <p class="smallNote" id="copyFeedback" aria-live="polite">실제 파일의 확장자는 원본 형식에 맞게 유지하세요. 예: PNG 사진은 .png, 마크다운은 .md</p>
+ </section>
+ <section class="card">
+  <h2>2 · MEGA 제출 페이지로 이동</h2>
+  <div class="step"><b>①</b><p>컴퓨터 또는 태블릿에 저장된 실습 결과물 파일을 준비합니다.</p></div>
+  <div class="step"><b>②</b><p>위 권장 파일명으로 <strong>실제 파일을 이름 변경</strong>합니다. 복사 버튼은 이름 텍스트만 복사하며 파일을 자동 변경하지 않습니다.</p></div>
+  <div class="step"><b>③</b><p>아래 버튼으로 MEGA 파일 요청 페이지를 엽니다. 업로드 과정에서 이름을 묻는 경우 실제 제출자 이름을 적습니다.</p></div>
+  <a class="cta" id="megaLink" href="https://mega.nz/filerequest/MwN2xydC7XQ" target="_blank" rel="noopener noreferrer">↗ MEGA에 실습 결과물 제출하기</a>
+  <p class="smallNote">새 탭에서 MEGA 사이트가 열립니다. 파일을 실제로 업로드하고 MEGA의 완료 안내를 확인해야 제출이 끝납니다.</p>
+  <p class="smallNote">GOD119는 업로드 파일을 보관하거나 제출 완료 여부를 자동 확인하지 않습니다. 파일은 MEGA에 저장되고 강사가 MEGA 폴더에서 확인합니다.</p>
+ </section>
+ <section class="card">
+  <h2>3 · 제출 전 확인</h2>
+  <p>파일명에 <strong>이름·교회명·실습결과</strong>가 있는지, 파일 크기가 권장 용량 이내인지 확인해 주세요. 파일 업로드에 문제가 있으면 강사에게 알려주세요.</p>
+  <a href="./">강의 화면으로 돌아가기</a>
+ </section>
+ <footer>GOD119 · AI 목회자 세미나 | 외부 클라우드 MEGA 파일 요청 사용</footer>
+</main>
+<script>
+(function(){
+ const byId=id=>document.getElementById(id);
+ const name=byId("submitName"),church=byId("submitChurch"),kind=byId("submitKind"),display=byId("suggestedName");
+ function clean(t){return t.trim().replace(/[\\/:*?"<>|\u0000-\u001F]/g,"").replace(/\s+/g,"_").slice(0,50)}
+ function filename(){return (clean(name.value)||"이름")+"_"+(clean(church.value)||"교회명")+"_실습결과"+kind.value}
+ function update(){display.textContent=filename()}
+ [name,church,kind].forEach(el=>el.addEventListener("input",update));
+ byId("copyFilename").addEventListener("click",async()=>{
+  const value=filename(),feedback=byId("copyFeedback");
+  if(!clean(name.value)||!clean(church.value)){feedback.textContent="먼저 이름과 교회·소속을 입력해 주세요.";return}
+  try{await navigator.clipboard.writeText(value);feedback.textContent="복사했습니다. 실제 파일명을 변경하고 확장자는 원본 형식에 맞춰 유지하세요."}
+  catch(_){feedback.textContent="복사가 안 되면 위 파일명을 직접 선택하여 복사하세요."}
+ });
+ update();
+})();
+</script>
+</body>
+</html>
