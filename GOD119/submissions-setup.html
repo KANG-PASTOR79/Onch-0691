@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>GOD119 | 실습 제출 보안 설정</title>
+<link rel="stylesheet" href="./submission-style.css">
+<style>pre{max-height:330px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;background:#07182a;padding:14px;border-radius:10px;font-size:11px}
+code{font-size:12px}.warn{color:#ffdfa3}.help{padding:11px 13px;border:1px solid #58748c;border-radius:10px;margin:12px 0}
+.steps{counter-reset:step}.steps li{padding:5px;margin:9px 0}.secret{max-width:600px}button{min-height:43px}
+</style></head>
+<body>
+<header><div><span class="logo">GOD119</span><span class="sublogo">실습 제출 신고 · Firebase 보안 설정</span></div><a href="./submissions-admin.html">현황판으로 돌아가기</a></header>
+<main>
+ <h1>실습 제출 개인정보 보호 설정</h1>
+ <p class="muted">이 페이지는 초기 설정 안내입니다. GitHub 사이트에 UID나 개인정보를 저장하지 않으며, 보안 규칙은 목사님이 Firebase 콘솔에서 직접 게시해야 적용됩니다.</p>
+ <section class="card notice">
+  <strong>현재 데이터베이스 규칙을 반드시 보존하세요.</strong>
+  <p>아래 설정은 기존 슬라이드·판서 접근 권한을 유지하고 별도의 비공개 ‘실습 신고’ 경로를 추가한 전체 규칙 예시입니다. Firebase에서 기존 규칙을 먼저 복사해 보관한 뒤 적용하세요. 기존 규칙을 별도로 변경했다면 그대로 덮어쓰지 말고 두 설정을 병합해야 합니다.</p>
+ </section>
+ <section class="card">
+  <h2>1 · 참석자용 익명 인증 활성화</h2>
+  <ol class="steps">
+   <li><a href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer">Firebase 콘솔</a> → <strong>GOD119</strong> 프로젝트를 엽니다.</li>
+   <li><strong>Authentication → 로그인 방법(Sign-in method)</strong>으로 이동합니다.</li>
+   <li><strong>익명(Anonymous)</strong> 제공업체를 <strong>사용 설정</strong>하고 저장합니다.</li>
+  </ol>
+  <p class="muted">참석자는 Google 로그인을 요구받지 않습니다. Firebase가 임시 익명 UID로 자신의 신고만 저장·조회하게 됩니다. 동일 계정으로 신고한 내용만 다시 볼 수 있습니다.</p>
+ </section>
+ <section class="card">
+  <h2>2 · 강사 전용 UID 입력 및 규칙 만들기</h2>
+  <p>기존 GOD119 강사 화면에 Google 로그인 후 표시되는 <strong>내 UID</strong>를 복사해 아래 칸에 붙여넣으세요.</p>
+  <label for="uid">강사 Firebase UID</label>
+  <input id="uid" class="secret" type="text" maxlength="128" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="강사 화면에서 내 UID 복사">
+  <p class="smallNote">이 UID는 이 페이지에서 규칙 코드를 만들 때만 사용합니다. GitHub로 전송하거나 웹사이트에 저장하지 않습니다.</p>
+  <div class="actions"><button type="button" id="build" class="primary">전체 규칙 생성</button><button type="button" id="copy" disabled>생성된 규칙 복사</button></div>
+  <p id="outStatus" role="status" aria-live="polite" class="muted">UID를 입력하면 규칙을 생성할 수 있습니다.</p>
+  <pre id="rules" aria-label="개인정보 보호 데이터베이스 규칙">이곳에 Firebase 보안 규칙이 표시됩니다.</pre>
+ </section>
+ <section class="card">
+  <h2>3 · Firebase Realtime Database에 규칙 게시</h2>
+  <ol>
+   <li>Firebase 프로젝트 → <strong>Realtime Database → 규칙</strong>을 엽니다.</li>
+   <li>현재 규칙을 백업한 뒤, 위에서 복사한 전체 규칙으로 바꿉니다.</li>
+   <li><strong>게시(Publish)</strong>를 눌러 저장합니다.</li>
+  </ol>
+  <p class="warn">이 단계를 끝내지 않으면 참석자 신고와 강사 현황판은 작동하지 않습니다. Google 로그인 제공업체는 그대로 유지하세요.</p>
+ </section>
+ <section class="card">
+  <h2>4 · 두 기기로 테스트</h2>
+  <ol>
+   <li><a href="./submit.html">참석자 제출 페이지</a>에서 MEGA 시험 업로드 후 완료 신고를 누릅니다.</li>
+   <li><a href="./submissions-admin.html">강사 전용 현황판</a>에 로그인한 뒤 신고가 나타나는지 확인합니다.</li>
+   <li>MEGA에 파일이 실제 도착했으면 강사 화면에서 <strong>‘MEGA 수신 확인’</strong>을 누릅니다.</li>
+   <li>참석자 화면에 ‘강사 확인 완료’가 표시되는지 확인합니다.</li>
+  </ol>
+  <p class="muted">실제 수신 자동 확인은 지원하지 않습니다. 본인 신고이며, 다른 사람의 이름으로 허위 신고하거나 여러 기기로 중복 신고할 가능성은 남아 있습니다. 실습 명단과 MEGA 파일을 대조해야 합니다.</p>
+ </section>
+</main>
+<script>
+(function(){
+ const $=id=>document.getElementById(id);let generated="";
+ const error=t=>{$("outStatus").textContent=t;$("outStatus").className="error"};
+ $("build").onclick=async()=>{
+  generated="";$("copy").disabled=true;
+  const uid=$("uid").value.trim();
+  if(!/^[A-Za-z0-9_-]{20,128}$/.test(uid)){error("Firebase UID를 다시 확인하세요. 강사 화면에 표시된 UID 전체를 입력해 주세요.");return}
+  try{
+   const response=await fetch("./firebase-rules.example.json",{cache:"no-store"});
+   if(!response.ok)throw Error("규칙 파일을 읽지 못했습니다.");
+   const source=await response.text();
+   const rules=JSON.parse(source);
+   if(!rules.rules?.submissions||!rules.rules?.rooms)throw Error("기존 강의실과 실습 신고 규칙이 모두 필요합니다.");
+   const value=source.replaceAll("REPLACE_WITH_PRESENTER_UID",uid);
+   JSON.parse(value);
+   generated=value;$("rules").textContent=value;
+   $("copy").disabled=false;$("outStatus").textContent="전체 규칙 생성 완료. 복사하여 Firebase의 Realtime Database → 규칙에서 게시하세요.";
+   $("outStatus").className="good";
+  }catch(e){error("규칙 생성 실패: "+e.message)}
+ };
+ $("copy").onclick=async()=>{
+  if(!generated)return;
+  try{await navigator.clipboard.writeText(generated);$("outStatus").textContent="규칙 복사 완료. Firebase 콘솔에서 게시해야 적용됩니다."}
+  catch(e){error("자동 복사에 실패했습니다. 아래 규칙 전체를 직접 선택하여 복사하세요.")}
+ };
+})();
+</script></body></html>
