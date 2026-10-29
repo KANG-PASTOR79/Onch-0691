@@ -112,7 +112,7 @@ function render(){
 }
 $("search").oninput=render;$("filter").onchange=render;
 $("export").onclick=()=>{
- const escapeCSV=v=>'"'+String(v??"").replaceAll('"','""')+'"';
+ const escapeCSV=v=>{const raw=String(v??"");const safe=/^\s*[=+@-]/.test(raw)?"'"+raw:raw;return '"'+safe.replaceAll('"','""')+'"'};
  const data=[["이름","교회·소속","형식","신고 파일명","신고 시각","수신 확인","확인 시각"],...rows().map(v=>[v.report.name,v.report.church,humanKind[v.report.kind]||v.report.kind,v.report.fileName,fmt(v.report.at),v.review.checked===true?"완료":"미확인",fmt(v.review.at)])];
  const csv="\ufeff"+data.map(line=>line.map(escapeCSV).join(",")).join("\r\n");
  const object=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
