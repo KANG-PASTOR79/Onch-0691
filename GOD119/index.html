@@ -5,10 +5,12 @@
 
 #penCanvas{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:contain}
 .bulk-erase{margin-top:16px;border-top:1px solid #344d69;padding-top:12px}
-.bulk-erase button{width:100%;border-color:#886a58;background:#443128;color:#ffe2cf}
-.bulk-erase button:hover{background:#5c4032}
+.bulk-erase button{border-color:#5f7691;background:#213d59;color:#e9f1ff;min-height:49px}
+.bulk-erase #clearAllStrokes{border-color:#886a58;background:#443128;color:#ffe2cf}
+.bulk-erase #clearAllStrokes:hover{background:#5c4032}
 .bulk-erase button:disabled{opacity:.5;cursor:not-allowed}
-.bulk-erase .muted{margin:8px 0 4px}
+.bulk-erase .muted{margin:8px 0}
+.bulk-erase strong{font-size:14px;color:#ffe4b8}
 .stage{-webkit-user-select:none;user-select:none}
 .submit-banner{border:1px solid #907244;background:linear-gradient(115deg,#342a1e,#173345);border-radius:13px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 15px;flex-wrap:wrap}.submit-banner strong{font-size:16px;color:#ffe1aa}.submit-banner p{color:#cedbea;font-size:12px;margin:4px 0 0}.submit-button{display:inline-block;text-decoration:none;background:#f0be72;color:#12253a;font-weight:850;padding:12px 16px;border-radius:10px;white-space:nowrap;min-height:43px}.submit-button:hover{background:#ffe0a0}.submit-teacher-link{display:block;text-align:center;padding:11px;border-radius:10px;background:#273f53;color:#ffe0a6;text-decoration:none;border:1px solid #607183;margin:9px 0}.submit-teacher-link:hover{background:#345269}
 
@@ -53,11 +55,15 @@
 <div class="links" id="links"></div><p class="notice" id="notice">실제 PPT 56장 이미지를 표시하도록 준비되었습니다. 슬라이드가 임시 화면으로 보인다면 이미지 56개를 GitHub의 GOD119/slides 폴더에 업로드해야 합니다. 외부 웹 링크는 열 수 있지만 강사 컴퓨터의 MP4·DOCX 파일은 별도 연결이 필요합니다.</p></section>
 <aside id="instructor" hidden><div class="card"><h3>강사 전용 제어실</h3><button id="login" class="primary">Google 계정으로 로그인</button> <button id="logout" hidden>로그아웃</button><p class="muted" id="authText">로컬 미리보기: 별도 기기와 동기화되지 않습니다.</p><p class="muted" id="uidPanel" hidden>내 UID: <code id="uid"></code> <button id="copyUid">복사</button></p></div>
 <div class="card"><h3>01 · 슬라이드</h3><div class="two"><button id="prev">← 이전</button><button class="primary" id="next">다음 →</button></div><p class="muted">슬라이드 선택</p><select id="slideSelect"></select></div>
-<div class="card"><h3>02 · 실시간 판서</h3><div class="toolbox"><button data-tool="cursor" class="active">↖ 선택</button><button data-tool="pen">✎ 펜</button><button data-tool="highlight">▰ 형광펜</button><button data-tool="eraser">⌫ 지우개</button><button data-tool="laser">◎ 포인터</button></div><div class="colors"><span class="muted">색상</span><button class="active" style="--c:#ef425f" data-color="#ef425f" aria-label="빨강"></button><button style="--c:#2e76ff" data-color="#2e76ff" aria-label="파랑"></button><button style="--c:#11ae83" data-color="#11ae83" aria-label="초록"></button><button style="--c:#ffbf32" data-color="#ffbf32" aria-label="노랑"></button></div><div class="two"><button id="undo">마지막 취소</button><button id="clear">현재 장 필기 전체 지우기</button></div>
-<div class="bulk-erase">
-<p class="muted">이전 판서 테스트 기록 정리 (9~56번)</p>
-<button type="button" id="clearTrialStrokes">9~56번 저장된 필기 한 번에 삭제</button>
-<p id="clearTrialStatus" class="muted" role="status" aria-live="polite">9~56번 슬라이드의 판서 기록만 삭제합니다. PPT 이미지와 1~8번 필기는 유지됩니다.</p>
+<div class="card"><h3>02 · 실시간 판서</h3><div class="toolbox"><button data-tool="cursor" class="active">↖ 선택</button><button data-tool="pen">✎ 펜</button><button data-tool="highlight">▰ 형광펜</button><button data-tool="eraser">⌫ 지우개</button><button data-tool="laser">◎ 포인터</button></div><div class="colors"><span class="muted">색상</span><button class="active" style="--c:#ef425f" data-color="#ef425f" aria-label="빨강"></button><button style="--c:#2e76ff" data-color="#2e76ff" aria-label="파랑"></button><button style="--c:#11ae83" data-color="#11ae83" aria-label="초록"></button><button style="--c:#ffbf32" data-color="#ffbf32" aria-label="노랑"></button></div><div class="two"><button id="undo">마지막 필기 취소</button></div>
+<div class="bulk-erase" aria-label="판서 관리">
+<strong>판서 관리</strong>
+<p class="muted">판서는 각 슬라이드에 따로 저장됩니다. 다른 장으로 이동해도 필기가 겹쳐 보이지 않습니다.</p>
+<div class="two">
+<button type="button" id="clear">현재 슬라이드 판서 지우기</button>
+<button type="button" id="clearAllStrokes">전체 56장 판서 일괄 지우기</button>
+</div>
+<p id="clearAllStatus" class="muted" role="status" aria-live="polite">일괄 지우기는 1~56번 전체의 판서만 삭제합니다. PPT 이미지와 출석·실습 정보는 유지됩니다.</p>
 </div></div>
 <div class="card"><h3>03 · 참석자 초대</h3><p class="muted">참석자에게 아래 주소만 공유하세요.</p><div class="two"><input id="publicLink" readonly><button id="shareCopy" class="primary">복사</button></div><p class="muted">강사 권한은 Firebase 로그인과 DB 보안 규칙으로 보호됩니다.</p><p class="muted"><a href="./setup.html" target="_blank" rel="noopener noreferrer" style="color:#ffd69b">↗ 실시간 연결 설정 안내 열기</a></p></div>
 <div class="card"><h3>04 · 출석·실습 현황</h3>
@@ -76,6 +82,7 @@ const teacher=params.get("teacher")==="1", conf=(window.GOD119_CONFIG&&window.GO
 const configured=!!(conf.apiKey&&conf.projectId&&conf.databaseURL&&conf.authDomain&&conf.appId);
 const audience=location.origin+location.pathname+"?room="+room;
 let slide=1, tool="cursor", color="#ef425f", strokes={},drawing=null,db=null,F=null,auth=null,user=null,allowed=teacher&&!configured,unsubscribe=null,laserTimeout=0,lastPush=0,lastPointer=0,seq=0;
+let boundSlide=null,subscriptionEpoch=0,clearingStrokes=false;
 let authAPI=null,attendanceUnsubscribe=null,attendeeProfile=null,attendanceSaveBusy=false;
 const slideResources={
 3:[{label:"경남일보 기사",url:"https://www.gnnews.co.kr/news/articleView.html?idxno=177660",rect:[6.875,38.333,28.594,24.514]},{label:"교회 자료 사이트",url:"https://www.mgchurch.or.kr/bbs/board.php?bo_table=church65&wr_id=567&page=25&frame=2",rect:[7.289,20.472,26.531,6.722]}],
@@ -149,7 +156,7 @@ function status(s,ok){$("status").textContent=(ok?"● ":"○ ")+s;$("status").s
 async function copy(s){try{await navigator.clipboard.writeText(s);notify("복사했습니다.")}catch(e){notify("주소를 선택하여 복사해 주세요.")}}
 $("copyLink").onclick=()=>copy(audience);$("shareCopy").onclick=()=>copy(audience);$("copyUid").onclick=()=>copy(user?user.uid:"");
 $("fullscreen").onclick=()=>{document.fullscreenElement?document.exitFullscreen():$("stage").requestFullscreen().catch(()=>notify("전체화면을 열 수 없습니다."))};
-function permission(){["prev","next","slideSelect","undo","clear","clearTrialStrokes"].forEach(id=>$(id).disabled=!allowed);document.querySelectorAll("[data-tool],[data-color]").forEach(e=>e.disabled=!allowed);$("login").hidden=!configured||!!user;$("logout").hidden=!user;$("uidPanel").hidden=!user;if(user)$("uid").textContent=user.uid;$("authText").textContent=!configured?"로컬 시연만 가능합니다. Firebase 연결 후 실제 동기화됩니다.":user?"로그인 완료. DB 규칙에 등록된 강사만 방송할 수 있습니다.":"강사 Google 로그인 필요";pick(tool)}
+function permission(){["prev","next","slideSelect","undo","clear","clearAllStrokes"].forEach(id=>$(id).disabled=!allowed||clearingStrokes);document.querySelectorAll("[data-tool],[data-color]").forEach(e=>e.disabled=!allowed);$("login").hidden=!configured||!!user;$("logout").hidden=!user;$("uidPanel").hidden=!user;if(user)$("uid").textContent=user.uid;$("authText").textContent=!configured?"로컬 시연만 가능합니다. Firebase 연결 후 실제 동기화됩니다.":user?"로그인 완료. DB 규칙에 등록된 강사만 방송할 수 있습니다.":"강사 Google 로그인 필요";pick(tool)}
 function pick(t){tool=t;document.querySelectorAll("[data-tool]").forEach(e=>e.classList.toggle("active",e.dataset.tool===t));canvas.style.pointerEvents=allowed&&t!=="cursor"?"auto":"none";$("laser").hidden=true}
 document.querySelectorAll("[data-tool]").forEach(e=>e.onclick=()=>pick(e.dataset.tool));
 document.querySelectorAll("[data-color]").forEach(e=>e.onclick=()=>{color=e.dataset.color;document.querySelectorAll("[data-color]").forEach(b=>b.classList.toggle("active",e===b))});
@@ -157,17 +164,29 @@ function remote(p){return "rooms/"+room+"/"+p}
 async function send(p,val){if(!db||!F)return;try{await F.set(F.ref(db,remote(p)),val)}catch(e){notify("전송 권한이 없습니다. Firebase 규칙을 확인하세요.")}}
 function localKey(){return "god119-demo-slide-"+slide}
 function binding(){
+ // A slide keeps only its own strokes. Discard old subscriptions and clear the canvas
+ // before loading the next slide so notes never appear on an adjacent slide.
+ const newSlide=slide;
+ if(boundSlide!==null&&boundSlide!==newSlide){
+  if(drawing){push(true);drawing=null}
+  activePointer=null;
+  $("laser").hidden=true;
+ }
+ const epoch=++subscriptionEpoch;
  if(unsubscribe){unsubscribe();unsubscribe=null}
+ boundSlide=newSlide;
+ strokes={};
+ redraw();
  if(db){
-  strokes={};
-  const r=F.ref(db,remote("strokes/"+slide));
+  const r=F.ref(db,remote("strokes/"+newSlide));
+  const isCurrent=()=>epoch===subscriptionEpoch&&slide===newSlide&&!clearingStrokes;
   const changed=s=>{
-   // Prevent echoed Firebase updates from interrupting local Apple Pencil drawing.
+   if(!isCurrent())return;
    if(allowed&&drawing&&s.key===drawing.id)return;
-   strokes[s.key]=s.val();
+   if(s.val()==null)delete strokes[s.key];else strokes[s.key]=s.val();
    scheduleRedraw();
   };
-  const removed=s=>{delete strokes[s.key];scheduleRedraw()};
+  const removed=s=>{if(!isCurrent())return;delete strokes[s.key];scheduleRedraw()};
   const listeners=[
    F.onChildAdded(r,changed),
    F.onChildChanged(r,changed),
@@ -270,22 +289,23 @@ function acceptPen(e){
  if(penPrefs.palm&&e.pointerType==="touch"&&(Date.now()-lastPenSeenAt<3500||!e.isPrimary))return false;
  return true;
 }
-function newStroke(pt){return {id:"s"+Date.now()+"-"+(++seq),tool,color,at:Date.now(),size:penPrefs.size,sensitivity:penPrefs.sensitivity,tiltBoost:penPrefs.tiltBoost,smooth:penPrefs.smooth,usePressure:penPrefs.usePressure,points:[pt]}}
+function newStroke(pt){return {id:"s"+Date.now()+"-"+(++seq),slide,tool,color,at:Date.now(),size:penPrefs.size,sensitivity:penPrefs.sensitivity,tiltBoost:penPrefs.tiltBoost,smooth:penPrefs.smooth,usePressure:penPrefs.usePressure,points:[pt]}}
 
 function push(force=false){
- if(!drawing)return;
- strokes[drawing.id]=drawing;
+ if(!drawing||clearingStrokes)return;
+ // A drawing belongs to the slide on which it began, even if a slide changes mid-stroke.
+ const s=drawing,strokeSlide=s.slide;
+ if(strokeSlide!==slide)return;
+ strokes[s.id]=s;
  if(!db){if(force)saveLocal();return}
  const now=Date.now();
- // Pencil stays local/instant; network updates are less frequent to support 60 viewers.
  if(!force&&now-lastPush<150)return;
  lastPush=now;
- const s=drawing;
- send("strokes/"+slide+"/"+s.id,{id:s.id,tool:s.tool,color:s.color,at:s.at,points:s.points.slice(),size:s.size,sensitivity:s.sensitivity,tiltBoost:s.tiltBoost,usePressure:s.usePressure});
+ send("strokes/"+strokeSlide+"/"+s.id,{id:s.id,tool:s.tool,color:s.color,at:s.at,points:s.points.slice(),size:s.size,sensitivity:s.sensitivity,tiltBoost:s.tiltBoost,usePressure:s.usePressure});
 }
 function laser(p,on){$("laser").hidden=!on;if(on){$("laser").style.left=p[0]*100+"%";$("laser").style.top=p[1]*100+"%"}if(db)send("pointer",{x:p[0],y:p[1],active:on,at:Date.now()})}
 canvas.onpointerdown=e=>{
- if(!allowed||tool==="cursor"||!acceptPen(e))return;
+ if(!allowed||clearingStrokes||tool==="cursor"||!acceptPen(e))return;
  if(activePointer!==null)return;
  e.preventDefault();
  activePointer=e.pointerId;
@@ -303,7 +323,7 @@ canvas.onpointerdown=e=>{
  push(true);
 };
 canvas.onpointermove=e=>{
- if(!allowed||activePointer!==e.pointerId)return;
+ if(!allowed||clearingStrokes||activePointer!==e.pointerId)return;
  if(e.pointerType==="pen")lastPenSeenAt=Date.now();
  const now=Date.now();
  if(tool==="laser"){if(now-lastPointer>80){lastPointer=now;laser(xy(e),true)}return}
@@ -334,27 +354,54 @@ function end(e){
  activePointer=null;
 }
 canvas.onpointerup=end;canvas.onpointercancel=end;
-$("undo").onclick=()=>{if(!allowed)return;const sorted=Object.entries(strokes).sort((a,b)=>a[1].at-b[1].at);if(!sorted.length)return;const id=sorted.at(-1)[0];delete strokes[id];redraw();saveLocal();if(db)send("strokes/"+slide+"/"+id,null)};
-$("clear").onclick=()=>{if(!allowed||!confirm("현재 슬라이드 필기를 모두 지울까요?"))return;strokes={};redraw();saveLocal();if(db)send("strokes/"+slide,null)};
-$("clearTrialStrokes").onclick=async()=>{
- if(!teacher||!allowed||!auth?.currentUser||!db||!F){
-  $("clearTrialStatus").textContent="강사 Google 로그인과 Firebase 연결을 확인해 주세요.";
-  return;
- }
- if(!confirm("9번부터 56번까지 총 48장의 기존 판서 기록을 모두 삭제합니다.\n\n사진·슬라이드 이미지는 삭제되지 않으며, 1~8번의 필기는 유지됩니다.\n\n판서 삭제는 되돌릴 수 없습니다. 계속하시겠습니까?"))return;
- const button=$("clearTrialStrokes");button.disabled=true;
- $("clearTrialStatus").textContent="9~56번의 저장된 판서를 삭제하고 있습니다…";
+$("undo").onclick=()=>{
+ if(!allowed||clearingStrokes)return;
+ const sorted=Object.entries(strokes).sort((a,b)=>a[1].at-b[1].at);
+ if(!sorted.length)return;
+ const id=sorted.at(-1)[0],page=slide;
+ delete strokes[id];redraw();saveLocal();
+ if(db)send("strokes/"+page+"/"+id,null);
+};
+$("clear").onclick=async()=>{
+ if(!allowed||clearingStrokes)return;
+ const page=slide;
+ if(!confirm(page+"번 슬라이드의 판서만 모두 지울까요?\\n다른 장의 필기와 PPT 이미지는 유지됩니다."))return;
+ clearingStrokes=true;permission();
+ if(drawing){drawing=null;activePointer=null}
  try{
-  const deletes={};
-  for(let n=9;n<=56;n++)deletes[String(n)]=null;
-  await F.update(F.ref(db,remote("strokes")),deletes);
-  if(slide>=9){strokes={};redraw();}
-  $("clearTrialStatus").textContent="삭제 완료: 9~56번 판서 기록을 초기화했습니다. 1~8번 필기와 PPT 이미지는 그대로입니다.";
-  notify("9~56번 테스트 판서 삭제 완료");
+  if(db&&F){
+   await F.remove(F.ref(db,remote("strokes/"+page)));
+  }else{
+   localStorage.removeItem("god119-demo-slide-"+page);
+  }
+  if(slide===page){strokes={};redraw()}
+  $("clearAllStatus").textContent=page+"번 슬라이드 판서 삭제 완료. 다른 페이지는 유지됩니다.";
  }catch(e){
-  $("clearTrialStatus").textContent="삭제에 실패했습니다. 강사 Firebase 로그인 및 데이터베이스 권한을 확인하세요.";
-  notify("판서 삭제 실패 · Firebase 권한을 확인하세요");
- }finally{button.disabled=!allowed}
+  $("clearAllStatus").textContent=page+"번 판서 삭제 실패. Firebase 권한을 확인해 주세요.";
+ }finally{clearingStrokes=false;permission();if(slide===page)binding()}
+};
+$("clearAllStrokes").onclick=async()=>{
+ if(!teacher||!allowed||clearingStrokes)return;
+ if(!confirm("1번부터 56번까지 저장된 판서를 전부 삭제합니다.\\n\\n이 작업은 되돌릴 수 없습니다.\\nPPT 슬라이드 이미지와 출석·실습 기록은 유지됩니다.\\n\\n전체 판서를 삭제하시겠습니까?"))return;
+ if(!confirm("마지막 확인: 모든 56장의 필기 기록을 삭제할까요?"))return;
+ clearingStrokes=true;permission();
+ const button=$("clearAllStrokes");
+ $("clearAllStatus").textContent="전체 슬라이드 판서를 삭제하고 있습니다…";
+ if(drawing){drawing=null;activePointer=null}
+ try{
+  if(db&&F){
+   await F.remove(F.ref(db,remote("strokes")));
+  }else{
+   for(let n=1;n<=56;n++)localStorage.removeItem("god119-demo-slide-"+n);
+  }
+  strokes={};redraw();
+  $("clearAllStatus").textContent="전체 판서 삭제 완료: 1~56번의 필기만 초기화했습니다. 슬라이드 이미지·출석·실습 기록은 유지됩니다.";
+  notify("전체 56장 판서 삭제 완료");
+ }catch(e){
+  $("clearAllStatus").textContent="전체 판서 삭제 실패. Firebase 로그인과 보안 규칙을 확인해 주세요.";
+ }finally{
+  clearingStrokes=false;permission();binding();
+ }
 };
 window.onkeydown=e=>{if(!teacher||!allowed||["INPUT","SELECT","TEXTAREA"].includes(document.activeElement.tagName))return;if(e.key==="ArrowRight")navigate(slide+1);if(e.key==="ArrowLeft")navigate(slide-1)};
 new ResizeObserver(fit).observe(canvas);
