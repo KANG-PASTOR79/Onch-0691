@@ -3,25 +3,6 @@
 <style>
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top left,#24426a,#091423 54%);font:15px system-ui,"Malgun Gothic",sans-serif;color:#edf5ff;min-height:100vh}header{border-bottom:1px solid #30425c;padding:14px clamp(14px,3vw,45px);display:flex;justify-content:space-between;align-items:center;gap:12px;background:#071524bd}.brand{display:flex;align-items:center;gap:13px}.logo{background:linear-gradient(135deg,#ffdb9b,#aa752f);color:#142235;border-radius:14px;padding:11px;font-weight:900;font-size:18px}.brand strong{font-size:24px;letter-spacing:.04em}.brand small{display:block;font-size:10px;color:#a4b8d6;letter-spacing:.1em}.status{font-size:12px;border:1px solid #4b6280;padding:9px;border-radius:40px;color:#f4c47d}main{max-width:1640px;margin:auto;padding:24px;display:grid;grid-template-columns:minmax(0,1fr) 325px;gap:22px}main.viewer{max-width:1370px;grid-template-columns:1fr}h1{font-size:clamp(22px,3vw,36px);margin:0 0 7px;letter-spacing:-.04em}.subtitle{font-size:13px;color:#a8b9d1;margin:0 0 20px}.gold{color:#f5bf73}.stage-wrap{border:1px solid #365673;background:#020915;padding:9px;border-radius:16px;box-shadow:0 20px 65px #0008}.stage{position:relative;aspect-ratio:16/9;background:linear-gradient(150deg,#f9fbff,#e3ebf5);overflow:hidden;border-radius:9px;color:#122c46}.slide-content{position:absolute;inset:0;padding:9%;display:flex;flex-direction:column;justify-content:center}.slide-content b{position:absolute;top:8%;font-size:clamp(9px,1vw,15px);color:#a78247;letter-spacing:.2em}.slide-content h2{font-size:clamp(22px,3.4vw,55px);letter-spacing:-.055em;line-height:1.3;margin:0 0 14px;max-width:90%}.slide-content p{font-size:clamp(11px,1.2vw,18px);color:#607083;max-width:83%}.slide-content em{font-size:clamp(20px,3.5vw,48px);font-style:normal;color:#c49e5d;font-weight:800;position:absolute;right:8%;bottom:7%}#picture{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;z-index:1}#picture[hidden]{display:none}#hotspots{position:absolute;inset:0;z-index:2;pointer-events:none}#hotspots a{position:absolute;display:block;pointer-events:auto;box-sizing:border-box;border:2px solid transparent;border-radius:5px;outline-offset:2px}#hotspots a:hover,#hotspots a:focus-visible{border-color:#ffc979;background:#f9c35922}#penCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:3;touch-action:none;pointer-events:none}#laser{position:absolute;z-index:4;width:22px;height:22px;transform:translate(-50%,-50%);border-radius:50%;background:#ff4760;box-shadow:0 0 0 12px #ff47603a,0 0 18px #f64;pointer-events:none}#laser[hidden]{display:none}.row{display:flex;gap:9px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-top:13px}.muted{color:#a6b7d1;font-size:12px;line-height:1.6}.notice{border:1px solid #735f3a;background:#302719;color:#f7d7a2;padding:13px 16px;border-radius:12px;font-size:12px;line-height:1.6;margin-top:20px}.live-note{border-color:#326252;background:#122e2b;color:#b8ead9}aside{display:flex;flex-direction:column;gap:14px}aside[hidden]{display:none}.card{background:#13263c;border:1px solid #344d67;border-radius:15px;padding:17px}.card h3{margin:0 0 12px;font-size:17px}button,select,input{font:inherit}button{border:1px solid #465d7a;border-radius:9px;padding:10px 12px;color:#edf4ff;background:#1d344e;cursor:pointer;font-size:13px;font-weight:700}button:hover:not(:disabled){border-color:#8cb1d1}button:disabled{opacity:.4;cursor:not-allowed}.primary{background:linear-gradient(120deg,#f7d18f,#e9ab54);color:#1c2d40;border-color:#ebbd74}.two{display:flex;gap:8px}.two button{flex:1}.toolbox{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.toolbox button{font-size:12px;padding:12px 4px}.toolbox .active{border-color:#f7cd80;background:#564020;color:#ffe0a4}select,input{padding:11px;border-radius:9px;background:#081c30;border:1px solid #3f5d7c;color:white;width:100%;font-size:12px}.colors{display:flex;gap:10px;align-items:center;margin:14px 0}.colors button{width:24px;height:24px;border-radius:50%;padding:0;background:var(--c);border:2px solid #ffffff90}.colors .active{outline:2px solid white;outline-offset:2px}.links a{display:inline-block;margin:10px 7px 0 0;padding:9px 12px;border:1px solid #44688c;border-radius:8px;color:#aed7ff;text-decoration:none;font-size:12px}#pop{position:fixed;left:50%;bottom:25px;transform:translateX(-50%);border-radius:11px;background:#284c69;color:white;padding:12px 17px;z-index:10;display:none;font-size:13px}@media(max-width:1060px){main{grid-template-columns:1fr}aside{display:grid;grid-template-columns:repeat(2,1fr)}}@media(max-width:650px){main{display:block;padding:13px 9px}aside{display:block}.card{margin-top:12px}header{padding:10px}.brand strong{font-size:17px}.logo{font-size:14px}.status{font-size:10px}.slide-content h2{font-size:23px}}
 
-/* Apple Pencil preferences remain only in the lecturer's browser. */
-.pencil-card{border-color:#ba9361;background:linear-gradient(145deg,#27344b,#13263c 55%)}
-.pencil-card h3{color:#ffe1ab}
-.pencil-card .pen-help{font-size:12px;color:#c1d2e9;margin:7px 0 13px;line-height:1.65}
-.pen-presets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:10px 0 17px}
-.pen-presets button{font-size:12px;padding:10px 3px}
-.pen-presets button.active{background:#67502d;border-color:#f6d096;color:#ffdfaa}
-.pen-group{margin:13px 0 15px}
-.pen-group label{display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:7px;gap:12px}
-.pen-group output{color:#ffe09a;font-weight:800;font-variant-numeric:tabular-nums}
-input[type=range].pen-range{width:100%;padding:0;border:0;background:transparent;min-height:28px;accent-color:#efbd6d;touch-action:pan-x}
-.pen-switch{display:flex;align-items:center;gap:10px;font-size:13px;margin:12px 0;cursor:pointer}
-.pen-switch input{width:19px;height:19px;min-height:19px;accent-color:#e7b76b}
-.pencil-card select{font-size:13px}
-.pen-testbox{border:1px solid #5a7189;background:#f9fbff;border-radius:10px;overflow:hidden;margin-top:11px}
-#penTest{width:100%;height:138px;display:block;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
-#penTestState{font-size:11px;color:#b8d4e9;min-height:34px;margin:8px 0}
-.pen-mini{display:flex;gap:9px;align-items:center;justify-content:space-between}
-.pen-mini button{padding:7px 11px}
 #penCanvas{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:contain}
 .stage{-webkit-user-select:none;user-select:none}
 .submit-banner{border:1px solid #907244;background:linear-gradient(115deg,#342a1e,#173345);border-radius:13px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 15px;flex-wrap:wrap}.submit-banner strong{font-size:16px;color:#ffe1aa}.submit-banner p{color:#cedbea;font-size:12px;margin:4px 0 0}.submit-button{display:inline-block;text-decoration:none;background:#f0be72;color:#12253a;font-weight:850;padding:12px 16px;border-radius:10px;white-space:nowrap;min-height:43px}.submit-button:hover{background:#ffe0a0}.submit-teacher-link{display:block;text-align:center;padding:11px;border-radius:10px;background:#273f53;color:#ffe0a6;text-decoration:none;border:1px solid #607183;margin:9px 0}.submit-teacher-link:hover{background:#345269}
@@ -68,31 +49,8 @@ input[type=range].pen-range{width:100%;padding:0;border:0;background:transparent
 <aside id="instructor" hidden><div class="card"><h3>강사 전용 제어실</h3><button id="login" class="primary">Google 계정으로 로그인</button> <button id="logout" hidden>로그아웃</button><p class="muted" id="authText">로컬 미리보기: 별도 기기와 동기화되지 않습니다.</p><p class="muted" id="uidPanel" hidden>내 UID: <code id="uid"></code> <button id="copyUid">복사</button></p></div>
 <div class="card"><h3>01 · 슬라이드</h3><div class="two"><button id="prev">← 이전</button><button class="primary" id="next">다음 →</button></div><p class="muted">슬라이드 선택</p><select id="slideSelect"></select></div>
 <div class="card"><h3>02 · 실시간 판서</h3><div class="toolbox"><button data-tool="cursor" class="active">↖ 선택</button><button data-tool="pen">✎ 펜</button><button data-tool="highlight">▰ 형광펜</button><button data-tool="eraser">⌫ 지우개</button><button data-tool="laser">◎ 포인터</button></div><div class="colors"><span class="muted">색상</span><button class="active" style="--c:#ef425f" data-color="#ef425f" aria-label="빨강"></button><button style="--c:#2e76ff" data-color="#2e76ff" aria-label="파랑"></button><button style="--c:#11ae83" data-color="#11ae83" aria-label="초록"></button><button style="--c:#ffbf32" data-color="#ffbf32" aria-label="노랑"></button></div><div class="two"><button id="undo">마지막 취소</button><button id="clear">필기 전체 지우기</button></div></div>
-<div class="card pencil-card">
-<h3>03 · Apple Pencil 필기 조절</h3>
-<p class="pen-help">아이패드를 볼펜처럼 기울여 쓰며 아래 값을 직접 조절하세요. 설정은 이 기기에 자동 저장되며, 새로운 획부터 적용됩니다.</p>
-<div class="pen-presets">
-<button type="button" data-pen-preset="ballpen" class="active">✎ 볼펜</button>
-<button type="button" data-pen-preset="natural">✦ 자연스러운 펜</button>
-<button type="button" data-pen-preset="precise">⌁ 정밀 필기</button>
-</div>
-<div class="pen-group"><label for="penSize">펜 굵기 <output id="penSizeVal">3.4</output></label><input class="pen-range" id="penSize" type="range" min="1" max="11" step="0.2" value="3.4"></div>
-<div class="pen-group"><label for="penSensitivity">필기 감도 · 약한 획 보정 <output id="penSensitivityVal">78</output></label><input class="pen-range" id="penSensitivity" type="range" min="0" max="100" step="1" value="78"></div>
-<div class="pen-group"><label for="penTilt">기울기 보정 <output id="penTiltVal">65</output></label><input class="pen-range" id="penTilt" type="range" min="0" max="100" step="1" value="65"></div>
-<div class="pen-group"><label for="penSmooth">흔들림 보정 <output id="penSmoothVal">10</output></label><input class="pen-range" id="penSmooth" type="range" min="0" max="60" step="1" value="10"></div>
-<label class="pen-switch"><input type="checkbox" id="penPressure"> 필압에 따라 굵기 변화 (볼펜은 해제 권장)</label>
-<label class="pen-switch"><input type="checkbox" id="penPalm" checked> 손바닥 터치 방지 (자동 모드)</label>
-<div class="pen-group"><label for="penInputMode">필기 입력 방식</label>
-<select id="penInputMode"><option value="auto">자동 · Apple Pencil 우선</option><option value="pen">Apple Pencil만</option><option value="all">펜 + 손가락 모두</option></select>
-</div>
-<div class="pen-mini"><strong style="font-size:13px">✍ 펜 감도 시험장</strong><button id="penTestClear" type="button">시험장 지우기</button></div>
-<div class="pen-testbox"><canvas id="penTest" width="680" height="270" aria-label="설정 시험 필기장"></canvas></div>
-<p id="penTestState" aria-live="polite">여기에 Apple Pencil로 써보세요. 이 필기는 참석자에게 전송되지 않습니다.</p>
-<div class="two"><button id="penReset" type="button">기본값으로 초기화</button><button class="primary" id="penSave" type="button">설정 저장</button></div>
-<p class="pen-help">주의: 브라우저가 인식한 필기의 굵기·반응을 보정합니다. Apple Pencil 자체의 접촉 감지 한계나 기기 불량을 소프트웨어로 변경할 수는 없습니다.</p>
-</div>
-<div class="card"><h3>04 · 참석자 초대</h3><p class="muted">참석자에게 아래 주소만 공유하세요.</p><div class="two"><input id="publicLink" readonly><button id="shareCopy" class="primary">복사</button></div><p class="muted">강사 권한은 Firebase 로그인과 DB 보안 규칙으로 보호됩니다.</p><p class="muted"><a href="./setup.html" target="_blank" rel="noopener noreferrer" style="color:#ffd69b">↗ 실시간 연결 설정 안내 열기</a></p></div>
-<div class="card"><h3>05 · 출석·실습 현황</h3>
+<div class="card"><h3>03 · 참석자 초대</h3><p class="muted">참석자에게 아래 주소만 공유하세요.</p><div class="two"><input id="publicLink" readonly><button id="shareCopy" class="primary">복사</button></div><p class="muted">강사 권한은 Firebase 로그인과 DB 보안 규칙으로 보호됩니다.</p><p class="muted"><a href="./setup.html" target="_blank" rel="noopener noreferrer" style="color:#ffd69b">↗ 실시간 연결 설정 안내 열기</a></p></div>
+<div class="card"><h3>04 · 출석·실습 현황</h3>
 <p class="muted">참석자가 MEGA에 업로드한 후 제출 완료를 신고하면 강사 전용 현황판에 실시간 반영됩니다. 실제 수신은 강사가 MEGA에서 확인 후 표시합니다.</p>
 <a class="submit-teacher-link" href="./submissions-admin.html">↗ 실시간 출석·실습 관리 현황판 열기</a>
 <a class="submit-teacher-link" href="./submissions-setup.html">↗ 제출 개인정보 보호 설정 안내</a>
@@ -126,43 +84,12 @@ function showResources(n){
  }
 }
 const canvas=$("penCanvas"),ctx=canvas.getContext("2d");
-const penTest=$("penTest"),penTestCtx=penTest.getContext("2d");
 const penSettingsKey="god119-apple-pencil-v1";
 const penDefaults=Object.freeze({size:3.4,sensitivity:78,tiltBoost:65,smooth:10,usePressure:false,palm:true,inputMode:"auto"});
-const presets={
- ballpen:{size:3.4,sensitivity:78,tiltBoost:65,smooth:10,usePressure:false,palm:true,inputMode:"auto"},
- natural:{size:4.2,sensitivity:86,tiltBoost:78,smooth:17,usePressure:true,palm:true,inputMode:"auto"},
- precise:{size:2,sensitivity:55,tiltBoost:20,smooth:0,usePressure:false,palm:true,inputMode:"auto"}
-};
 function clamp(n,min,max){return Math.max(min,Math.min(max,Number.isFinite(Number(n))?Number(n):min))}
 let penPrefs={...penDefaults};
 try{const saved=JSON.parse(localStorage.getItem(penSettingsKey)||"null");if(saved&&typeof saved==="object")penPrefs={...penDefaults,...saved}}catch(_){}
-let lastPenSeenAt=0,activePointer=null,testPointer=null,testStroke=null;
-function savePenPrefs(){try{localStorage.setItem(penSettingsKey,JSON.stringify(penPrefs))}catch(_){}}
-function readPenPrefs(){
- penPrefs.size=clamp($("penSize").value,1,11);
- penPrefs.sensitivity=clamp($("penSensitivity").value,0,100);
- penPrefs.tiltBoost=clamp($("penTilt").value,0,100);
- penPrefs.smooth=clamp($("penSmooth").value,0,60);
- penPrefs.usePressure=$("penPressure").checked;
- penPrefs.palm=$("penPalm").checked;
- penPrefs.inputMode=$("penInputMode").value;
- ["penSize","penSensitivity","penTilt","penSmooth"].forEach(id=>$(id+"Val").textContent=$(id).value);
- document.querySelectorAll("[data-pen-preset]").forEach(b=>b.classList.toggle("active",!!presets[b.dataset.penPreset]&&Object.keys(presets[b.dataset.penPreset]).every(k=>presets[b.dataset.penPreset][k]===penPrefs[k])));
- savePenPrefs();
-}
-function reflectPenPrefs(){
- for(const [key,id] of [["size","penSize"],["sensitivity","penSensitivity"],["tiltBoost","penTilt"],["smooth","penSmooth"]]){$(id).value=penPrefs[key];$(id+"Val").textContent=String(penPrefs[key])}
- $("penPressure").checked=!!penPrefs.usePressure;$("penPalm").checked=!!penPrefs.palm;$("penInputMode").value=["pen","all","auto"].includes(penPrefs.inputMode)?penPrefs.inputMode:"auto";
- document.querySelectorAll("[data-pen-preset]").forEach(b=>b.classList.toggle("active",Object.keys(presets[b.dataset.penPreset]).every(k=>presets[b.dataset.penPreset][k]===penPrefs[k])));
-}
-["penSize","penSensitivity","penTilt","penSmooth","penPressure","penPalm","penInputMode"].forEach(id=>$(id).addEventListener("input",readPenPrefs));
-document.querySelectorAll("[data-pen-preset]").forEach(b=>b.addEventListener("click",()=>{penPrefs={...presets[b.dataset.penPreset]};reflectPenPrefs();savePenPrefs();notify("필기 모드 적용 · 시험장에 써보세요.")}));
-$("penReset").onclick=()=>{penPrefs={...penDefaults};reflectPenPrefs();savePenPrefs();notify("볼펜 기본값으로 초기화했습니다.")};
-$("penSave").onclick=()=>{readPenPrefs();notify("아이패드에 필기 설정이 저장되었습니다.")};
-$("penTestClear").onclick=()=>{penTestCtx.clearRect(0,0,penTest.width,penTest.height);testStroke=null;$("penTestState").textContent="시험장이 지워졌습니다. 다시 써보세요."};
-reflectPenPrefs();
-
+let lastPenSeenAt=0,activePointer=null;
 $("instructor").hidden=!teacher;$("layout").className=teacher?"":"viewer";if(teacher)$("publicLink").value=audience;
 $("attendanceGate").hidden=teacher;$("attendanceBadge").hidden=true;
 function attMessage(text){$("attStatus").textContent=text}
@@ -333,11 +260,6 @@ function acceptPen(e){
  if(penPrefs.palm&&e.pointerType==="touch"&&(Date.now()-lastPenSeenAt<3500||!e.isPrimary))return false;
  return true;
 }
-function penDiagnostics(e){
- const who=e.pointerType==="pen"?"Apple Pencil 인식":e.pointerType==="touch"?"터치로 인식됨":"마우스로 인식됨";
- const tilt=Math.round(getTilt(e)*90),press=Math.round(clamp(e.pressure||.5,0,1)*100);
- $("penTestState").textContent=who+" · 필압 "+press+"% · 기울기 "+tilt+"° · 설정은 자동 저장됩니다.";
-}
 function newStroke(pt){return {id:"s"+Date.now()+"-"+(++seq),tool,color,at:Date.now(),size:penPrefs.size,sensitivity:penPrefs.sensitivity,tiltBoost:penPrefs.tiltBoost,smooth:penPrefs.smooth,usePressure:penPrefs.usePressure,points:[pt]}}
 
 function push(force=false){
@@ -402,30 +324,6 @@ function end(e){
  activePointer=null;
 }
 canvas.onpointerup=end;canvas.onpointercancel=end;
-// Pointer capture keeps drawing active when Apple Pencil crosses the canvas edge.
-penTest.onpointerdown=e=>{
- if(!acceptPen(e)||testPointer!==null)return;
- e.preventDefault();testPointer=e.pointerId;
- try{penTest.setPointerCapture(e.pointerId)}catch(_){}
- const p=pointFrom(e,penTest.getBoundingClientRect());
- testStroke={tool:"pen",color:"#1c426b",size:penPrefs.size,sensitivity:penPrefs.sensitivity,tiltBoost:penPrefs.tiltBoost,usePressure:penPrefs.usePressure,smooth:penPrefs.smooth,points:[p]};
- dotOn(penTestCtx,penTest.width,penTest.height,p,testStroke);
- penDiagnostics(e);
-};
-penTest.onpointermove=e=>{
- if(testPointer!==e.pointerId||!testStroke)return;
- e.preventDefault();
- const rect=penTest.getBoundingClientRect(),events=typeof e.getCoalescedEvents==="function"?e.getCoalescedEvents():[];
- for(const ev of events&&events.length?events:[e]){
-  const raw=pointFrom(ev,rect),prev=testStroke.points[testStroke.points.length-1];
-  const p=filteredPoint(prev,raw,testStroke.smooth);
-  if(Math.hypot(p[0]-prev[0],p[1]-prev[1])<.00012)continue;
-  segmentOn(penTestCtx,penTest.width,penTest.height,prev,p,testStroke);testStroke.points.push(p);
- }
- penDiagnostics(e);
-};
-function stopTest(e){if(e&&e.pointerId!==testPointer)return;testPointer=null;testStroke=null}
-penTest.onpointerup=stopTest;penTest.onpointercancel=stopTest;
 $("undo").onclick=()=>{if(!allowed)return;const sorted=Object.entries(strokes).sort((a,b)=>a[1].at-b[1].at);if(!sorted.length)return;const id=sorted.at(-1)[0];delete strokes[id];redraw();saveLocal();if(db)send("strokes/"+slide+"/"+id,null)};
 $("clear").onclick=()=>{if(!allowed||!confirm("현재 슬라이드 필기를 모두 지울까요?"))return;strokes={};redraw();saveLocal();if(db)send("strokes/"+slide,null)};
 window.onkeydown=e=>{if(!teacher||!allowed||["INPUT","SELECT","TEXTAREA"].includes(document.activeElement.tagName))return;if(e.key==="ArrowRight")navigate(slide+1);if(e.key==="ArrowLeft")navigate(slide-1)};
