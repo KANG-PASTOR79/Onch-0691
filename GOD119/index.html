@@ -295,9 +295,17 @@ function push(force=false){
  if(!drawing||clearingStrokes)return;
  // A drawing belongs to the slide on which it began, even if a slide changes mid-stroke.
  const s=drawing,strokeSlide=s.slide;
- if(strokeSlide!==slide)return;
- strokes[s.id]=s;
- if(!db){if(force)saveLocal();return}
+ if(strokeSlide===slide)strokes[s.id]=s;
+ if(!db){
+  if(force){
+   const key="god119-demo-slide-"+strokeSlide;
+   try{
+    const snapshot=JSON.parse(localStorage.getItem(key)||"{}");
+    snapshot[s.id]=s;localStorage.setItem(key,JSON.stringify(snapshot));
+   }catch(e){}
+  }
+  return;
+ }
  const now=Date.now();
  if(!force&&now-lastPush<150)return;
  lastPush=now;
@@ -365,7 +373,7 @@ $("undo").onclick=()=>{
 $("clear").onclick=async()=>{
  if(!allowed||clearingStrokes)return;
  const page=slide;
- if(!confirm(page+"번 슬라이드의 판서만 모두 지울까요?\\n다른 장의 필기와 PPT 이미지는 유지됩니다."))return;
+ if(!confirm(page+"번 슬라이드의 판서만 모두 지울까요?\n다른 장의 필기와 PPT 이미지는 유지됩니다."))return;
  clearingStrokes=true;permission();
  if(drawing){drawing=null;activePointer=null}
  try{
@@ -382,7 +390,7 @@ $("clear").onclick=async()=>{
 };
 $("clearAllStrokes").onclick=async()=>{
  if(!teacher||!allowed||clearingStrokes)return;
- if(!confirm("1번부터 56번까지 저장된 판서를 전부 삭제합니다.\\n\\n이 작업은 되돌릴 수 없습니다.\\nPPT 슬라이드 이미지와 출석·실습 기록은 유지됩니다.\\n\\n전체 판서를 삭제하시겠습니까?"))return;
+ if(!confirm("1번부터 56번까지 저장된 판서를 전부 삭제합니다.\n\n이 작업은 되돌릴 수 없습니다.\nPPT 슬라이드 이미지와 출석·실습 기록은 유지됩니다.\n\n전체 판서를 삭제하시겠습니까?"))return;
  if(!confirm("마지막 확인: 모든 56장의 필기 기록을 삭제할까요?"))return;
  clearingStrokes=true;permission();
  const button=$("clearAllStrokes");
