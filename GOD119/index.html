@@ -55,15 +55,16 @@
 <div class="links" id="links"></div><p class="notice" id="notice">실제 PPT 56장 이미지를 표시하도록 준비되었습니다. 슬라이드가 임시 화면으로 보인다면 이미지 56개를 GitHub의 GOD119/slides 폴더에 업로드해야 합니다. 외부 웹 링크는 열 수 있지만 강사 컴퓨터의 MP4·DOCX 파일은 별도 연결이 필요합니다.</p></section>
 <aside id="instructor" hidden><div class="card"><h3>강사 전용 제어실</h3><button id="login" class="primary">Google 계정으로 로그인</button> <button id="logout" hidden>로그아웃</button><p class="muted" id="authText">로컬 미리보기: 별도 기기와 동기화되지 않습니다.</p><p class="muted" id="uidPanel" hidden>내 UID: <code id="uid"></code> <button id="copyUid">복사</button></p></div>
 <div class="card"><h3>01 · 슬라이드</h3><div class="two"><button id="prev">← 이전</button><button class="primary" id="next">다음 →</button></div><p class="muted">슬라이드 선택</p><select id="slideSelect"></select></div>
-<div class="card"><h3>02 · 실시간 판서</h3><div class="toolbox"><button data-tool="cursor" class="active">↖ 선택</button><button data-tool="pen">✎ 펜</button><button data-tool="highlight">▰ 형광펜</button><button data-tool="eraser">⌫ 지우개</button><button data-tool="laser">◎ 포인터</button></div><div class="colors"><span class="muted">색상</span><button class="active" style="--c:#ef425f" data-color="#ef425f" aria-label="빨강"></button><button style="--c:#2e76ff" data-color="#2e76ff" aria-label="파랑"></button><button style="--c:#11ae83" data-color="#11ae83" aria-label="초록"></button><button style="--c:#ffbf32" data-color="#ffbf32" aria-label="노랑"></button></div><div class="two"><button id="undo">마지막 필기 취소</button></div>
+<div class="card"><h3>02 · 실시간 판서</h3><div class="toolbox"><button data-tool="cursor" class="active">↖ 선택</button><button data-tool="pen">✎ 펜</button><button data-tool="highlight">▰ 형광펜</button><button data-tool="eraser">⌫ 지우개</button><button data-tool="laser">◎ 포인터</button></div><div class="colors"><span class="muted">색상</span><button class="active" style="--c:#ef425f" data-color="#ef425f" aria-label="빨강"></button><button style="--c:#2e76ff" data-color="#2e76ff" aria-label="파랑"></button><button style="--c:#11ae83" data-color="#11ae83" aria-label="초록"></button><button style="--c:#ffbf32" data-color="#ffbf32" aria-label="노랑"></button></div><div class="two"><button id="undo" type="button" title="현재 슬라이드에서 마지막으로 그린 획 하나씩 되돌립니다.">↶ 한 획 되돌리기</button></div>
+<p class="muted">버튼을 누를 때마다 현재 슬라이드의 마지막 획 하나만 지워집니다. Mac은 ⌘Z, Windows는 Ctrl+Z도 사용할 수 있습니다.</p>
 <div class="bulk-erase" aria-label="판서 관리">
 <strong>판서 관리</strong>
 <p class="muted">판서는 각 슬라이드에 따로 저장됩니다. 다른 장으로 이동해도 필기가 겹쳐 보이지 않습니다.</p>
 <div class="two">
 <button type="button" id="clear">현재 슬라이드 판서 지우기</button>
-<button type="button" id="clearAllStrokes">전체 56장 판서 일괄 지우기</button>
+<button type="button" id="clearAllStrokes" title="전체 슬라이드에 저장된 판서를 일괄 삭제합니다.">일괄 지우기</button>
 </div>
-<p id="clearAllStatus" class="muted" role="status" aria-live="polite">일괄 지우기는 1~56번 전체의 판서만 삭제합니다. PPT 이미지와 출석·실습 정보는 유지됩니다.</p>
+<p id="clearAllStatus" class="muted" role="status" aria-live="polite">일괄 지우기는 모든 슬라이드의 판서만 삭제합니다. PPT 이미지와 출석·실습 정보는 유지됩니다.</p>
 </div></div>
 <div class="card"><h3>03 · 참석자 초대</h3><p class="muted">참석자에게 아래 주소만 공유하세요.</p><div class="two"><input id="publicLink" readonly><button id="shareCopy" class="primary">복사</button></div><p class="muted">강사 권한은 Firebase 로그인과 DB 보안 규칙으로 보호됩니다.</p><p class="muted"><a href="./setup.html" target="_blank" rel="noopener noreferrer" style="color:#ffd69b">↗ 실시간 연결 설정 안내 열기</a></p></div>
 <div class="card"><h3>04 · 출석·실습 현황</h3>
@@ -82,7 +83,8 @@ const teacher=params.get("teacher")==="1", conf=(window.GOD119_CONFIG&&window.GO
 const configured=!!(conf.apiKey&&conf.projectId&&conf.databaseURL&&conf.authDomain&&conf.appId);
 const audience=location.origin+location.pathname+"?room="+room;
 let slide=1, tool="cursor", color="#ef425f", strokes={},drawing=null,db=null,F=null,auth=null,user=null,allowed=teacher&&!configured,unsubscribe=null,laserTimeout=0,lastPush=0,lastPointer=0,seq=0;
-let boundSlide=null,subscriptionEpoch=0,clearingStrokes=false;
+let boundSlide=null,subscriptionEpoch=0,clearingStrokes=false,undoInProgress=false;
+const inFlightStrokeWrites=new Map();
 let authAPI=null,attendanceUnsubscribe=null,attendeeProfile=null,attendanceSaveBusy=false;
 const slideResources={
 3:[{label:"경남일보 기사",url:"https://www.gnnews.co.kr/news/articleView.html?idxno=177660",rect:[6.875,38.333,28.594,24.514]},{label:"교회 자료 사이트",url:"https://www.mgchurch.or.kr/bbs/board.php?bo_table=church65&wr_id=567&page=25&frame=2",rect:[7.289,20.472,26.531,6.722]}],
@@ -156,7 +158,7 @@ function status(s,ok){$("status").textContent=(ok?"● ":"○ ")+s;$("status").s
 async function copy(s){try{await navigator.clipboard.writeText(s);notify("복사했습니다.")}catch(e){notify("주소를 선택하여 복사해 주세요.")}}
 $("copyLink").onclick=()=>copy(audience);$("shareCopy").onclick=()=>copy(audience);$("copyUid").onclick=()=>copy(user?user.uid:"");
 $("fullscreen").onclick=()=>{document.fullscreenElement?document.exitFullscreen():$("stage").requestFullscreen().catch(()=>notify("전체화면을 열 수 없습니다."))};
-function permission(){["prev","next","slideSelect","undo","clear","clearAllStrokes"].forEach(id=>$(id).disabled=!allowed||clearingStrokes);document.querySelectorAll("[data-tool],[data-color]").forEach(e=>e.disabled=!allowed);$("login").hidden=!configured||!!user;$("logout").hidden=!user;$("uidPanel").hidden=!user;if(user)$("uid").textContent=user.uid;$("authText").textContent=!configured?"로컬 시연만 가능합니다. Firebase 연결 후 실제 동기화됩니다.":user?"로그인 완료. DB 규칙에 등록된 강사만 방송할 수 있습니다.":"강사 Google 로그인 필요";pick(tool)}
+function permission(){["prev","next","slideSelect","undo","clear","clearAllStrokes"].forEach(id=>$(id).disabled=!allowed||clearingStrokes||(id==="undo"&&undoInProgress));document.querySelectorAll("[data-tool],[data-color]").forEach(e=>e.disabled=!allowed);$("login").hidden=!configured||!!user;$("logout").hidden=!user;$("uidPanel").hidden=!user;if(user)$("uid").textContent=user.uid;$("authText").textContent=!configured?"로컬 시연만 가능합니다. Firebase 연결 후 실제 동기화됩니다.":user?"로그인 완료. DB 규칙에 등록된 강사만 방송할 수 있습니다.":"강사 Google 로그인 필요";pick(tool)}
 function pick(t){tool=t;document.querySelectorAll("[data-tool]").forEach(e=>e.classList.toggle("active",e.dataset.tool===t));canvas.style.pointerEvents=allowed&&t!=="cursor"?"auto":"none";$("laser").hidden=true}
 document.querySelectorAll("[data-tool]").forEach(e=>e.onclick=()=>pick(e.dataset.tool));
 document.querySelectorAll("[data-color]").forEach(e=>e.onclick=()=>{color=e.dataset.color;document.querySelectorAll("[data-color]").forEach(b=>b.classList.toggle("active",e===b))});
@@ -309,7 +311,11 @@ function push(force=false){
  const now=Date.now();
  if(!force&&now-lastPush<150)return;
  lastPush=now;
- send("strokes/"+strokeSlide+"/"+s.id,{id:s.id,tool:s.tool,color:s.color,at:s.at,points:s.points.slice(),size:s.size,sensitivity:s.sensitivity,tiltBoost:s.tiltBoost,usePressure:s.usePressure});
+ const key=strokeSlide+"/"+s.id;
+ const write=F.set(F.ref(db,remote("strokes/"+key)),{id:s.id,tool:s.tool,color:s.color,at:s.at,points:s.points.slice(),size:s.size,sensitivity:s.sensitivity,tiltBoost:s.tiltBoost,usePressure:s.usePressure});
+ inFlightStrokeWrites.set(key,write);
+ write.catch(()=>notify("판서 전송에 실패했습니다. Firebase 권한과 연결을 확인하세요."))
+   .finally(()=>{if(inFlightStrokeWrites.get(key)===write)inFlightStrokeWrites.delete(key)});
 }
 function laser(p,on){$("laser").hidden=!on;if(on){$("laser").style.left=p[0]*100+"%";$("laser").style.top=p[1]*100+"%"}if(db)send("pointer",{x:p[0],y:p[1],active:on,at:Date.now()})}
 canvas.onpointerdown=e=>{
@@ -362,13 +368,30 @@ function end(e){
  activePointer=null;
 }
 canvas.onpointerup=end;canvas.onpointercancel=end;
-$("undo").onclick=()=>{
- if(!allowed||clearingStrokes)return;
- const sorted=Object.entries(strokes).sort((a,b)=>a[1].at-b[1].at);
- if(!sorted.length)return;
- const id=sorted.at(-1)[0],page=slide;
- delete strokes[id];redraw();saveLocal();
- if(db)send("strokes/"+page+"/"+id,null);
+$("undo").onclick=async()=>{
+ if(!allowed||clearingStrokes||undoInProgress||drawing)return;
+ const sorted=Object.entries(strokes).sort((a,b)=>
+  (Number(a[1]?.at)||0)-(Number(b[1]?.at)||0)||a[0].localeCompare(b[0]));
+ if(!sorted.length){$("clearAllStatus").textContent="현재 슬라이드에 되돌릴 필기가 없습니다.";return}
+ const [id,stroke]=sorted.at(-1),page=slide;
+ undoInProgress=true;permission();
+ delete strokes[id];redraw();
+ try{
+  if(db&&F){
+   // Ensure a pending last pen update cannot recreate a stroke after undo.
+   const pending=inFlightStrokeWrites.get(page+"/"+id);
+   if(pending)await pending;
+   await F.remove(F.ref(db,remote("strokes/"+page+"/"+id)));
+  }else{
+   localStorage.setItem("god119-demo-slide-"+page,JSON.stringify(strokes));
+  }
+  $("clearAllStatus").textContent=page+"번 슬라이드: 마지막 필기 한 획을 되돌렸습니다.";
+ }catch(e){
+  if(slide===page){strokes[id]=stroke;redraw()}
+  $("clearAllStatus").textContent="되돌리기 실패: 연결 또는 권한을 확인해 주세요.";
+ }finally{
+  undoInProgress=false;permission();
+ }
 };
 $("clear").onclick=async()=>{
  if(!allowed||clearingStrokes)return;
@@ -390,8 +413,8 @@ $("clear").onclick=async()=>{
 };
 $("clearAllStrokes").onclick=async()=>{
  if(!teacher||!allowed||clearingStrokes)return;
- if(!confirm("1번부터 56번까지 저장된 판서를 전부 삭제합니다.\n\n이 작업은 되돌릴 수 없습니다.\nPPT 슬라이드 이미지와 출석·실습 기록은 유지됩니다.\n\n전체 판서를 삭제하시겠습니까?"))return;
- if(!confirm("마지막 확인: 모든 56장의 필기 기록을 삭제할까요?"))return;
+ if(!confirm("모든 슬라이드에 저장된 판서를 전부 삭제합니다.\n\n이 작업은 되돌릴 수 없습니다.\nPPT 슬라이드 이미지와 출석·실습 기록은 유지됩니다.\n\n일괄 지우기를 실행하시겠습니까?"))return;
+ if(!confirm("마지막 확인: 모든 슬라이드의 필기 기록을 삭제할까요?"))return;
  clearingStrokes=true;permission();
  const button=$("clearAllStrokes");
  $("clearAllStatus").textContent="전체 슬라이드 판서를 삭제하고 있습니다…";
@@ -400,18 +423,25 @@ $("clearAllStrokes").onclick=async()=>{
   if(db&&F){
    await F.remove(F.ref(db,remote("strokes")));
   }else{
-   for(let n=1;n<=56;n++)localStorage.removeItem("god119-demo-slide-"+n);
+   const prefix="god119-demo-slide-";
+   const keys=Array.from({length:localStorage.length},(_,i)=>localStorage.key(i)).filter(k=>k?.startsWith(prefix));
+   keys.forEach(k=>localStorage.removeItem(k));
   }
   strokes={};redraw();
-  $("clearAllStatus").textContent="전체 판서 삭제 완료: 1~56번의 필기만 초기화했습니다. 슬라이드 이미지·출석·실습 기록은 유지됩니다.";
-  notify("전체 56장 판서 삭제 완료");
+  $("clearAllStatus").textContent="일괄 지우기 완료: 모든 슬라이드의 판서만 초기화했습니다. PPT 이미지·출석·실습 기록은 유지됩니다.";
+  notify("전체 슬라이드 판서 삭제 완료");
  }catch(e){
   $("clearAllStatus").textContent="전체 판서 삭제 실패. Firebase 로그인과 보안 규칙을 확인해 주세요.";
  }finally{
   clearingStrokes=false;permission();binding();
  }
 };
-window.onkeydown=e=>{if(!teacher||!allowed||["INPUT","SELECT","TEXTAREA"].includes(document.activeElement.tagName))return;if(e.key==="ArrowRight")navigate(slide+1);if(e.key==="ArrowLeft")navigate(slide-1)};
+window.onkeydown=e=>{
+ if(!teacher||!allowed||e.target?.isContentEditable||["INPUT","SELECT","TEXTAREA"].includes(document.activeElement.tagName))return;
+ if((e.metaKey||e.ctrlKey)&&!e.shiftKey&&e.key.toLowerCase()==="z"){e.preventDefault();$("undo").click();return}
+ if(e.key==="ArrowRight"&&!e.metaKey&&!e.ctrlKey)navigate(slide+1);
+ if(e.key==="ArrowLeft"&&!e.metaKey&&!e.ctrlKey)navigate(slide-1);
+};
 new ResizeObserver(fit).observe(canvas);
 async function connect(){
 if(!configured){status("로컬 미리보기",false);permission();return}
