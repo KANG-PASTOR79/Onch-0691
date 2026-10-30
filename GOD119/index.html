@@ -86,6 +86,7 @@ let slide=1, tool="cursor", color="#ef425f", strokes={},drawing=null,db=null,F=n
 let boundSlide=null,subscriptionEpoch=0,clearingStrokes=false,undoInProgress=false;
 const inFlightStrokeWrites=new Map();
 let authAPI=null,attendanceUnsubscribe=null,attendeeProfile=null,attendanceSaveBusy=false;
+let sharedLinks=null;
 const slideResources={
 3:[{label:"경남일보 기사",url:"https://www.gnnews.co.kr/news/articleView.html?idxno=177660",rect:[6.875,38.333,28.594,24.514]},{label:"교회 자료 사이트",url:"https://www.mgchurch.or.kr/bbs/board.php?bo_table=church65&wr_id=567&page=25&frame=2",rect:[7.289,20.472,26.531,6.722]}],
 10:[{label:"삼손중창단 행사 홍보영상.mp4",local:true},{label:"주일설교요약영상.mp4",local:true}],
@@ -98,8 +99,12 @@ function showResources(n){
  const links=$("links"),hotspots=$("hotspots");links.replaceChildren();hotspots.replaceChildren();
  for(const rec of (slideResources[n]||[])){
   if(rec.local){const el=document.createElement("span");el.className="muted";el.textContent="📎 "+rec.label+" — 강사 컴퓨터 파일, 별도 업로드 필요";links.appendChild(el);continue}
-  const anchor=document.createElement("a");anchor.href=rec.url;anchor.target="_blank";anchor.rel="noopener noreferrer";anchor.textContent="↗ "+rec.label;links.appendChild(anchor);
-  if(rec.rect){const hot=document.createElement("a");hot.href=rec.url;hot.target="_blank";hot.rel="noopener noreferrer";hot.title=rec.label+" 열기 (새 창)";hot.setAttribute("aria-label",rec.label+" 열기");const [x,y,w,h]=rec.rect;hot.style.left=x+"%";hot.style.top=y+"%";hot.style.width=w+"%";hot.style.height=h+"%";hotspots.appendChild(hot)}
+  const anchor=document.createElement("a");anchor.href=rec.url;anchor.target="_blank";anchor.rel="noopener noreferrer";anchor.textContent="↗ "+rec.label;
+  anchor.addEventListener("click",()=>sharedLinks?.broadcast(rec,n));
+  links.appendChild(anchor);
+  if(rec.rect){const hot=document.createElement("a");hot.href=rec.url;hot.target="_blank";hot.rel="noopener noreferrer";hot.title=rec.label+" 열기 (새 창)";hot.setAttribute("aria-label",rec.label+" 열기");const [x,y,w,h]=rec.rect;hot.style.left=x+"%";hot.style.top=y+"%";hot.style.width=w+"%";hot.style.height=h+"%";
+   hot.addEventListener("click",()=>sharedLinks?.broadcast(rec,n));
+   hotspots.appendChild(hot)}
  }
 }
 const canvas=$("penCanvas"),ctx=canvas.getContext("2d");
@@ -221,13 +226,18 @@ function show(){
   $("notice").textContent="실제 강의 PPT 슬라이드 이미지가 아직 업로드되지 않았습니다. GitHub GOD119/slides 폴더에 slide-01.webp부터 slide-56.webp까지 업로드하면 자동 표시됩니다.";
  };
  img.dataset.format="webp";img.src="slides/"+filename+".webp";
- showResources(slide);binding();
+ showResources(slide);binding();sharedLinks?.onSlide();
 }
 function navigate(n){
  if(!allowed||clearingStrokes||undoInProgress)return;
  const target=Math.max(1,Math.min(56,n));
  if(target===slide)return;
- slide=target;show();if(db)send("currentSlide",slide);
+ slide=target;show();
+ if(db&&F){
+  // Send slide advance and hyperlink dismissal in one database update.
+  F.update(F.ref(db,"rooms/"+room),{currentSlide:slide,sharedLink:null})
+   .catch(()=>notify("슬라이드 이동을 전달하지 못했습니다. Firebase 연결을 확인하세요."));
+ }
 }
 // On the lecturer's iPad, Apple Pencil or finger taps change slides only in
 // Selection mode. Ignore drags/swipes, multi-touch and actual hyperlink clicks.
@@ -491,4 +501,13 @@ $("login").onclick=async()=>{try{await b.signInWithPopup(auth,new b.GoogleAuthPr
 $("logout").onclick=()=>b.signOut(auth);
 }catch(e){allowed=false;permission();status("Firebase 설정 오류",false)}}
 permission();show();fit();connect();
+// Isolated optional module: a link-sharing problem must never stop the lecture.
+import("./shared-links.js").then(({createSharedLinks})=>{
+ sharedLinks=createSharedLinks({
+  getState:()=>({teacher,allowed,slide,F,db,room}),
+  resources:slideResources,notify
+ });
+ sharedLinks.ready();
+ sharedLinks.onSlide();
+}).catch(()=>notify("웹자료 공유 기능을 불러오지 못했습니다. 새로고침해 주세요."));
 </script></body></html>
