@@ -1,0 +1,45 @@
+name: Add requested title to GOD119 slide 05
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/god119-slide05-title.yml'
+      - 'GOD119/scripts/add_slide05_title.py'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: god119-slide05-title
+  cancel-in-progress: false
+
+jobs:
+  add-slide05-title:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Install image and Korean font support
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y fonts-noto-cjk
+          python -m pip install pillow
+      - name: Add slide 05 title to the existing image
+        run: python GOD119/scripts/add_slide05_title.py
+      - name: Commit only slide 05 and title marker
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add GOD119/slides/slide-05.webp GOD119/slides/slide-05-title.json
+          if git diff --cached --quiet; then
+            echo 'Slide 05 already contains requested title.'
+          else
+            git commit -m 'Title slide 05: 대심방 시 부재중 합성'
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
