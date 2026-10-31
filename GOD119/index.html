@@ -297,6 +297,22 @@ function showResources(n){
   secondCard.appendChild(secondHint);
   secondCard.onclick=()=>navigate(31);
   hotspots.appendChild(secondCard);
+  // Third practice card: annual ministry plan templates and results,
+  // a continuous section from slide 33 to slide 54.
+  const thirdCard=document.createElement("button");
+  thirdCard.type="button";
+  thirdCard.className="god-local-video-hotspot";
+  thirdCard.title="목회계획서 양식 및 실제적 목회자료 만들기 · 33번부터 54번까지";
+  thirdCard.setAttribute("aria-label","03 목회계획서 양식 만들기 및 실제적 목회자료 만들기 · 33번으로 이동");
+  thirdCard.style.left="6.2%";thirdCard.style.top="46.2%";
+  thirdCard.style.width="43.4%";thirdCard.style.height="17.4%";
+  const thirdHint=document.createElement("span");
+  thirdHint.className="god-exercise-next";
+  thirdHint.textContent="▶ 33–54번 보기";
+  thirdHint.setAttribute("aria-hidden","true");
+  thirdCard.appendChild(thirdHint);
+  thirdCard.onclick=()=>navigate(33);
+  hotspots.appendChild(thirdCard);
  }
  if(([29,30,31,32].includes(n))&&teacher){
   // Both exercise pairs can move between their two pages and return
@@ -319,6 +335,31 @@ function showResources(n){
    button.textContent=action.label;
    button.title=action.target===28?"실습 선택 목록(28번)으로 돌아가기":
      (n>=31?"설교자료 요약 실습 ":"포스터 제작 실습 ")+action.target+"번으로 이동";
+   button.setAttribute("aria-label",button.title);
+   button.style.left="79.1%";
+   button.style.top=action.top+"%";
+   button.style.width="17.5%";
+   button.style.height="6.2%";
+   button.onclick=()=>navigate(action.target);
+   hotspots.appendChild(button);
+  }
+ }
+ if(n>=33&&n<=54&&teacher){
+  // 22-slide ministry-plan section. The lecturer can proceed sequentially
+  // or return to the practice menu from ANY page of this section.
+  // navigate() continues syncing the selected page to all attendees.
+  const actions=[
+   {label:n<54?"▶ "+(n+1)+"번 보기":"← 53번 보기",
+    target:n<54?n+1:53,variant:n<54?"primary":"secondary",top:13.8},
+   {label:"↩ 28번 목록",target:28,variant:n===54?"primary":"secondary",top:21.1}
+  ];
+  for(const action of actions){
+   const button=document.createElement("button");
+   button.type="button";
+   button.className="god-practice-nav"+(action.variant==="secondary"?" secondary":"");
+   button.textContent=action.label;
+   button.title=action.target===28?"실습 선택 목록(28번)으로 돌아가기":
+     "목회계획서 작성 과정 "+action.target+"번 슬라이드로 이동";
    button.setAttribute("aria-label",button.title);
    button.style.left="79.1%";
    button.style.top=action.top+"%";
