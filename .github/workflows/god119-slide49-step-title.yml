@@ -1,0 +1,45 @@
+name: Set Stage 1 title on GOD119 slide 49
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/god119-slide49-step-title.yml'
+      - 'GOD119/scripts/fix_slide49_step_title.py'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: god119-slide49-step-title
+  cancel-in-progress: false
+
+jobs:
+  set-slide49-title:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout lecture slides
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Install image and Korean font dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y fonts-noto-cjk
+          python -m pip install pillow
+      - name: Add Stage 1 prefix to the slide 49 title
+        run: python GOD119/scripts/fix_slide49_step_title.py
+      - name: Commit only the slide 49 image and version marker
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add GOD119/slides/slide-49.webp GOD119/slides/slide-49-step-title.json
+          if git diff --cached --quiet; then
+            echo 'Slide 49 Stage 1 title already installed.'
+          else
+            git commit -m 'Slide 49: 1단계 · 실제 프롬프트 사용으로 인한 목회계획 제작'
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
