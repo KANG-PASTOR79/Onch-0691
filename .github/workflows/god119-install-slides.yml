@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'GOD119/upload/GOD119_New_56_Slides.zip'
+      - 'GOD119/upload/GOD119_New_56_Slides*.zip'
   workflow_dispatch:
 
 permissions:
@@ -32,10 +32,11 @@ jobs:
           import json
           import zipfile
 
-          archive = Path('GOD119/upload/GOD119_New_56_Slides.zip')
+          archives = sorted(Path('GOD119/upload').glob('GOD119_New_56_Slides*.zip'))
+          if len(archives) != 1:
+              raise SystemExit(f'Exactly one redesigned slides ZIP is required; found {len(archives)}.')
+          archive = archives[0]
           target = Path('GOD119/slides')
-          if not archive.is_file():
-              raise SystemExit('Upload ZIP not found in GOD119/upload/.')
 
           expected = {f'slide-{i:02d}.webp' for i in range(1, 57)}
           with zipfile.ZipFile(archive) as z:
