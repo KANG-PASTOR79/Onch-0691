@@ -15,6 +15,8 @@ export function createSharedLinks({getState,resources,notify}){
 .god-link-overlay p{margin:0;font-size:clamp(10px,1vw,14px);color:#cbd9eb;line-height:1.5}
 .god-link-preview{flex:1;min-height:100px;border:1px solid #496989;border-radius:8px;overflow:hidden;background:#182e47}
 .god-link-preview iframe{display:block;width:100%;height:100%;border:0;background:white}
+.god-link-preview video{display:block;width:100%;height:100%;object-fit:contain;background:#000}
+.god-link-preview iframe[hidden],.god-link-preview video[hidden]{display:none!important}
 .god-link-presenter{border:1px solid #506e86;padding:10px;border-radius:9px;background:#13283e;margin:10px 0}
 .god-link-presenter p{color:#dbeaff;font-size:12px;margin:0 0 6px}
 @media(max-width:600px){.god-link-overlay{padding:6px;gap:5px}.god-link-bar button,.god-link-actions a{padding:5px 7px;font-size:11px}}
@@ -24,7 +26,7 @@ export function createSharedLinks({getState,resources,notify}){
  <div id="godSharedLink" class="god-link-overlay" hidden role="region" aria-label="강사가 공유한 외부 자료">
   <div class="god-link-bar"><strong id="godSharedTitle">강사 공유 자료</strong><button id="godSharedDismiss" type="button">↩ 원래 슬라이드로 돌아가기</button></div>
   <p id="godSharedHelp">강사가 공유 중인 자료입니다.</p>
-  <div class="god-link-preview"><iframe id="godSharedFrame" title="강사가 공유한 웹페이지" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
+  <div class="god-link-preview"><iframe id="godSharedFrame" title="강사가 공유한 웹페이지" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe><video id="godSharedVideo" controls playsinline preload="metadata" hidden></video></div>
   <div class="god-link-actions"><a id="godSharedOpen" href="#" target="_blank" rel="noopener noreferrer">↗ 새 탭에서 자료 열기</a><p>사이트가 보이지 않으면 새 탭으로 여세요. 영상은 각 기기에서 재생을 누릅니다.</p></div>
  </div>`);
  const panel=document.createElement("div");
@@ -40,9 +42,13 @@ export function createSharedLinks({getState,resources,notify}){
  }
  function target(url){
   try{const u=new URL(url);
-   if(["youtube.com","www.youtube.com","m.youtube.com","youtu.be","www.youtu.be"].includes(u.hostname)){
+   if(["youtube.com","www.youtube.com","m.youtube.com","youtu.be","www.youtu.be","www.youtube-nocookie.com"].includes(u.hostname)){
     const id=u.hostname.includes("youtu.be")?u.pathname.split("/")[1]:(u.searchParams.get("v")||(u.pathname.startsWith("/shorts/")?u.pathname.split("/")[2]:null));
     if(id&&/^[A-Za-z0-9_-]{11}$/.test(id))return "https://www.youtube-nocookie.com/embed/"+id+"?rel=0&playsinline=1";
+   }
+   if(["vimeo.com","www.vimeo.com","player.vimeo.com"].includes(u.hostname)){
+    const id=u.pathname.split("/").filter(Boolean).find(part=>/^\d+$/.test(part));
+    if(id)return "https://player.vimeo.com/video/"+id;
    }
   }catch(e){}
   return url;
@@ -50,6 +56,9 @@ export function createSharedLinks({getState,resources,notify}){
  function hide(){
   el("godSharedLink").hidden=true;
   el("godSharedFrame").removeAttribute("src");
+  const player=el("godSharedVideo");
+  player.pause();player.removeAttribute("src");player.load();
+  player.hidden=true;el("godSharedFrame").hidden=false;
  }
  function render(){
   const {teacher,slide}=getState(),match=known(value);
@@ -62,8 +71,18 @@ export function createSharedLinks({getState,resources,notify}){
   el("godSharedHelp").textContent=teacher?
    "강사와 참석자가 같은 링크 자료를 보고 있습니다. 설명을 마치면 위의 돌아가기 버튼을 누르세요. 웹사이트 보안 정책으로 표시되지 않으면 아래에서 새 탭으로 열 수 있습니다.":
    "강사가 공유한 웹자료입니다. 웹사이트 보안상 보이지 않으면 아래의 새 탭 버튼을 이용하세요.";
-  const frame=el("godSharedFrame"),src=target(match.rec.url);
-  if(frame.getAttribute("src")!==src)frame.src=src;
+  const frame=el("godSharedFrame"),player=el("godSharedVideo"),src=target(match.rec.url);
+  const direct=/\.(mp4|m4v|webm)$/i.test(new URL(match.rec.url).pathname);
+  if(direct){
+   frame.hidden=true;
+   if(frame.hasAttribute("src"))frame.removeAttribute("src");
+   player.hidden=false;
+   if(player.getAttribute("src")!==match.rec.url)player.src=match.rec.url;
+  }else{
+   if(player.hasAttribute("src")){player.pause();player.removeAttribute("src");player.load()}
+   player.hidden=true;frame.hidden=false;
+   if(frame.getAttribute("src")!==src)frame.src=src;
+  }
   el("godSharedLink").hidden=false;
  }
  async function stopSharing(){
