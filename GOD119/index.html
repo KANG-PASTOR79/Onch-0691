@@ -694,7 +694,7 @@ import("./slide10-videos.js?v=mega-click-to-play-20261031").then(({createSlide10
   getSlide:()=>slide,
   resources:slideResources,
   openShared:(rec,page)=>sharedLinks?.broadcast(rec,page),
-  onChange:()=>{if(slide===10)showResources(10)},
+  onChange:()=>{if(slide===10){showResources(10);sharedLinks?.onSlide()}},
   notify
  });
  slide10VideoController.ready();
