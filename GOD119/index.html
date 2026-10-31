@@ -51,6 +51,10 @@
  border:2px solid transparent;border-radius:11px;background:transparent;outline-offset:2px}
 #hotspots .god-local-video-hotspot:hover,#hotspots .god-local-video-hotspot:focus-visible{
  border-color:#ffc979;background:#ffc9790f;outline:2px solid #ffc979}
+#hotspots .god-exercise-next{position:absolute;right:2.4%;bottom:10%;border:1px solid #ffc67a;
+ border-radius:999px;background:#f3bb69;color:#10263c;padding:5px 11px;
+ font-size:clamp(10px,1vw,16px);font-weight:850;letter-spacing:0.01em;
+ box-shadow:0 3px 12px #08192b66;pointer-events:none;white-space:nowrap}
 .god-local-video-link{background:#21425f;border:1px solid #7c9db8;border-radius:9px;padding:11px 13px;
  color:#fff;cursor:pointer;font:inherit;font-weight:650}
 .god-local-video-link:hover,.god-local-video-link:focus-visible{border-color:#ffcd81}#penCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:3;touch-action:none;pointer-events:none}#laser{position:absolute;z-index:4;width:22px;height:22px;transform:translate(-50%,-50%);border-radius:50%;background:#ff4760;box-shadow:0 0 0 12px #ff47603a,0 0 18px #f64;pointer-events:none}#laser[hidden]{display:none}.row{display:flex;gap:9px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-top:13px}.muted{color:#a6b7d1;font-size:12px;line-height:1.6}.notice{border:1px solid #735f3a;background:#302719;color:#f7d7a2;padding:13px 16px;border-radius:12px;font-size:12px;line-height:1.6;margin-top:20px}.live-note{border-color:#326252;background:#122e2b;color:#b8ead9}aside{display:flex;flex-direction:column;gap:14px}aside[hidden]{display:none}.card{background:#13263c;border:1px solid #344d67;border-radius:15px;padding:17px}.card h3{margin:0 0 12px;font-size:17px}button,select,input{font:inherit}button{border:1px solid #465d7a;border-radius:9px;padding:10px 12px;color:#edf4ff;background:#1d344e;cursor:pointer;font-size:13px;font-weight:700}button:hover:not(:disabled){border-color:#8cb1d1}button:disabled{opacity:.4;cursor:not-allowed}.primary{background:linear-gradient(120deg,#f7d18f,#e9ab54);color:#1c2d40;border-color:#ebbd74}.two{display:flex;gap:8px}.two button{flex:1}.toolbox{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.toolbox button{font-size:12px;padding:12px 4px}.toolbox .active{border-color:#f7cd80;background:#564020;color:#ffe0a4}select,input{padding:11px;border-radius:9px;background:#081c30;border:1px solid #3f5d7c;color:white;width:100%;font-size:12px}.colors{display:flex;gap:10px;align-items:center;margin:14px 0}.colors button{width:24px;height:24px;border-radius:50%;padding:0;background:var(--c);border:2px solid #ffffff90}.colors .active{outline:2px solid white;outline-offset:2px}.links a{display:inline-block;margin:10px 7px 0 0;padding:9px 12px;border:1px solid #44688c;border-radius:8px;color:#aed7ff;text-decoration:none;font-size:12px}#pop{position:fixed;left:50%;bottom:25px;transform:translateX(-50%);border-radius:11px;background:#284c69;color:white;padding:12px 17px;z-index:10;display:none;font-size:13px}@media(max-width:1060px){main{grid-template-columns:1fr}aside{display:grid;grid-template-columns:repeat(2,1fr)}}@media(max-width:650px){main{display:block;padding:13px 9px}aside{display:block}.card{margin-top:12px}header{padding:10px}.brand strong{font-size:17px}.logo{font-size:14px}.status{font-size:10px}.slide-content h2{font-size:23px}}
@@ -233,6 +237,25 @@ function showResources(n){
    button.onclick=()=>slide10VideoController?.play(i);
    hotspots.appendChild(button);
   });
+ }
+ if(n===28&&teacher){
+  // First practical-session card: poster exercise starts at slide 29,
+  // then the existing Next/arrow-key navigation continues to slide 30.
+  // Only the lecturer controls the remote slide number.
+  const firstCard=document.createElement("button");
+  firstCard.type="button";
+  firstCard.className="god-local-video-hotspot";
+  firstCard.title="간단한 홍보물 만들기 · 29번 실전가이드와 30번 제작 예시 보기";
+  firstCard.setAttribute("aria-label","01 간단한 홍보물 만들기 · 29번으로 이동하고 다음에 30번 보기");
+  firstCard.style.left="6.2%";firstCard.style.top="27.5%";
+  firstCard.style.width="43.4%";firstCard.style.height="17.4%";
+  const hint=document.createElement("span");
+  hint.className="god-exercise-next";
+  hint.textContent="▶ 29–30번 보기";
+  hint.setAttribute("aria-hidden","true");
+  firstCard.appendChild(hint);
+  firstCard.onclick=()=>navigate(29);
+  hotspots.appendChild(firstCard);
  }
 }
 const canvas=$("penCanvas"),ctx=canvas.getContext("2d");
