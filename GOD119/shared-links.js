@@ -16,6 +16,11 @@ export function createSharedLinks({getState,resources,notify}){
 .god-link-preview{flex:1;min-height:100px;border:1px solid #496989;border-radius:8px;overflow:hidden;background:#182e47}
 .god-link-preview iframe{display:block;width:100%;height:100%;border:0;background:white}
 .god-link-preview video{display:block;width:100%;height:100%;object-fit:contain;background:#000}
+.god-link-preview[hidden],.god-link-document[hidden]{display:none!important}
+.god-link-document{flex:1;min-height:100px;border:1px solid #516e86;border-radius:12px;background:linear-gradient(125deg,#17334c,#112940);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(10px,2vw,22px);padding:clamp(14px,2vw,26px);text-align:center;box-sizing:border-box}
+.god-link-document .god-doc-title{font-size:clamp(20px,3vw,39px);font-weight:800;color:#ffe0a5}
+.god-link-document .god-doc-description{font-size:clamp(12px,1.4vw,18px);color:#d6e5f3;max-width:780px;line-height:1.6}
+.god-link-document a{display:inline-flex;justify-content:center;align-items:center;text-decoration:none;background:#f0bb6d;border:1px solid #ffdc9d;border-radius:11px;padding:clamp(10px,1.5vw,18px) clamp(14px,2.2vw,28px);font-size:clamp(13px,1.7vw,22px);font-weight:800;color:#12253b}
 .god-link-preview iframe[hidden],.god-link-preview video[hidden]{display:none!important}
 .god-link-presenter{border:1px solid #506e86;padding:10px;border-radius:9px;background:#13283e;margin:10px 0}
 .god-link-presenter p{color:#dbeaff;font-size:12px;margin:0 0 6px}
@@ -26,7 +31,12 @@ export function createSharedLinks({getState,resources,notify}){
  <div id="godSharedLink" class="god-link-overlay" hidden role="region" aria-label="강사가 공유한 외부 자료">
   <div class="god-link-bar"><strong id="godSharedTitle">강사 공유 자료</strong><button id="godSharedDismiss" type="button">↩ 원래 슬라이드로 돌아가기</button></div>
   <p id="godSharedHelp">강사가 공유 중인 자료입니다.</p>
-  <div class="god-link-preview"><iframe id="godSharedFrame" title="강사가 공유한 웹페이지" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe><video id="godSharedVideo" controls playsinline preload="metadata" hidden></video></div>
+  <div class="god-link-preview" id="godSharedPreview"><iframe id="godSharedFrame" title="강사가 공유한 웹페이지" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe><video id="godSharedVideo" controls playsinline preload="metadata" hidden></video></div>
+  <div class="god-link-document" id="godSharedDocument" hidden>
+   <div class="god-doc-title">📄 창원온천교회 목회계획서</div>
+   <p class="god-doc-description">MEGA에 보관된 목회계획서 파일입니다. 아래 버튼을 누르면 MEGA에서 문서를 열어 보거나 내려받을 수 있습니다. 웹 강의실로 돌아오려면 상단의 「슬라이드로 돌아가기」를 누르세요.</p>
+   <a id="godSharedDocumentOpen" href="#" target="_blank" rel="noopener noreferrer">↗ MEGA에서 목회계획서 열기</a>
+  </div>
   <div class="god-link-actions"><a id="godSharedOpen" href="#" target="_blank" rel="noopener noreferrer">↗ 새 탭에서 자료 열기</a><p>사이트가 보이지 않으면 새 탭으로 여세요. 영상은 각 기기에서 재생을 누릅니다.</p></div>
  </div>`);
  const panel=document.createElement("div");
@@ -68,6 +78,7 @@ export function createSharedLinks({getState,resources,notify}){
   const player=el("godSharedVideo");
   player.pause();player.removeAttribute("src");player.load();
   player.hidden=true;el("godSharedFrame").hidden=false;
+  el("godSharedDocument").hidden=true;el("godSharedPreview").hidden=false;
  }
  function render(){
   const {teacher,slide}=getState(),match=known(value);
@@ -80,7 +91,25 @@ export function createSharedLinks({getState,resources,notify}){
   el("godSharedHelp").textContent=teacher?
    "강사와 참석자가 같은 링크 자료를 보고 있습니다. 설명을 마치면 위의 돌아가기 버튼을 누르세요. 웹사이트 보안 정책으로 표시되지 않으면 아래에서 새 탭으로 열 수 있습니다.":
    "강사가 공유한 웹자료입니다. 웹사이트 보안상 보이지 않으면 아래의 새 탭 버튼을 이용하세요.";
-  const frame=el("godSharedFrame"),player=el("godSharedVideo"),src=target(match.rec.url);
+  const frame=el("godSharedFrame"),player=el("godSharedVideo");
+  if(match.rec.type==="document"){
+   // MEGA's encrypted file pages cannot be treated as an inline MP4
+   // preview. Show a reliable link to the real document instead of a
+   // broken media iframe. The presenter's first click opens it directly.
+   frame.removeAttribute("src");
+   player.pause();player.removeAttribute("src");player.load();
+   el("godSharedPreview").hidden=true;
+   el("godSharedDocument").hidden=false;
+   el("godSharedDocumentOpen").href=match.rec.url;
+   el("godSharedOpen").textContent="↗ MEGA에서 목회계획서 파일 열기";
+   el("godSharedHelp").textContent="목회계획서는 MEGA에서 직접 열 수 있습니다. 강사가 돌아가기를 누르면 참석자 화면도 함께 복귀합니다.";
+   el("godSharedLink").hidden=false;
+   return;
+  }
+  el("godSharedDocument").hidden=true;
+  el("godSharedPreview").hidden=false;
+  el("godSharedOpen").textContent="↗ 새 탭에서 자료 열기";
+  const src=target(match.rec.url);
   const direct=/\.(mp4|m4v|webm)$/i.test(new URL(match.rec.url).pathname);
   if(direct){
    frame.hidden=true;
