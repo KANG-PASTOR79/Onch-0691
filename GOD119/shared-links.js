@@ -17,7 +17,17 @@ export function createSharedLinks({getState,resources,notify}){
 .god-link-preview iframe{display:block;width:100%;height:100%;border:0;background:white}
 .god-link-preview video{display:block;width:100%;height:100%;object-fit:contain;background:#000}
 .god-link-preview[hidden],.god-link-document[hidden]{display:none!important}
-.god-link-document{flex:1;min-height:100px;border:1px solid #516e86;border-radius:12px;background:linear-gradient(125deg,#17334c,#112940);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(10px,2vw,22px);padding:clamp(14px,2vw,26px);text-align:center;box-sizing:border-box}
+.god-link-document{flex:1;min-height:100px;border:1px solid #516e86;border-radius:12px;background:#10263b;display:flex;flex-direction:column;gap:6px;padding:clamp(5px,.8vw,10px);text-align:left;box-sizing:border-box;overflow:hidden}
+.god-doc-status{flex-shrink:0;color:#d8e6f4;font-size:clamp(11px,1vw,14px);padding:4px 6px;line-height:1.3}
+.god-doc-status[data-error="true"]{color:#ffc48b}
+.god-doc-viewport{flex:1;min-height:0;overflow:auto;background:#fff;border-radius:7px;overscroll-behavior:contain;position:relative;color:#152a3d}
+.god-doc-viewport>.god-doc-embedded-pdf{display:block;width:100%;height:100%;min-height:200px;border:0;background:white}
+.god-doc-viewport .god-docx-pages{width:100%;min-height:100%;background:#dedede;overflow:auto}
+.god-doc-viewport .god-docx-pages .docx-wrapper{background:#dcdcdc;padding:15px 5px}
+.god-doc-viewport .god-doc-plaintext{margin:0;padding:15px;white-space:pre-wrap;word-break:break-word;color:#152a3d}
+.god-doc-viewport .god-doc-image{display:block;max-width:100%;height:auto;margin:0 auto}
+.god-doc-viewport .god-doc-fallback{padding:clamp(14px,2vw,24px);font-size:clamp(13px,1.5vw,20px);color:#17324e;line-height:1.6;white-space:normal}
+.god-doc-footer{flex-shrink:0;display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:11px;color:#d6e5f3}
 .god-link-document .god-doc-title{font-size:clamp(20px,3vw,39px);font-weight:800;color:#ffe0a5}
 .god-link-document .god-doc-description{font-size:clamp(12px,1.4vw,18px);color:#d6e5f3;max-width:780px;line-height:1.6}
 .god-link-document a{display:inline-flex;justify-content:center;align-items:center;text-decoration:none;background:#f0bb6d;border:1px solid #ffdc9d;border-radius:11px;padding:clamp(10px,1.5vw,18px) clamp(14px,2.2vw,28px);font-size:clamp(13px,1.7vw,22px);font-weight:800;color:#12253b}
@@ -33,9 +43,11 @@ export function createSharedLinks({getState,resources,notify}){
   <p id="godSharedHelp">강사가 공유 중인 자료입니다.</p>
   <div class="god-link-preview" id="godSharedPreview"><iframe id="godSharedFrame" title="강사가 공유한 웹페이지" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe><video id="godSharedVideo" controls playsinline preload="metadata" hidden></video></div>
   <div class="god-link-document" id="godSharedDocument" hidden>
-   <div class="god-doc-title">📄 창원온천교회 목회계획서</div>
-   <p class="god-doc-description">MEGA에 보관된 목회계획서 파일입니다. 아래 버튼을 누르면 MEGA에서 문서를 열어 보거나 내려받을 수 있습니다. 웹 강의실로 돌아오려면 상단의 「슬라이드로 돌아가기」를 누르세요.</p>
-   <a id="godSharedDocumentOpen" href="#" target="_blank" rel="noopener noreferrer">↗ MEGA에서 목회계획서 열기</a>
+   <div class="god-doc-status" id="godSharedDocumentStatus" role="status">MEGA 목회계획서를 불러오는 중…</div>
+   <div class="god-doc-viewport" id="godSharedDocumentViewport">
+    <p class="god-doc-fallback">목회계획서 페이지를 여는 중입니다…</p>
+   </div>
+   <div class="god-doc-footer"><a id="godSharedDocumentOpen" href="#" target="_blank" rel="noopener noreferrer">↗ MEGA에서 원본 열기</a><span>PDF·Word 문서는 화면 안에서 스크롤하여 볼 수 있습니다.</span></div>
   </div>
   <div class="god-link-actions"><a id="godSharedOpen" href="#" target="_blank" rel="noopener noreferrer">↗ 새 탭에서 자료 열기</a><p>사이트가 보이지 않으면 새 탭으로 여세요. 영상은 각 기기에서 재생을 누릅니다.</p></div>
  </div>`);
@@ -45,6 +57,29 @@ export function createSharedLinks({getState,resources,notify}){
  picker.insertAdjacentElement("afterend",panel);
  const el=id=>document.getElementById(id);
  let value=null,dismissed=null,initialized=false;
+ let documentPreview=null,previewId=null;
+ async function showDocumentPreview(rec,id){
+  if(previewId===id)return;
+  previewId=id;
+  el("godSharedDocumentStatus").textContent="MEGA에서 실제 목회계획서 문서를 불러오는 중…";
+  try{
+   const mod=await import("./mega-document-viewer.js?v=slide12-inline-v1");
+   if(previewId!==id)return;
+   if(!documentPreview)documentPreview=mod.createMegaDocumentViewer({
+    status:el("godSharedDocumentStatus"),
+    viewport:el("godSharedDocumentViewport"),
+    documentName:"창원온천교회 목회계획서"
+   });
+   documentPreview.show(rec.url,id);
+  }catch(error){
+   if(previewId!==id)return;
+   el("godSharedDocumentStatus").textContent="문서 미리보기를 불러오지 못했습니다. 아래 MEGA 원본 열기를 이용하세요.";
+  }
+ }
+ function resetDocumentPreview(){
+  previewId=null;
+  documentPreview?.reset();
+ }
  function known(data){
   if(!data||!Number.isInteger(data.slide)||!Number.isFinite(data.at)||typeof data.url!=="string")return null;
   const rec=(resources[data.slide]||[]).find(x=>!x.local&&x.url===data.url);
@@ -79,6 +114,7 @@ export function createSharedLinks({getState,resources,notify}){
   player.pause();player.removeAttribute("src");player.load();
   player.hidden=true;el("godSharedFrame").hidden=false;
   el("godSharedDocument").hidden=true;el("godSharedPreview").hidden=false;
+  resetDocumentPreview();
  }
  function render(){
   const {teacher,slide}=getState(),match=known(value);
@@ -93,21 +129,23 @@ export function createSharedLinks({getState,resources,notify}){
    "강사가 공유한 웹자료입니다. 웹사이트 보안상 보이지 않으면 아래의 새 탭 버튼을 이용하세요.";
   const frame=el("godSharedFrame"),player=el("godSharedVideo");
   if(match.rec.type==="document"){
-   // MEGA's encrypted file pages cannot be treated as an inline MP4
-   // preview. Show a reliable link to the real document instead of a
-   // broken media iframe. The presenter's first click opens it directly.
+   // Each participant decrypts the original MEGA document in their own
+   // browser and previews PDF/DOCX directly in this overlay. No extra tab
+   // is opened on click, and Firebase only synchronizes the public URL.
    frame.removeAttribute("src");
    player.pause();player.removeAttribute("src");player.load();
    el("godSharedPreview").hidden=true;
    el("godSharedDocument").hidden=false;
    el("godSharedDocumentOpen").href=match.rec.url;
-   el("godSharedOpen").textContent="↗ MEGA에서 목회계획서 파일 열기";
-   el("godSharedHelp").textContent="목회계획서는 MEGA에서 직접 열 수 있습니다. 강사가 돌아가기를 누르면 참석자 화면도 함께 복귀합니다.";
+   el("godSharedOpen").textContent="↗ MEGA에서 원본 열기";
+   el("godSharedHelp").textContent="MEGA 목회계획서를 이 강의실 화면에서 불러옵니다. 강사가 돌아가기를 누르면 참석자도 함께 복귀합니다.";
    el("godSharedLink").hidden=false;
+   showDocumentPreview(match.rec,match.id);
    return;
   }
   el("godSharedDocument").hidden=true;
   el("godSharedPreview").hidden=false;
+  resetDocumentPreview();
   el("godSharedOpen").textContent="↗ 새 탭에서 자료 열기";
   const src=target(match.rec.url);
   const direct=/\.(mp4|m4v|webm)$/i.test(new URL(match.rec.url).pathname);
