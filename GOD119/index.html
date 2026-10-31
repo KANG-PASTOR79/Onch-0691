@@ -267,22 +267,43 @@ function showResources(n){
   firstCard.appendChild(hint);
   firstCard.onclick=()=>navigate(29);
   hotspots.appendChild(firstCard);
+  // Second practice card: sermon summaries and teaching aids, slides 31–32.
+  const secondCard=document.createElement("button");
+  secondCard.type="button";
+  secondCard.className="god-local-video-hotspot";
+  secondCard.title="설교자료 요약 및 강의 자료 만들기 · 31번과 32번 슬라이드 보기";
+  secondCard.setAttribute("aria-label","02 설교자료 요약 및 강의 자료 만들기 · 31번으로 이동하고 다음에 32번 보기");
+  secondCard.style.left="51.5%";secondCard.style.top="27.5%";
+  secondCard.style.width="43.4%";secondCard.style.height="17.4%";
+  const secondHint=document.createElement("span");
+  secondHint.className="god-exercise-next";
+  secondHint.textContent="▶ 31–32번 보기";
+  secondHint.setAttribute("aria-hidden","true");
+  secondCard.appendChild(secondHint);
+  secondCard.onclick=()=>navigate(31);
+  hotspots.appendChild(secondCard);
  }
- if((n===29||n===30)&&teacher){
-  // Contextual navigation: 28 → 29 → 30 → 28.
-  // navigate() sends the current slide to all attendees in real time.
-  const actions=n===29
-    ?[{label:"▶ 30번 보기",target:30,top:13.8,variant:"primary"},
-      {label:"↩ 28번 목록",target:28,top:21.1,variant:"secondary"}]
-    :[{label:"← 29번 보기",target:29,top:13.8,variant:"secondary"},
-      {label:"↩ 28번 목록",target:28,top:21.1,variant:"primary"}];
+ if(([29,30,31,32].includes(n))&&teacher){
+  // Both exercise pairs can move between their two pages and return
+  // to the practical-session menu on slide 28.
+  // navigate() synchronizes each jump to everyone attending the lecture.
+  const actions=({
+   29:[{label:"▶ 30번 보기",target:30,top:13.8,variant:"primary"},
+       {label:"↩ 28번 목록",target:28,top:21.1,variant:"secondary"}],
+   30:[{label:"← 29번 보기",target:29,top:13.8,variant:"secondary"},
+       {label:"↩ 28번 목록",target:28,top:21.1,variant:"primary"}],
+   31:[{label:"▶ 32번 보기",target:32,top:13.8,variant:"primary"},
+       {label:"↩ 28번 목록",target:28,top:21.1,variant:"secondary"}],
+   32:[{label:"← 31번 보기",target:31,top:13.8,variant:"secondary"},
+       {label:"↩ 28번 목록",target:28,top:21.1,variant:"primary"}]
+  })[n];
   for(const action of actions){
    const button=document.createElement("button");
    button.type="button";
    button.className="god-practice-nav"+(action.variant==="secondary"?" secondary":"");
    button.textContent=action.label;
-   button.title=action.target===28?"첫 번째 실습 목록(28번)으로 돌아가기":
-     "포스터 제작 실습 "+action.target+"번으로 이동";
+   button.title=action.target===28?"실습 선택 목록(28번)으로 돌아가기":
+     (n>=31?"설교자료 요약 실습 ":"포스터 제작 실습 ")+action.target+"번으로 이동";
    button.setAttribute("aria-label",button.title);
    button.style.left="79.1%";
    button.style.top=action.top+"%";
