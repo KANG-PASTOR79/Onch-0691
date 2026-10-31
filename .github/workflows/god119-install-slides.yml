@@ -1,0 +1,78 @@
+name: Install redesigned GOD119 slides
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'GOD119/upload/GOD119_New_56_Slides.zip'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: god119-install-redesigned-slides
+  cancel-in-progress: false
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Validate archive and install slide images
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          import json
+          import zipfile
+
+          archive = Path('GOD119/upload/GOD119_New_56_Slides.zip')
+          target = Path('GOD119/slides')
+          if not archive.is_file():
+              raise SystemExit('Upload ZIP not found in GOD119/upload/.')
+
+          expected = {f'slide-{i:02d}.webp' for i in range(1, 57)}
+          with zipfile.ZipFile(archive) as z:
+              entries = [entry for entry in z.infolist() if not entry.is_dir()]
+              names = [entry.filename for entry in entries]
+              if len(names) != 56 or set(names) != expected:
+                  raise SystemExit('Archive must contain exactly 56 slide-NN.webp files at ZIP root.')
+              if sum(entry.file_size for entry in entries) > 30000000:
+                  raise SystemExit('Slide images exceed 30MB limit.')
+              target.mkdir(parents=True, exist_ok=True)
+              for name in sorted(expected):
+                  data = z.read(name)
+                  if len(data) < 20 or data[:4] != b'RIFF' or data[8:12] != b'WEBP':
+                      raise SystemExit(f'Invalid WebP file: {name}')
+                  (target / name).write_bytes(data)
+
+          marker = {
+              'design': 'god119-2026-10-31-original-faithful',
+              'slideCount': 56,
+              'archiveSha256': hashlib.sha256(archive.read_bytes()).hexdigest()
+          }
+          (target / 'design-version.json').write_text(
+              json.dumps(marker, ensure_ascii=False, indent=2) + '\n',
+              encoding='utf-8'
+          )
+          print('Validated and installed 56 slide images.')
+          PY
+
+      - name: Commit validated images
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add GOD119/slides/
+          if git diff --cached --quiet; then
+            echo 'The slide images are already up to date.'
+          else
+            git commit -m 'Install 56 redesigned GOD119 slides'
+            git push origin HEAD:main
+          fi
