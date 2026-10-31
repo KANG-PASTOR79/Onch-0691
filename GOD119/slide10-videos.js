@@ -1,13 +1,16 @@
 // GOD119 slide 10: click each original video thumbnail to play its MEGA file.
 // There is NO persistent lecturer sidebar configuration panel.
-// On first use the presenter is asked once for that file's MEGA share URL.
+// The two lecturer-provided MEGA share links are pre-connected; no setup is needed.
 // File links (including their decryption keys) are audience-visible via Firebase.
 export function createSlide10Videos({getState,resources,onChange,notify,getSlide,openShared}){
  const teacher=getState().teacher;
  const $=id=>document.getElementById(id);
  const names=["삼손중창단 행사 홍보영상","주일설교요약영상"];
  const rects=[[6.2,26.8,42.6,63.8],[50.8,26.8,42.6,63.8]];
- let urls=["",""],attached=false,received=false,selected=0;
+ // These are the two exact MEGA file links supplied by the lecturer on 2026-10-31.
+ // Firebase's new published path can override them if the lecturer later edits links.
+ const DEFAULT_URLS=["https://mega.nz/file/6qxwCIRZ#hjUnv-AjIvEGEq7yZuuf0zLcM4d4SVJgqVyycZsmdrg","https://mega.nz/file/uqZRHLgA#8AXm5RoZ_QK0uy2VNp1MiKHr5iJt371ERC2n6JV3gGU"];
+ let urls=[...DEFAULT_URLS],attached=false,received=false,selected=0;
  let layer=null,entry=null,message=null,player=null,objectURL=null;
 
  function normalized(raw){
@@ -52,7 +55,7 @@ export function createSlide10Videos({getState,resources,onChange,notify,getSlide
   <div class="video-setup-card" role="dialog" aria-modal="true" aria-labelledby="godVideo10Heading">
    <h3 id="godVideo10Heading">영상 연결</h3>
    <div id="godVideo10Entry" class="entry-area">
-    <p>MEGA에 올려두신 <b>해당 영상 파일</b>에서 「링크 복사」를 누른 뒤 한 번만 붙여넣으세요. 다음부터는 사진을 클릭하면 바로 열립니다.</p>
+    <p>두 영상은 이미 연결되어 있습니다. 공유 링크를 변경해야 할 때만 새 주소를 입력하세요.</p>
     <input id="godVideo10URL" type="url" autocomplete="off" placeholder="https://mega.nz/file/파일ID#공유키" aria-label="MEGA 영상 파일 공유 링크">
     <p id="godVideo10Message" role="status">MEGA 폴더 주소가 아닌 영상 파일의 공유 링크를 입력해 주세요.</p>
     <div class="actions"><button type="button" class="primary" id="godVideo10Save">링크 저장하고 영상 열기</button><button type="button" id="godVideo10Cancel">취소</button></div>
@@ -99,7 +102,7 @@ export function createSlide10Videos({getState,resources,onChange,notify,getSlide
    message.textContent="MEGA 영상 링크 저장 중…";
    try{
     // Update one link only; never erase the other linked video.
-    await F.update(F.ref(db,"rooms/"+room+"/slide10Videos"),{[selected===0?"a":"b"]:next});
+    await F.update(F.ref(db,"rooms/"+room+"/slide10VideosPublished"),{[selected===0?"a":"b"]:next});
     urls[selected]=next;refresh();
     close();
     if(next){
@@ -133,9 +136,9 @@ export function createSlide10Videos({getState,resources,onChange,notify,getSlide
    if(attached)return;
    const {F,db,room}=getState();if(!F||!db)return;
    attached=true;
-   F.onValue(F.ref(db,"rooms/"+room+"/slide10Videos"),snapshot=>{
+   F.onValue(F.ref(db,"rooms/"+room+"/slide10VideosPublished"),snapshot=>{
     const data=snapshot.val()||{};
-    urls=[normalized(data.a)||"",normalized(data.b)||""];
+    urls=[normalized(data.a)||DEFAULT_URLS[0],normalized(data.b)||DEFAULT_URLS[1]];
     received=true;refresh();
    },()=>notify("MEGA 영상 링크를 읽지 못했습니다. Firebase 권한을 확인해 주세요."));
   }
@@ -146,9 +149,9 @@ export function createSlide10Videos({getState,resources,onChange,notify,getSlide
   if(attached)return;
   const {F,db,room}=getState();if(!F||!db)return;
   attached=true;
-  F.onValue(F.ref(db,"rooms/"+room+"/slide10Videos"),snapshot=>{
+  F.onValue(F.ref(db,"rooms/"+room+"/slide10VideosPublished"),snapshot=>{
    const data=snapshot.val()||{};
-   urls=[normalized(data.a)||"",normalized(data.b)||""];
+   urls=[normalized(data.a)||DEFAULT_URLS[0],normalized(data.b)||DEFAULT_URLS[1]];
    received=true;refresh();
   });
  }
