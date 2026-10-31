@@ -172,6 +172,7 @@ const inFlightStrokeWrites=new Map();
 let authAPI=null,attendanceUnsubscribe=null,attendeeProfile=null,attendanceSaveBusy=false;
 let sharedLinks=null;
 let slide10VideoController=null;
+let slide53PlanController=null;
 let attendanceAlerts=null;
 let redesignedImagesActive=false,slide02CleanActive=false,slide04UprightActive=false,slide05TitleActive=false,slide49StageTitleActive=false;
 const DESIGN_VERSION="god119-2026-10-31-original-faithful";
@@ -219,6 +220,18 @@ function showResources(n){
      info.textContent=rec.label+" — 강사가 MEGA 공유 링크를 연결하면 영상 보기가 활성화됩니다.";
      links.appendChild(info);
     }
+   }else if(n===53){
+    const info=document.createElement(teacher?"button":"span");
+    if(teacher){
+     info.type="button";
+     info.className="god-local-video-link";
+     info.textContent="↗ 목회계획서 실습 결과물 · MEGA 연결";
+     info.onclick=()=>slide53PlanController?.configure();
+    }else{
+     info.className="muted";
+     info.textContent="강사의 목회계획서 결과물은 아직 연결되지 않았습니다.";
+    }
+    links.appendChild(info);
    }else{
     const el=document.createElement("span");el.className="muted";
     el.textContent="📎 "+rec.label+" — 강사 컴퓨터 파일, 별도 업로드 필요";
@@ -368,6 +381,19 @@ function showResources(n){
    button.onclick=()=>navigate(action.target);
    hotspots.appendChild(button);
   }
+ }
+ if(n===53&&teacher&&(slideResources[53]||[]).some(rec=>rec.local)){
+  // Exact DOCX icon in the centre of slide 53.
+  // Once linked, the existing real MEGA hyperlink hotspot takes its place.
+  const docButton=document.createElement("button");
+  docButton.type="button";
+  docButton.className="god-local-video-hotspot";
+  docButton.title="목회계획서 실습 결과물 DOCX · MEGA에 저장한 문서 열기";
+  docButton.setAttribute("aria-label","목회계획서 실습 결과물 · MEGA 문서 연결");
+  docButton.style.left="42.8%";docButton.style.top="36.8%";
+  docButton.style.width="13.8%";docButton.style.height="27.7%";
+  docButton.onclick=()=>slide53PlanController?.configure();
+  hotspots.appendChild(docButton);
  }
  if(n===32&&teacher){
   // Privacy first: attendees must never be given the private NotebookLM URL.
@@ -538,7 +564,7 @@ function show(){
   $("notice").textContent="실제 강의 PPT 슬라이드 이미지가 아직 업로드되지 않았습니다. GitHub GOD119/slides 폴더에 slide-01.webp부터 slide-56.webp까지 업로드하면 자동 표시됩니다.";
  };
  img.dataset.format="webp";img.src="slides/"+filename+".webp"+(slide===49&&slide49StageTitleActive?"?title=step1-v1":slide===5&&slide05TitleActive?"?title=visitation-v1":slide===4&&slide04UprightActive?"?poster=portrait-v1":slide===2&&slide02CleanActive?"?motion=single-v3":redesignedImagesActive?"?design="+DESIGN_VERSION:"");
- showResources(slide);binding();sharedLinks?.onSlide();slide10VideoController?.onSlide();
+ showResources(slide);binding();sharedLinks?.onSlide();slide10VideoController?.onSlide();slide53PlanController?.onSlide();
 }
 function navigate(n){
  if(!allowed||clearingStrokes||undoInProgress)return;
@@ -557,7 +583,7 @@ let navigationTap=null;
 function isSlideLinkTarget(el){return !!el?.closest?.("a,button,input,select,textarea,[role=button]")}
 function canTapNavigate(e){
  return teacher&&allowed&&!clearingStrokes&&!undoInProgress&&tool==="cursor"
-  &&!sharedLinks?.isOpen?.()&&!slide10VideoController?.isOpen?.()
+  &&!sharedLinks?.isOpen?.()&&!slide10VideoController?.isOpen?.()&&!slide53PlanController?.isOpen?.()
   &&(e.pointerType==="pen"||e.pointerType==="touch")&&e.isPrimary!==false
   &&!isSlideLinkTarget(e.target);
 }
@@ -794,6 +820,10 @@ window.onkeydown=e=>{
   if(e.key==="Escape"){e.preventDefault();slide10VideoController.close()}
   return;
  }
+ if(slide53PlanController?.isOpen?.()){
+  if(e.key==="Escape"){e.preventDefault();slide53PlanController.close()}
+  return;
+ }
  if(sharedLinks?.isOpen?.()){
   if(e.key==="Escape"){e.preventDefault();sharedLinks.close()}
   return;
@@ -813,7 +843,7 @@ window.onkeydown=e=>{
 new ResizeObserver(fit).observe(canvas);
 async function connect(){
 if(!configured){status("로컬 미리보기",false);permission();return}
-try{const host="https://www.gstatic.com/firebasejs/11.10.0/";const [a,b,d]=await Promise.all([import(host+"firebase-app.js"),import(host+"firebase-auth.js"),import(host+"firebase-database.js")]);F=d;authAPI=b;const app=a.initializeApp(conf);db=d.getDatabase(app);auth=b.getAuth(app);sharedLinks?.ready();slide10VideoController?.ready();attendanceAlerts?.sync();
+try{const host="https://www.gstatic.com/firebasejs/11.10.0/";const [a,b,d]=await Promise.all([import(host+"firebase-app.js"),import(host+"firebase-auth.js"),import(host+"firebase-database.js")]);F=d;authAPI=b;const app=a.initializeApp(conf);db=d.getDatabase(app);auth=b.getAuth(app);sharedLinks?.ready();slide10VideoController?.ready();slide53PlanController?.ready();attendanceAlerts?.sync();
 d.onValue(d.ref(db,".info/connected"),s=>{status(s.val()?"실시간 연결됨":"연결 끊김",s.val()===true);if(!s.val())$("notice").textContent="실시간 연결이 끊겼습니다. Firebase 설정을 확인하세요.";});
 d.onValue(d.ref(db,remote("currentSlide")),s=>{const n=Number(s.val());if(n>=1&&n<=56&&n!==slide){slide=n;show()}});
 d.onValue(d.ref(db,remote("pointer")),s=>{if(teacher&&allowed&&tool==="laser")return;const p=s.val();$("laser").hidden=!(p&&p.active&&Date.now()-(p.at||0)<2500);if(!$("laser").hidden){$("laser").style.left=p.x*100+"%";$("laser").style.top=p.y*100+"%";clearTimeout(laserTimeout);laserTimeout=setTimeout(()=>$("laser").hidden=true,750)}});
@@ -906,6 +936,19 @@ import("./slide10-videos.js?v=mega-preset-two-20261031").then(({createSlide10Vid
  });
  slide10VideoController.ready();
 }).catch(()=>notify("10번 컴퓨터 영상 재생 기능을 불러오지 못했습니다. 새로고침해 주세요."));
+// Slide 53's DOCX result is a separate output from the older plan on slide 12.
+// Its MEGA link is registered only on first icon click and then shared live.
+import("./slide53-plan.js?v=slide53-mega-docx-v1").then(({createSlide53Plan})=>{
+ slide53PlanController=createSlide53Plan({
+  getState:()=>({teacher,allowed,F,db,auth,room}),
+  getSlide:()=>slide,
+  resources:slideResources,
+  openShared:(rec,page)=>sharedLinks?.broadcast(rec,page),
+  onChange:()=>{if(slide===53){showResources(53);sharedLinks?.onSlide()}},
+  notify
+ });
+ slide53PlanController.ready();
+}).catch(()=>notify("53번 목회계획서 문서 연결 기능을 불러오지 못했습니다. 새로고침해 주세요."));
 // Lecturer-only arrival notifications are isolated from slide and pen logic.
 if(teacher)import("./attendance-alerts.js").then(({createAttendanceAlerts})=>{
  attendanceAlerts=createAttendanceAlerts({getState:()=>({teacher,db,F,auth,room})});
