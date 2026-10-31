@@ -163,7 +163,7 @@
 <p class="muted">파일명을 통해 이름·교회명을 확인하세요. 파일 요청 링크를 누구나 사용할 수 있으므로 강의 종료 후 MEGA에서 파일 요청을 비활성화하세요.</p>
 </div></aside></main><div id="pop"></div>
 <script type="module">
-const titles=["AI 목회자 세미나","과거 사역활용 및 AI 실제 사용","꿈을 먹고 살지요","여러분의 AI 실력 성장","대심방 시 부재중 합성","5년 전 교회 모습","현재 교회 모습","주보 표지 제작","한 주간 말씀 게시물","AI 영상 활용","설교 Shorts","AI 목회계획서","목회 활용 사례 13","목회 활용 사례 14","목회 활용 사례 15","목회 활용 사례 16","목회 활용 사례 17","목회 활용 사례 18","목회 활용 사례 19","목회 활용 사례 20","목회 활용 사례 21","목회 활용 사례 22","목회 활용 사례 23","목회 활용 사례 24","목회 활용 사례 25","목회 활용 사례 26","목회 활용 사례 27","홍보물 만들기 실습","실전 가이드","프롬프트 정밀화","설교 보조작업","설교 프롬프트 실전","연간 목회계획서 제작","학습 목표","AI와 목회자의 역할","나쁜 프롬프트","좋은 프롬프트","프롬프트 6요소","역할 정의","목적 설정","교회 현황","과업 정의","조건 설정","출력 형식","마스터 프롬프트","실습: 교회 정보 입력","실습: AI와 대화","AI 결과 검증","1단계 · 실제 프롬프트 사용으로 인한 목회계획 제작","프롬프트 용어","단계별 실습","월별 목회계획","결과물 출력","AI는 도구, 목회는 사명","설교 쇼츠 제작","설교 전 요약 영상"];
+const titles=["AI 목회자 세미나","과거 사역활용 및 AI 실제 사용","꿈을 먹고 살지요","여러분의 AI 실력 성장","대심방 시 부재중 합성","5년 전 교회 모습","현재 교회 모습","주보 표지 제작","한 주간 말씀 게시물","AI 영상 활용","설교 Shorts","AI 목회계획서","목회 활용 사례 13","목회 활용 사례 14","목회 활용 사례 15","목회 활용 사례 16","목회 활용 사례 17","목회 활용 사례 18","목회 활용 사례 19","목회 활용 사례 20","목회 활용 사례 21","목회 활용 사례 22","목회 활용 사례 23","목회 활용 사례 24","목회 활용 사례 25","목회 활용 사례 26","목회 활용 사례 27","홍보물 만들기 실습","실전 가이드","프롬프트 정밀화","설교 보조작업","설교 프롬프트 실전","연간 목회계획서 제작","학습 목표","AI와 목회자의 역할","나쁜 프롬프트","좋은 프롬프트","프롬프트 6요소","역할 정의","목적 설정","교회 현황","과업 정의","조건 설정","출력 형식","마스터 프롬프트","실습: 교회 정보 입력","실습: AI와 대화","AI 결과 검증","1단계 · 실제 프롬프트 사용으로 인한 목회계획 제작","프롬프트 용어","단계별 실습","월별 목회계획","결과물 출력","AI는 도구, 목회는 사명","4. 설교 쇼츠 제작","설교 전 요약 영상"];
 const $=id=>document.getElementById(id), params=new URLSearchParams(location.search);
 const teacher=params.get("teacher")==="1", conf=(window.GOD119_CONFIG&&window.GOD119_CONFIG.firebase)||{}, room="god119-seminar";
 const configured=!!(conf.apiKey&&conf.projectId&&conf.databaseURL&&conf.authDomain&&conf.appId);
@@ -176,7 +176,7 @@ let sharedLinks=null;
 let slide10VideoController=null;
 let slide53PlanController=null;
 let attendanceAlerts=null;
-let redesignedImagesActive=false,slide02CleanActive=false,slide04UprightActive=false,slide05TitleActive=false,slide49StageTitleActive=false;
+let redesignedImagesActive=false,slide02CleanActive=false,slide04UprightActive=false,slide05TitleActive=false,slide49StageTitleActive=false,slide55SectionTitleActive=false;
 const DESIGN_VERSION="god119-2026-10-31-original-faithful";
 function regionForSlideLink(n,rec){
  if(!redesignedImagesActive)return rec.rect;
@@ -573,7 +573,7 @@ function show(){
   img.hidden=true;
   $("notice").textContent="실제 강의 PPT 슬라이드 이미지가 아직 업로드되지 않았습니다. GitHub GOD119/slides 폴더에 slide-01.webp부터 slide-56.webp까지 업로드하면 자동 표시됩니다.";
  };
- img.dataset.format="webp";img.src="slides/"+filename+".webp"+(slide===49&&slide49StageTitleActive?"?title=step1-v1":slide===5&&slide05TitleActive?"?title=visitation-v1":slide===4&&slide04UprightActive?"?poster=portrait-v1":slide===2&&slide02CleanActive?"?motion=single-v3":redesignedImagesActive?"?design="+DESIGN_VERSION:"");
+ img.dataset.format="webp";img.src="slides/"+filename+".webp"+(slide===55&&slide55SectionTitleActive?"?title=section4-v1":slide===49&&slide49StageTitleActive?"?title=step1-v1":slide===5&&slide05TitleActive?"?title=visitation-v1":slide===4&&slide04UprightActive?"?poster=portrait-v1":slide===2&&slide02CleanActive?"?motion=single-v3":redesignedImagesActive?"?design="+DESIGN_VERSION:"");
  showResources(slide);binding();sharedLinks?.onSlide();slide10VideoController?.onSlide();slide53PlanController?.onSlide();
 }
 function navigate(n){
@@ -922,6 +922,18 @@ permission();show();fit();connect();
      version.title!=="1단계 · 실제 프롬프트 사용으로 인한 목회계획 제작")return;
   slide49StageTitleActive=true;
   if(slide===49)show();
+ }catch(e){}
+})();
+// Refresh slide 55 only after the corrected WebP image is installed.
+(async()=>{
+ try{
+  const response=await fetch("slides/slide-55-section-title.json?check="+Date.now(),{cache:"no-store"});
+  if(!response.ok)return;
+  const marker=await response.json();
+  if(marker.design!=="slide55-section4-title-v1"||marker.slide!==55||
+     marker.title!=="4. 설교 쇼츠 제작")return;
+  slide55SectionTitleActive=true;
+  if(slide===55)show();
  }catch(e){}
 })();
 // Isolated optional module: a link-sharing problem must never stop the lecture.
