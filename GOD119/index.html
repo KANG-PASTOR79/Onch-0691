@@ -141,15 +141,22 @@ const slideResources={
 44:[{label:"2027_목회계획서.docx",local:true}],
 53:[{label:"목회계획서 샘플제작 결과물.docx",local:true}]
 };
+function openSlideResource(event,rec,page){
+ // Only an authorized lecturer opens shared resources inside the current
+ // GOD119 stage. Attendee links still follow the browser's normal behavior.
+ if(!teacher)return;
+ const accepted=sharedLinks?.broadcast(rec,page);
+ if(accepted)event.preventDefault();
+}
 function showResources(n){
  const links=$("links"),hotspots=$("hotspots");links.replaceChildren();hotspots.replaceChildren();
  for(const rec of (slideResources[n]||[])){
   if(rec.local){const el=document.createElement("span");el.className="muted";el.textContent="📎 "+rec.label+" — 강사 컴퓨터 파일, 별도 업로드 필요";links.appendChild(el);continue}
   const anchor=document.createElement("a");anchor.href=rec.url;anchor.target="_blank";anchor.rel="noopener noreferrer";anchor.textContent="↗ "+rec.label;
-  anchor.addEventListener("click",()=>sharedLinks?.broadcast(rec,n));
+  anchor.addEventListener("click",event=>openSlideResource(event,rec,n));
   links.appendChild(anchor);
   if(rec.rect){const hot=document.createElement("a");hot.href=rec.url;hot.target="_blank";hot.rel="noopener noreferrer";hot.title=rec.label+" 열기 (새 창)";hot.setAttribute("aria-label",rec.label+" 열기");const [x,y,w,h]=regionForSlideLink(n,rec);hot.style.left=x+"%";hot.style.top=y+"%";hot.style.width=w+"%";hot.style.height=h+"%";
-   hot.addEventListener("click",()=>sharedLinks?.broadcast(rec,n));
+   hot.addEventListener("click",event=>openSlideResource(event,rec,n));
    hotspots.appendChild(hot)}
  }
 }
@@ -294,6 +301,7 @@ let navigationTap=null;
 function isSlideLinkTarget(el){return !!el?.closest?.("a,button,input,select,textarea,[role=button]")}
 function canTapNavigate(e){
  return teacher&&allowed&&!clearingStrokes&&!undoInProgress&&tool==="cursor"
+  &&!sharedLinks?.isOpen?.()
   &&(e.pointerType==="pen"||e.pointerType==="touch")&&e.isPrimary!==false
   &&!isSlideLinkTarget(e.target);
 }
@@ -526,6 +534,10 @@ $("clearAllStrokes").onclick=async()=>{
 };
 window.onkeydown=e=>{
  if(!teacher||!allowed||clearingStrokes||e.target?.isContentEditable)return;
+ if(sharedLinks?.isOpen?.()){
+  if(e.key==="Escape"){e.preventDefault();sharedLinks.close()}
+  return;
+ }
  const focused=document.activeElement;
  const typing=focused&&["INPUT","TEXTAREA"].includes(focused.tagName);
  const selectOther=focused?.tagName==="SELECT"&&focused!==$("slideSelect");
