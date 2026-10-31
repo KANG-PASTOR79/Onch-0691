@@ -9,6 +9,8 @@ export function createSharedLinks({getState,resources,notify}){
 .god-link-overlay[hidden],.god-link-presenter[hidden]{display:none!important}
 .god-link-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.god-link-bar strong{flex:1;font-size:clamp(13px,2vw,22px)}
 .god-link-bar button,.god-link-actions a,.god-link-presenter button{background:#274765;border:1px solid #7291b2;border-radius:8px;padding:8px 12px;color:white;text-decoration:none;font-size:clamp(11px,1vw,14px);cursor:pointer}
+#godSharedDismiss{background:#f0c17a;color:#10213a;font-weight:800;border-color:#ffe2ae}
+#godSharedDismiss:hover,#godSharedDismiss:focus-visible{background:#ffda9e;outline:2px solid #ffe2ae;outline-offset:2px}
 .god-link-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.god-link-actions a{background:#f0c17a;color:#11213c;font-weight:700}
 .god-link-overlay p{margin:0;font-size:clamp(10px,1vw,14px);color:#cbd9eb;line-height:1.5}
 .god-link-preview{flex:1;min-height:100px;border:1px solid #496989;border-radius:8px;overflow:hidden;background:#182e47}
@@ -20,7 +22,7 @@ export function createSharedLinks({getState,resources,notify}){
  document.head.appendChild(style);
  stage.insertAdjacentHTML("beforeend",`
  <div id="godSharedLink" class="god-link-overlay" hidden role="region" aria-label="강사가 공유한 외부 자료">
-  <div class="god-link-bar"><strong id="godSharedTitle">강사 공유 자료</strong><button id="godSharedDismiss" type="button">✕ 슬라이드로 돌아가기</button></div>
+  <div class="god-link-bar"><strong id="godSharedTitle">강사 공유 자료</strong><button id="godSharedDismiss" type="button">↩ 원래 슬라이드로 돌아가기</button></div>
   <p id="godSharedHelp">강사가 공유 중인 자료입니다.</p>
   <div class="god-link-preview"><iframe id="godSharedFrame" title="강사가 공유한 웹페이지" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
   <div class="god-link-actions"><a id="godSharedOpen" href="#" target="_blank" rel="noopener noreferrer">↗ 새 탭에서 자료 열기</a><p>사이트가 보이지 않으면 새 탭으로 여세요. 영상은 각 기기에서 재생을 누릅니다.</p></div>
@@ -51,27 +53,34 @@ export function createSharedLinks({getState,resources,notify}){
  }
  function render(){
   const {teacher,slide}=getState(),match=known(value);
-  if(teacher){
-   panel.hidden=!(match&&match.slide===slide);
-   if(match)el("godSharingStatus").textContent="공유 중: "+match.rec.label;
-   hide();return;
-  }
-  panel.hidden=true;
-  if(!match||match.slide!==slide||dismissed===match.id){hide();return}
-  el("godSharedTitle").textContent="강사가 공유한 자료 · "+match.rec.label;
+  panel.hidden=!(teacher&&match&&match.slide===slide);
+  if(teacher&&match)el("godSharingStatus").textContent="공유 중: "+match.rec.label;
+  if(!match||match.slide!==slide||(!teacher&&dismissed===match.id)){hide();return}
+  el("godSharedTitle").textContent=(teacher?"강사 자료 보기 · ":"강사가 공유한 자료 · ")+match.rec.label;
   el("godSharedOpen").href=match.rec.url;
-  el("godSharedHelp").textContent="강사가 연 자료가 참석자 화면에도 표시됩니다. 웹사이트 보안상 안 보이면 아래 링크를 사용하세요.";
+  el("godSharedDismiss").textContent=teacher?"↩ 슬라이드로 돌아가기 · 참석자도 함께 복귀":"↩ 슬라이드로 돌아가기";
+  el("godSharedHelp").textContent=teacher?
+   "강사와 참석자가 같은 링크 자료를 보고 있습니다. 설명을 마치면 위의 돌아가기 버튼을 누르세요. 웹사이트 보안 정책으로 표시되지 않으면 아래에서 새 탭으로 열 수 있습니다.":
+   "강사가 공유한 웹자료입니다. 웹사이트 보안상 보이지 않으면 아래의 새 탭 버튼을 이용하세요.";
   const frame=el("godSharedFrame"),src=target(match.rec.url);
   if(frame.getAttribute("src")!==src)frame.src=src;
   el("godSharedLink").hidden=false;
  }
- el("godSharedDismiss").onclick=()=>{dismissed=known(value)?.id||null;hide()};
- el("godSharingStop").onclick=async()=>{
+ async function stopSharing(){
   const {teacher,allowed,F,db,room}=getState();
-  if(!teacher||!allowed||!F||!db)return;
-  try{await F.remove(F.ref(db,"rooms/"+room+"/sharedLink"))}
-  catch(e){notify("공유 종료 실패: Firebase 연결을 확인하세요.")}
- };
+  if(!teacher||!allowed||!F||!db){notify("강사 Google 로그인을 확인해 주세요.");return}
+  try{
+   await F.remove(F.ref(db,"rooms/"+room+"/sharedLink"));
+   // Firebase onValue closes the shared panel for lecturer and all attendees.
+  }catch(e){notify("공유 종료 실패: Firebase 연결 또는 권한을 확인하세요.")}
+ }
+ function close(){
+  if(getState().teacher){stopSharing();return}
+  dismissed=known(value)?.id||null;
+  hide();
+ }
+ el("godSharedDismiss").onclick=close;
+ el("godSharingStop").onclick=stopSharing;
  function ready(){
   if(initialized)return;
   const {F,db,room}=getState();if(!F||!db)return;
@@ -88,6 +97,7 @@ export function createSharedLinks({getState,resources,notify}){
   if(!(resources[page]||[]).some(x=>!x.local&&x.url===rec.url))return;
   F.set(F.ref(db,"rooms/"+room+"/sharedLink"),{slide:page,url:rec.url,at:Date.now()})
    .catch(()=>notify("링크 공유에 실패했습니다. Firebase 연결을 확인하세요."));
+  return true;
  }
- return {ready,broadcast,onSlide:render};
+ return {ready,broadcast,onSlide:render,close,isOpen:()=>!el("godSharedLink").hidden};
 }
