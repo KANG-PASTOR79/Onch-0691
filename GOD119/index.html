@@ -87,6 +87,16 @@ let boundSlide=null,subscriptionEpoch=0,clearingStrokes=false,undoInProgress=fal
 const inFlightStrokeWrites=new Map();
 let authAPI=null,attendanceUnsubscribe=null,attendeeProfile=null,attendanceSaveBusy=false;
 let sharedLinks=null;
+let redesignedImagesActive=false;
+const DESIGN_VERSION="god119-2026-10-31-original-faithful";
+function regionForSlideLink(n,rec){
+ if(!redesignedImagesActive)return rec.rect;
+ if(n===3&&rec.url.includes("mgchurch.or.kr"))return [10.1,75.9,34.5,6.3];
+ if(n===3&&rec.url.includes("gnnews.co.kr"))return [55,75.9,34.5,6.3];
+ if(n===11)return [44.9,76.7,22.7,6.3];
+ if(n===25)return [78.8,95.1,7.1,2.5];
+ return rec.rect;
+}
 const slideResources={
 3:[{label:"경남일보 기사",url:"https://www.gnnews.co.kr/news/articleView.html?idxno=177660",rect:[6.875,38.333,28.594,24.514]},{label:"교회 자료 사이트",url:"https://www.mgchurch.or.kr/bbs/board.php?bo_table=church65&wr_id=567&page=25&frame=2",rect:[7.289,20.472,26.531,6.722]}],
 10:[{label:"삼손중창단 행사 홍보영상.mp4",local:true},{label:"주일설교요약영상.mp4",local:true}],
@@ -102,7 +112,7 @@ function showResources(n){
   const anchor=document.createElement("a");anchor.href=rec.url;anchor.target="_blank";anchor.rel="noopener noreferrer";anchor.textContent="↗ "+rec.label;
   anchor.addEventListener("click",()=>sharedLinks?.broadcast(rec,n));
   links.appendChild(anchor);
-  if(rec.rect){const hot=document.createElement("a");hot.href=rec.url;hot.target="_blank";hot.rel="noopener noreferrer";hot.title=rec.label+" 열기 (새 창)";hot.setAttribute("aria-label",rec.label+" 열기");const [x,y,w,h]=rec.rect;hot.style.left=x+"%";hot.style.top=y+"%";hot.style.width=w+"%";hot.style.height=h+"%";
+  if(rec.rect){const hot=document.createElement("a");hot.href=rec.url;hot.target="_blank";hot.rel="noopener noreferrer";hot.title=rec.label+" 열기 (새 창)";hot.setAttribute("aria-label",rec.label+" 열기");const [x,y,w,h]=regionForSlideLink(n,rec);hot.style.left=x+"%";hot.style.top=y+"%";hot.style.width=w+"%";hot.style.height=h+"%";
    hot.addEventListener("click",()=>sharedLinks?.broadcast(rec,n));
    hotspots.appendChild(hot)}
  }
@@ -217,7 +227,7 @@ function show(){
   if(here!==slide)return;
   img.hidden=false;
   $("notice").textContent="실제 강의 PPT "+here+" / 56 · 슬라이드 판서는 실시간으로 공유됩니다. 강사 컴퓨터에 저장된 MP4·DOCX 링크는 별도 연결해야 합니다.";
-  if(here<56){const preload=new Image();preload.src="slides/slide-"+String(here+1).padStart(2,"0")+".webp"}
+  if(here<56){const preload=new Image();preload.src="slides/slide-"+String(here+1).padStart(2,"0")+".webp"+(redesignedImagesActive?"?design="+DESIGN_VERSION:"")}
  };
  img.onerror=()=>{
   if(here!==slide)return;
@@ -225,7 +235,7 @@ function show(){
   img.hidden=true;
   $("notice").textContent="실제 강의 PPT 슬라이드 이미지가 아직 업로드되지 않았습니다. GitHub GOD119/slides 폴더에 slide-01.webp부터 slide-56.webp까지 업로드하면 자동 표시됩니다.";
  };
- img.dataset.format="webp";img.src="slides/"+filename+".webp";
+ img.dataset.format="webp";img.src="slides/"+filename+".webp"+(redesignedImagesActive?"?design="+DESIGN_VERSION:"");
  showResources(slide);binding();sharedLinks?.onSlide();
 }
 function navigate(n){
@@ -501,6 +511,19 @@ $("login").onclick=async()=>{try{await b.signInWithPopup(auth,new b.GoogleAuthPr
 $("logout").onclick=()=>b.signOut(auth);
 }catch(e){allowed=false;permission();status("Firebase 설정 오류",false)}}
 permission();show();fit();connect();
+// Activate new hyperlink hitboxes only after the validated 56-slide ZIP is
+// actually installed by GitHub Actions. This keeps old links functional until
+// the upload happens; no new icon/image can silently change the existing site.
+(async()=>{
+ try{
+  const r=await fetch("slides/design-version.json?check="+Date.now(),{cache:"no-store"});
+  if(!r.ok)return;
+  const marker=await r.json();
+  if(marker.design!==DESIGN_VERSION||marker.slideCount!==56)return;
+  redesignedImagesActive=true;
+  show();
+ }catch(e){}
+})();
 // Isolated optional module: a link-sharing problem must never stop the lecture.
 import("./shared-links.js").then(({createSharedLinks})=>{
  sharedLinks=createSharedLinks({
