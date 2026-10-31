@@ -80,6 +80,30 @@
  text-decoration:none;font-size:clamp(12px,1.32vw,23px);
  font-weight:900;line-height:1.1;letter-spacing:-.02em;white-space:nowrap;
 }
+/* CapCut workshop entrance is shown only on the lecturer's 55th slide,
+   not in attendee mode. It opens CapCut's own secure login/workspace tab. */
+#hotspots .god-capcut-corner{
+ position:absolute;left:60.3%;top:14.8%;width:32.5%;height:15.2%;
+ box-sizing:border-box;z-index:3;pointer-events:auto;
+ display:flex;flex-direction:column;align-items:stretch;justify-content:center;
+ padding:clamp(5px,.75vw,15px) clamp(8px,1.08vw,21px);gap:clamp(2px,.4vw,8px);
+ border:2px solid #59becd;border-radius:clamp(8px,.9vw,17px);
+ background:linear-gradient(115deg,rgba(22,54,77,.98),rgba(11,30,50,.98));
+ box-shadow:0 4px 25px #020b1dcc;color:#f7fbff;
+}
+#hotspots .god-capcut-caption{font-size:clamp(9px,.75vw,14px);font-weight:700;letter-spacing:.10em;color:#66d2e5;line-height:1.1}
+#hotspots .god-capcut-title{font-size:clamp(12px,1.37vw,26px);font-weight:850;line-height:1.1;white-space:nowrap}
+#hotspots a.god-capcut-open{
+ position:static;display:flex;align-items:center;justify-content:center;
+ min-height:0;flex:1;box-sizing:border-box;width:100%;pointer-events:auto;
+ padding:clamp(3px,.4vw,8px);background:#f2bd6b;color:#13253c;
+ border:1px solid #ffe0aa;border-radius:clamp(6px,.5vw,10px);
+ font-size:clamp(11px,1.08vw,21px);font-weight:850;letter-spacing:-.01em;
+ text-decoration:none;white-space:nowrap
+}
+#hotspots a.god-capcut-open:hover,#hotspots a.god-capcut-open:focus-visible{
+ background:#ffda97;border-color:white;outline:2px solid #f8d99f;outline-offset:1px
+}
 #hotspots .god-notebook-link:hover,#hotspots .god-notebook-link:focus-visible{
  background:#ffe0a3;border-color:#fff5da;outline:2px solid #ffefbf;outline-offset:2px
 }
@@ -404,6 +428,34 @@ function showResources(n){
   docButton.appendChild(docBadge);
   docButton.onclick=()=>slide53PlanController?.configure();
   hotspots.appendChild(docButton);
+ }
+ if(n===55&&teacher){
+  // Lecturer-only entrance to the official CapCut web workspace.
+  // Actual projects remain in the user's CapCut account. Never put a personal
+  // project link, password, access token, or account info on the public page
+  // or into Firebase, and never broadcast CapCut navigation to attendees.
+  const corner=document.createElement("div");
+  corner.className="god-capcut-corner";
+  corner.setAttribute("aria-label","강사 전용 CapCut 영상 편집 작업실");
+  const note=document.createElement("div");
+  note.className="god-capcut-caption";
+  note.textContent="강사 전용 · SHORTS WORKSHOP";
+  const heading=document.createElement("div");
+  heading.className="god-capcut-title";
+  heading.textContent="✂ CapCut 영상 편집";
+  const launch=document.createElement("a");
+  launch.className="god-capcut-open";
+  launch.href="https://www.capcut.com/";
+  launch.target="_blank";
+  launch.rel="noopener noreferrer";
+  launch.textContent="나의 CapCut 작업실 열기 ↗";
+  launch.title="CapCut 웹 작업실 열기 · 기존 계정으로 로그인하여 프로젝트 사용";
+  launch.setAttribute("aria-label","강사 개인 CapCut 작업실 새 탭에서 열기");
+  launch.addEventListener("click",e=>{
+   if(!allowed){e.preventDefault();notify("강사 Google 로그인 후 CapCut 작업실을 열어주세요.")}
+  });
+  corner.append(note,heading,launch);
+  hotspots.appendChild(corner);
  }
  if(n===32&&teacher){
   // Privacy first: attendees must never be given the private NotebookLM URL.
