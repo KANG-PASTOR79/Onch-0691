@@ -68,7 +68,7 @@ export function createSharedLinks({getState,resources,notify}){
    if(!documentPreview)documentPreview=mod.createMegaDocumentViewer({
     status:el("godSharedDocumentStatus"),
     viewport:el("godSharedDocumentViewport"),
-    documentName:"창원온천교회 목회계획서"
+    documentName:"MEGA 공유 문서"
    });
    documentPreview.show(rec.url,id);
   }catch(error){
@@ -137,8 +137,8 @@ export function createSharedLinks({getState,resources,notify}){
    el("godSharedPreview").hidden=true;
    el("godSharedDocument").hidden=false;
    el("godSharedDocumentOpen").href=match.rec.url;
-   el("godSharedOpen").textContent="↗ MEGA에서 원본 열기";
-   el("godSharedHelp").textContent="MEGA 목회계획서를 이 강의실 화면에서 불러옵니다. 강사가 돌아가기를 누르면 참석자도 함께 복귀합니다.";
+   el("godSharedOpen").textContent="↗ MEGA에서 원본 문서 열기";
+   el("godSharedHelp").textContent="MEGA의 공유 문서를 GOD119 안에서 불러옵니다. 강사가 돌아가기를 누르면 참석자도 함께 복귀합니다.";
    el("godSharedLink").hidden=false;
    showDocumentPreview(match.rec,match.id);
    return;
