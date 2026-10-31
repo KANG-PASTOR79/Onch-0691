@@ -87,6 +87,7 @@ let boundSlide=null,subscriptionEpoch=0,clearingStrokes=false,undoInProgress=fal
 const inFlightStrokeWrites=new Map();
 let authAPI=null,attendanceUnsubscribe=null,attendeeProfile=null,attendanceSaveBusy=false;
 let sharedLinks=null;
+let attendanceAlerts=null;
 let redesignedImagesActive=false;
 const DESIGN_VERSION="god119-2026-10-31-original-faithful";
 function regionForSlideLink(n,rec){
@@ -502,11 +503,11 @@ window.onkeydown=e=>{
 new ResizeObserver(fit).observe(canvas);
 async function connect(){
 if(!configured){status("로컬 미리보기",false);permission();return}
-try{const host="https://www.gstatic.com/firebasejs/11.10.0/";const [a,b,d]=await Promise.all([import(host+"firebase-app.js"),import(host+"firebase-auth.js"),import(host+"firebase-database.js")]);F=d;authAPI=b;const app=a.initializeApp(conf);db=d.getDatabase(app);auth=b.getAuth(app);sharedLinks?.ready();
+try{const host="https://www.gstatic.com/firebasejs/11.10.0/";const [a,b,d]=await Promise.all([import(host+"firebase-app.js"),import(host+"firebase-auth.js"),import(host+"firebase-database.js")]);F=d;authAPI=b;const app=a.initializeApp(conf);db=d.getDatabase(app);auth=b.getAuth(app);sharedLinks?.ready();attendanceAlerts?.sync();
 d.onValue(d.ref(db,".info/connected"),s=>{status(s.val()?"실시간 연결됨":"연결 끊김",s.val()===true);if(!s.val())$("notice").textContent="실시간 연결이 끊겼습니다. Firebase 설정을 확인하세요.";});
 d.onValue(d.ref(db,remote("currentSlide")),s=>{const n=Number(s.val());if(n>=1&&n<=56&&n!==slide){slide=n;show()}});
 d.onValue(d.ref(db,remote("pointer")),s=>{if(teacher&&allowed&&tool==="laser")return;const p=s.val();$("laser").hidden=!(p&&p.active&&Date.now()-(p.at||0)<2500);if(!$("laser").hidden){$("laser").style.left=p.x*100+"%";$("laser").style.top=p.y*100+"%";clearTimeout(laserTimeout);laserTimeout=setTimeout(()=>$("laser").hidden=true,750)}});
-binding();b.onAuthStateChanged(auth,u=>{user=u;allowed=teacher&&!!u;permission();if(!teacher)loadAttendeeProfile(u)});
+binding();b.onAuthStateChanged(auth,u=>{user=u;allowed=teacher&&!!u;permission();if(teacher)attendanceAlerts?.sync();else loadAttendeeProfile(u)});
 $("login").onclick=async()=>{try{await b.signInWithPopup(auth,new b.GoogleAuthProvider())}catch(e){notify("Google 로그인 설정을 확인하세요.")}};
 $("logout").onclick=()=>b.signOut(auth);
 }catch(e){allowed=false;permission();status("Firebase 설정 오류",false)}}
@@ -533,4 +534,9 @@ import("./shared-links.js").then(({createSharedLinks})=>{
  sharedLinks.ready();
  sharedLinks.onSlide();
 }).catch(()=>notify("웹자료 공유 기능을 불러오지 못했습니다. 새로고침해 주세요."));
+// Lecturer-only arrival notifications are isolated from slide and pen logic.
+if(teacher)import("./attendance-alerts.js").then(({createAttendanceAlerts})=>{
+ attendanceAlerts=createAttendanceAlerts({getState:()=>({teacher,db,F,auth,room})});
+ attendanceAlerts.sync();
+}).catch(()=>notify("출석 알림 기능을 불러오지 못했습니다. 새로고침해 주세요."));
 </script></body></html>
