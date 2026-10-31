@@ -55,6 +55,17 @@
  border-radius:999px;background:#f3bb69;color:#10263c;padding:5px 11px;
  font-size:clamp(10px,1vw,16px);font-weight:850;letter-spacing:0.01em;
  box-shadow:0 3px 12px #08192b66;pointer-events:none;white-space:nowrap}
+/* Poster exercise 29–30: continue and return-to-menu controls at upper-right. */
+#hotspots .god-practice-nav{position:absolute;pointer-events:auto;cursor:pointer;
+ display:flex;align-items:center;justify-content:center;box-sizing:border-box;
+ padding:clamp(4px,.55vw,10px) clamp(5px,.6vw,12px);
+ border:2px solid #ffd99a;border-radius:999px;
+ font-size:clamp(11px,1.10vw,21px);line-height:1.15;font-weight:850;
+ letter-spacing:-.02em;box-shadow:0 4px 15px #020b1799;white-space:nowrap;
+ background:#f0bb69;color:#112641}
+#hotspots .god-practice-nav.secondary{background:#1b4057;color:#fff5db;border-color:#f5cb8c}
+#hotspots .god-practice-nav:hover,#hotspots .god-practice-nav:focus-visible{
+ outline:2px solid #fff0bf;outline-offset:2px;filter:brightness(1.12)}
 .god-local-video-link{background:#21425f;border:1px solid #7c9db8;border-radius:9px;padding:11px 13px;
  color:#fff;cursor:pointer;font:inherit;font-weight:650}
 .god-local-video-link:hover,.god-local-video-link:focus-visible{border-color:#ffcd81}#penCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:3;touch-action:none;pointer-events:none}#laser{position:absolute;z-index:4;width:22px;height:22px;transform:translate(-50%,-50%);border-radius:50%;background:#ff4760;box-shadow:0 0 0 12px #ff47603a,0 0 18px #f64;pointer-events:none}#laser[hidden]{display:none}.row{display:flex;gap:9px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-top:13px}.muted{color:#a6b7d1;font-size:12px;line-height:1.6}.notice{border:1px solid #735f3a;background:#302719;color:#f7d7a2;padding:13px 16px;border-radius:12px;font-size:12px;line-height:1.6;margin-top:20px}.live-note{border-color:#326252;background:#122e2b;color:#b8ead9}aside{display:flex;flex-direction:column;gap:14px}aside[hidden]{display:none}.card{background:#13263c;border:1px solid #344d67;border-radius:15px;padding:17px}.card h3{margin:0 0 12px;font-size:17px}button,select,input{font:inherit}button{border:1px solid #465d7a;border-radius:9px;padding:10px 12px;color:#edf4ff;background:#1d344e;cursor:pointer;font-size:13px;font-weight:700}button:hover:not(:disabled){border-color:#8cb1d1}button:disabled{opacity:.4;cursor:not-allowed}.primary{background:linear-gradient(120deg,#f7d18f,#e9ab54);color:#1c2d40;border-color:#ebbd74}.two{display:flex;gap:8px}.two button{flex:1}.toolbox{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.toolbox button{font-size:12px;padding:12px 4px}.toolbox .active{border-color:#f7cd80;background:#564020;color:#ffe0a4}select,input{padding:11px;border-radius:9px;background:#081c30;border:1px solid #3f5d7c;color:white;width:100%;font-size:12px}.colors{display:flex;gap:10px;align-items:center;margin:14px 0}.colors button{width:24px;height:24px;border-radius:50%;padding:0;background:var(--c);border:2px solid #ffffff90}.colors .active{outline:2px solid white;outline-offset:2px}.links a{display:inline-block;margin:10px 7px 0 0;padding:9px 12px;border:1px solid #44688c;border-radius:8px;color:#aed7ff;text-decoration:none;font-size:12px}#pop{position:fixed;left:50%;bottom:25px;transform:translateX(-50%);border-radius:11px;background:#284c69;color:white;padding:12px 17px;z-index:10;display:none;font-size:13px}@media(max-width:1060px){main{grid-template-columns:1fr}aside{display:grid;grid-template-columns:repeat(2,1fr)}}@media(max-width:650px){main{display:block;padding:13px 9px}aside{display:block}.card{margin-top:12px}header{padding:10px}.brand strong{font-size:17px}.logo{font-size:14px}.status{font-size:10px}.slide-content h2{font-size:23px}}
@@ -256,6 +267,30 @@ function showResources(n){
   firstCard.appendChild(hint);
   firstCard.onclick=()=>navigate(29);
   hotspots.appendChild(firstCard);
+ }
+ if((n===29||n===30)&&teacher){
+  // Contextual navigation: 28 → 29 → 30 → 28.
+  // navigate() sends the current slide to all attendees in real time.
+  const actions=n===29
+    ?[{label:"▶ 30번 보기",target:30,top:13.8,variant:"primary"},
+      {label:"↩ 28번 목록",target:28,top:21.1,variant:"secondary"}]
+    :[{label:"← 29번 보기",target:29,top:13.8,variant:"secondary"},
+      {label:"↩ 28번 목록",target:28,top:21.1,variant:"primary"}];
+  for(const action of actions){
+   const button=document.createElement("button");
+   button.type="button";
+   button.className="god-practice-nav"+(action.variant==="secondary"?" secondary":"");
+   button.textContent=action.label;
+   button.title=action.target===28?"첫 번째 실습 목록(28번)으로 돌아가기":
+     "포스터 제작 실습 "+action.target+"번으로 이동";
+   button.setAttribute("aria-label",button.title);
+   button.style.left="79.1%";
+   button.style.top=action.top+"%";
+   button.style.width="17.5%";
+   button.style.height="6.2%";
+   button.onclick=()=>navigate(action.target);
+   hotspots.appendChild(button);
+  }
  }
 }
 const canvas=$("penCanvas"),ctx=canvas.getContext("2d");
