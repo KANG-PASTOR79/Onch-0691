@@ -50,6 +50,15 @@ export function createSharedLinks({getState,resources,notify}){
     const id=u.pathname.split("/").filter(Boolean).find(part=>/^\d+$/.test(part));
     if(id)return "https://player.vimeo.com/video/"+id;
    }
+   if(["mega.nz","www.mega.nz"].includes(u.hostname)){
+    // MEGA videos are client-side encrypted. Stream through MEGA's
+    // decryption-enabled embedded player, not a direct MP4 URL.
+    const path=u.pathname.match(/^\/(file|embed)\/([a-zA-Z0-9_-]{6,})\/?$/);
+    if(path&&/^#[a-zA-Z0-9_-]{10,}$/.test(u.hash))
+     return "https://mega.nz/embed/"+path[2]+u.hash;
+    const old=u.hash.match(/^#!([a-zA-Z0-9_-]{6,})!([a-zA-Z0-9_-]{10,})$/);
+    if(u.pathname==="/"&&old)return "https://mega.nz/embed/"+old[1]+"#"+old[2];
+   }
   }catch(e){}
   return url;
  }
