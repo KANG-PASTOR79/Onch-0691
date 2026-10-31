@@ -42,7 +42,7 @@ export function createMegaDocumentViewer({status,viewport,documentName}){
   appendMessage("문서 내용을 불러오는 중입니다. 파일 크기에 따라 시간이 걸릴 수 있습니다.");
   try{
    // Official MEGAJS browser entry from https://mega.js.org/
-   const {File}=await import("https://unpkg.com/megajs@1.3.2/dist/main.browser-es.mjs");
+   const {File}=await import("https://unpkg.com/megajs@1.3.1/dist/main.browser-es.mjs");
    if(turn!==sequence)return;
    const file=File.fromURL(url);
    file.api.userAgent=null;
