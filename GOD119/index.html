@@ -80,8 +80,9 @@
  text-decoration:none;font-size:clamp(12px,1.32vw,23px);
  font-weight:900;line-height:1.1;letter-spacing:-.02em;white-space:nowrap;
 }
-/* CapCut workshop entrance is shown only on the lecturer's 55th slide,
-   not in attendee mode. It opens CapCut's own secure login/workspace tab. */
+/* Lecturer's slide 55: run locally installed macOS CapCut through an Apple
+   Shortcuts link. No project URLs, cookies, credentials, or source files go
+   to Firebase. Hidden from attendees, never synchronized. */
 #hotspots .god-capcut-corner{
  position:absolute;left:60.3%;top:14.8%;width:32.5%;height:15.2%;
  box-sizing:border-box;z-index:3;pointer-events:auto;
@@ -104,6 +105,12 @@
 #hotspots a.god-capcut-open:hover,#hotspots a.god-capcut-open:focus-visible{
  background:#ffda97;border-color:white;outline:2px solid #f8d99f;outline-offset:1px
 }
+#hotspots a.god-capcut-setup{position:static;display:block;pointer-events:auto;
+ margin:0;padding:1px 2px;border:0;background:transparent;
+ text-align:center;color:#8ee6f3;text-decoration:underline;
+ font-size:clamp(10px,.72vw,14px);line-height:1.2;white-space:nowrap}
+#hotspots a.god-capcut-setup:hover,#hotspots a.god-capcut-setup:focus-visible{
+ color:#fff3d3;text-decoration:underline;outline:1px solid #ffe2a3}
 #hotspots .god-notebook-link:hover,#hotspots .god-notebook-link:focus-visible{
  background:#ffe0a3;border-color:#fff5da;outline:2px solid #ffefbf;outline-offset:2px
 }
@@ -430,31 +437,38 @@ function showResources(n){
   hotspots.appendChild(docButton);
  }
  if(n===55&&teacher){
-  // Lecturer-only entrance to the official CapCut web workspace.
-  // Actual projects remain in the user's CapCut account. Never put a personal
-  // project link, password, access token, or account info on the public page
-  // or into Firebase, and never broadcast CapCut navigation to attendees.
+  // macOS desktop launcher. On this Mac the lecturer creates a Shortcut
+  // named GOD119-CapCut containing one action: Open App -> CapCut.
+  // Apple documents shortcuts://run-shortcut?name=... from a web browser.
+  // A regular trusted user click is needed and the browser can show a prompt.
+  // Never broadcast a personal application or project URL to attendees.
   const corner=document.createElement("div");
   corner.className="god-capcut-corner";
-  corner.setAttribute("aria-label","강사 전용 CapCut 영상 편집 작업실");
+  corner.setAttribute("aria-label","강사 전용 Mac 설치형 CapCut 실행");
   const note=document.createElement("div");
   note.className="god-capcut-caption";
-  note.textContent="강사 전용 · SHORTS WORKSHOP";
+  note.textContent="강사 전용 · MAC SHORTS WORKSHOP";
   const heading=document.createElement("div");
   heading.className="god-capcut-title";
-  heading.textContent="✂ CapCut 영상 편집";
+  heading.textContent="✂ Mac CapCut 편집";
   const launch=document.createElement("a");
   launch.className="god-capcut-open";
-  launch.href="https://www.capcut.com/";
-  launch.target="_blank";
-  launch.rel="noopener noreferrer";
-  launch.textContent="나의 CapCut 작업실 열기 ↗";
-  launch.title="CapCut 웹 작업실 열기 · 기존 계정으로 로그인하여 프로젝트 사용";
-  launch.setAttribute("aria-label","강사 개인 CapCut 작업실 새 탭에서 열기");
-  launch.addEventListener("click",e=>{
-   if(!allowed){e.preventDefault();notify("강사 Google 로그인 후 CapCut 작업실을 열어주세요.")}
-  });
-  corner.append(note,heading,launch);
+  launch.href="shortcuts://run-shortcut?name=GOD119-CapCut";
+  launch.textContent="PC에 설치된 CapCut 실행 ↗";
+  launch.title="맥 단축어 GOD119-CapCut 실행 · 단축어의 앱 열기 동작이 CapCut을 실행";
+  launch.setAttribute("aria-label","강사 Mac에 설치된 CapCut 실행 (GOD119-CapCut 단축어 필요)");
+  const setup=document.createElement("a");
+  setup.className="god-capcut-setup";
+  setup.href="shortcuts://create-shortcut";
+  setup.textContent="최초 1회: 단축어 설정 ↗";
+  setup.title="Mac 단축어 앱 열기 · 이름 GOD119-CapCut, 동작 앱 열기 → CapCut으로 저장";
+  setup.setAttribute("aria-label","CapCut 실행용 Mac 단축어 만들기");
+  const authenticate=e=>{
+   if(!allowed){e.preventDefault();notify("강사 Google 로그인 후 CapCut 실행 버튼을 이용해 주세요.")}
+  };
+  launch.addEventListener("click",authenticate);
+  setup.addEventListener("click",authenticate);
+  corner.append(note,heading,launch,setup);
   hotspots.appendChild(corner);
  }
  if(n===32&&teacher){
