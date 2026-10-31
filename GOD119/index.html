@@ -145,6 +145,7 @@ const slideResources={
 3:[{label:"경남일보 기사",url:"https://www.gnnews.co.kr/news/articleView.html?idxno=177660",rect:[6.875,38.333,28.594,24.514]},{label:"교회 자료 사이트",url:"https://www.mgchurch.or.kr/bbs/board.php?bo_table=church65&wr_id=567&page=25&frame=2",rect:[7.289,20.472,26.531,6.722]}],
 10:[{label:"삼손중창단 행사 홍보영상 · MEGA 영상",url:"https://mega.nz/file/6qxwCIRZ#hjUnv-AjIvEGEq7yZuuf0zLcM4d4SVJgqVyycZsmdrg",rect:[6.2,26.8,42.6,63.8]},{label:"주일설교요약영상 · MEGA 영상",url:"https://mega.nz/file/uqZRHLgA#8AXm5RoZ_QK0uy2VNp1MiKHr5iJt371ERC2n6JV3gGU",rect:[50.8,26.8,42.6,63.8]}],
 11:[{label:"설교 쇼츠 영상",url:"https://www.youtube.com/shorts/ywMLfSwuM5g",rect:[5.938,29.167,21.562,56.167]}],
+12:[{label:"창원온천교회 목회계획서 · MEGA 파일",url:"https://mega.nz/file/yy5UURwA#epnjq9xEPVEQPwKDxSq4X1Flz8Ndo-eXwHwqYOjbfvk",rect:[15.5,6.1,69.0,90.5],type:"document"}],
 25:[{label:"유튜브 쇼츠 원본 영상",url:"https://www.youtube.com/shorts/Pj5PScSJ0Q4",rect:[0,0.417,100,99.167]}],
 44:[{label:"2027_목회계획서.docx",local:true}],
 53:[{label:"목회계획서 샘플제작 결과물.docx",local:true}]
@@ -154,7 +155,10 @@ function openSlideResource(event,rec,page){
  // GOD119 stage. Attendee links still follow the browser's normal behavior.
  if(!teacher)return;
  const accepted=sharedLinks?.broadcast(rec,page);
- if(accepted)event.preventDefault();
+ // The MEGA document is not an embeddable movie. Open the actual document
+ // in MEGA on the presenter's click, and simultaneously share its link with
+ // attendees through the existing in-slide synchronized resource panel.
+ if(accepted&&rec.type!=="document")event.preventDefault();
 }
 function showResources(n){
  const links=$("links"),hotspots=$("hotspots");links.replaceChildren();hotspots.replaceChildren();
