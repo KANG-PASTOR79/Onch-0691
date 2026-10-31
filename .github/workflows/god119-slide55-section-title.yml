@@ -1,0 +1,45 @@
+name: Correct section 4 heading on GOD119 slide 55
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/god119-slide55-section-title.yml'
+      - 'GOD119/scripts/fix_slide55_section_title.py'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: god119-slide55-section-title
+  cancel-in-progress: false
+
+jobs:
+  correct-slide-55-title:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out slides
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Install Korean font and Pillow
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y fonts-noto-cjk
+          python -m pip install pillow
+      - name: Apply exact heading correction
+        run: python GOD119/scripts/fix_slide55_section_title.py
+      - name: Commit updated slide image
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add GOD119/slides/slide-55.webp GOD119/slides/slide-55-section-title.json
+          if git diff --cached --quiet; then
+            echo 'Slide 55 already updated.'
+          else
+            git commit -m 'Slide 55: 4. 설교 쇼츠 제작'
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
