@@ -36,7 +36,7 @@
  }
  #hotspots{position:absolute;inset:0;z-index:2;pointer-events:none}#hotspots a{position:absolute;display:block;pointer-events:auto;box-sizing:border-box;border:2px solid transparent;border-radius:5px;outline-offset:2px}#hotspots a:hover,#hotspots a:focus-visible{border-color:#ffc979;background:#f9c35922}
 /* Visual reminder only on the 23rd slide's right-hand 제주 일정표 card. */
-#hotspots a.god-open-hotspot{overflow:visible}
+#hotspots .god-open-hotspot{overflow:visible}
 #hotspots .god-open-badge{position:absolute;top:clamp(4px,.65vw,12px);left:50%;
  transform:translateX(-50%);display:inline-flex;justify-content:center;align-items:center;
  min-width:clamp(58px,6vw,115px);box-sizing:border-box;padding:clamp(4px,.45vw,9px) clamp(10px,1vw,19px);
@@ -44,6 +44,8 @@
  font-size:clamp(13px,1.4vw,24px);font-weight:900;line-height:1.1;letter-spacing:.08em;
  text-shadow:0 1px 2px #650009;box-shadow:0 3px 17px #ea1b2899;
  pointer-events:none;white-space:nowrap;animation:godOpenPulse 2.1s ease-in-out infinite}
+/* Place OPEN at the top-right of the DOCX icon without covering its title. */
+#hotspots .god-open-badge.god-open-badge-docx{left:83%;top:-12%}
 @keyframes godOpenPulse{0%,100%{transform:translateX(-50%) scale(1);box-shadow:0 3px 13px #eb20287a}
  50%{transform:translateX(-50%) scale(1.08);box-shadow:0 4px 22px #f82c35cb}}
 @media(prefers-reduced-motion:reduce){#hotspots .god-open-badge{animation:none}}
@@ -247,12 +249,14 @@ function showResources(n){
    hot.title=rec.label+" 열기 (새 창)";hot.setAttribute("aria-label",rec.label+" 열기");
    const [x,y,w,h]=regionForSlideLink(n,rec);
    hot.style.left=x+"%";hot.style.top=y+"%";hot.style.width=w+"%";hot.style.height=h+"%";
-   if(n===23&&rec.type==="document"&&rec.label.includes("제주")){
-    // Reminder is inside the *real* clickable hyperlink, so Pencil/click
-    // still opens the original MEGA Jeju schedule in the synced viewer.
+   if((n===23&&rec.type==="document"&&rec.label.includes("제주"))||
+      (n===53&&rec.type==="document")){
+    // The badge is part of the actual linked image, not a separate overlay.
+    // Keeps slide 23 unchanged and labels the linked DOCX on slide 53.
     hot.classList.add("god-open-hotspot");
     const badge=document.createElement("span");
     badge.className="god-open-badge";
+    if(n===53)badge.classList.add("god-open-badge-docx");
     badge.textContent="OPEN";
     badge.setAttribute("aria-hidden","true");
     hot.appendChild(badge);
@@ -392,6 +396,12 @@ function showResources(n){
   docButton.setAttribute("aria-label","목회계획서 실습 결과물 · MEGA 문서 연결");
   docButton.style.left="42.8%";docButton.style.top="36.8%";
   docButton.style.width="13.8%";docButton.style.height="27.7%";
+  docButton.classList.add("god-open-hotspot");
+  const docBadge=document.createElement("span");
+  docBadge.className="god-open-badge god-open-badge-docx";
+  docBadge.textContent="OPEN";
+  docBadge.setAttribute("aria-hidden","true");
+  docButton.appendChild(docBadge);
   docButton.onclick=()=>slide53PlanController?.configure();
   hotspots.appendChild(docButton);
  }
