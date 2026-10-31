@@ -164,13 +164,13 @@ function showResources(n){
     if(teacher){
      const btn=document.createElement("button");
      btn.type="button";btn.className="god-local-video-link";
-     btn.textContent="▶ "+(i===0?"삼손중창단 행사 홍보영상":"주일설교요약영상")+" — 노트북 파일 재생";
+     btn.textContent="▶ "+(i===0?"삼손중창단 행사 홍보영상":"주일설교요약영상")+" — MEGA 연결·영상 보기";
      btn.onclick=()=>slide10VideoController?.play(i);
      links.appendChild(btn);
     }else{
      const info=document.createElement("span");
      info.className="muted";
-     info.textContent=rec.label+" — 강사의 컴퓨터 파일입니다. 참석자 기기에서 자동 재생할 수 없습니다.";
+     info.textContent=rec.label+" — 강사가 MEGA 공유 링크를 연결하면 영상 보기가 활성화됩니다.";
      links.appendChild(info);
     }
    }else{
@@ -201,12 +201,25 @@ function showResources(n){
    if(!slideResources[10][i]?.local)return;
    const button=document.createElement("button");
    button.type="button";button.className="god-local-video-hotspot";
-   button.setAttribute("aria-label",(i===0?"삼손중창단 행사 홍보영상":"주일설교요약영상")+" 파일 재생");
-   button.title=(i===0?"삼손중창단 행사 홍보영상":"주일설교요약영상")+" · 클릭하여 노트북 파일 재생";
+   button.setAttribute("aria-label",(i===0?"삼손중창단 행사 홍보영상":"주일설교요약영상")+" MEGA 영상 연결 및 재생");
+   button.title=(i===0?"삼손중창단 행사 홍보영상":"주일설교요약영상")+" · 클릭하여 MEGA 영상 연결";
    button.style.left=x+"%";button.style.top=y+"%";button.style.width=w+"%";button.style.height=h+"%";
    button.onclick=()=>slide10VideoController?.play(i);
    hotspots.appendChild(button);
   });
+ }
+ if(n===10&&teacher){
+  // Compact control below the slide; no large MEGA settings sidebar.
+  const change=document.createElement("button");
+  change.type="button";change.className="god-local-video-link";
+  change.textContent="⚙ 영상 링크 연결·변경";
+  change.onclick=()=>slide10VideoController?.configure(0);
+  links.appendChild(change);
+  const changeSecond=document.createElement("button");
+  changeSecond.type="button";changeSecond.className="god-local-video-link";
+  changeSecond.textContent="⚙ 두 번째 영상 링크 변경";
+  changeSecond.onclick=()=>slide10VideoController?.configure(1);
+  links.appendChild(changeSecond);
  }
 }
 const canvas=$("penCanvas"),ctx=canvas.getContext("2d");
@@ -675,11 +688,12 @@ import("./shared-links.js?v=mega-embed-20261031").then(({createSharedLinks})=>{
 }).catch(()=>notify("웹자료 공유 기능을 불러오지 못했습니다. 새로고침해 주세요."));
 // Keep the two seminar video addresses editable without changing PowerPoint.
 // Registered URLs are shared through Firebase and are visible on all devices.
-import("./slide10-videos.js?v=mega-embed-20261031").then(({createSlide10Videos})=>{
+import("./slide10-videos.js?v=mega-click-to-play-20261031").then(({createSlide10Videos})=>{
  slide10VideoController=createSlide10Videos({
   getState:()=>({teacher,allowed,F,db,auth,room}),
   getSlide:()=>slide,
   resources:slideResources,
+  openShared:(rec,page)=>sharedLinks?.broadcast(rec,page),
   onChange:()=>{if(slide===10)showResources(10)},
   notify
  });
