@@ -143,7 +143,7 @@ function regionForSlideLink(n,rec){
 }
 const slideResources={
 3:[{label:"경남일보 기사",url:"https://www.gnnews.co.kr/news/articleView.html?idxno=177660",rect:[6.875,38.333,28.594,24.514]},{label:"교회 자료 사이트",url:"https://www.mgchurch.or.kr/bbs/board.php?bo_table=church65&wr_id=567&page=25&frame=2",rect:[7.289,20.472,26.531,6.722]}],
-10:[{label:"삼손중창단 행사 홍보영상.mp4",local:true},{label:"주일설교요약영상.mp4",local:true}],
+10:[{label:"삼손중창단 행사 홍보영상 · MEGA 영상",url:"https://mega.nz/file/6qxwCIRZ#hjUnv-AjIvEGEq7yZuuf0zLcM4d4SVJgqVyycZsmdrg",rect:[6.2,26.8,42.6,63.8]},{label:"주일설교요약영상 · MEGA 영상",url:"https://mega.nz/file/uqZRHLgA#8AXm5RoZ_QK0uy2VNp1MiKHr5iJt371ERC2n6JV3gGU",rect:[50.8,26.8,42.6,63.8]}],
 11:[{label:"설교 쇼츠 영상",url:"https://www.youtube.com/shorts/ywMLfSwuM5g",rect:[5.938,29.167,21.562,56.167]}],
 25:[{label:"유튜브 쇼츠 원본 영상",url:"https://www.youtube.com/shorts/Pj5PScSJ0Q4",rect:[0,0.417,100,99.167]}],
 44:[{label:"2027_목회계획서.docx",local:true}],
@@ -207,19 +207,6 @@ function showResources(n){
    button.onclick=()=>slide10VideoController?.play(i);
    hotspots.appendChild(button);
   });
- }
- if(n===10&&teacher){
-  // Compact control below the slide; no large MEGA settings sidebar.
-  const change=document.createElement("button");
-  change.type="button";change.className="god-local-video-link";
-  change.textContent="⚙ 영상 링크 연결·변경";
-  change.onclick=()=>slide10VideoController?.configure(0);
-  links.appendChild(change);
-  const changeSecond=document.createElement("button");
-  changeSecond.type="button";changeSecond.className="god-local-video-link";
-  changeSecond.textContent="⚙ 두 번째 영상 링크 변경";
-  changeSecond.onclick=()=>slide10VideoController?.configure(1);
-  links.appendChild(changeSecond);
  }
 }
 const canvas=$("penCanvas"),ctx=canvas.getContext("2d");
@@ -688,7 +675,7 @@ import("./shared-links.js?v=mega-embed-20261031").then(({createSharedLinks})=>{
 }).catch(()=>notify("웹자료 공유 기능을 불러오지 못했습니다. 새로고침해 주세요."));
 // Keep the two seminar video addresses editable without changing PowerPoint.
 // Registered URLs are shared through Firebase and are visible on all devices.
-import("./slide10-videos.js?v=mega-click-to-play-20261031").then(({createSlide10Videos})=>{
+import("./slide10-videos.js?v=mega-preset-two-20261031").then(({createSlide10Videos})=>{
  slide10VideoController=createSlide10Videos({
   getState:()=>({teacher,allowed,F,db,auth,room}),
   getSlide:()=>slide,
