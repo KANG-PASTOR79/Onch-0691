@@ -613,7 +613,7 @@ permission();show();fit();connect();
  }catch(e){}
 })();
 // Isolated optional module: a link-sharing problem must never stop the lecture.
-import("./shared-links.js").then(({createSharedLinks})=>{
+import("./shared-links.js?v=slide10-video-20261031").then(({createSharedLinks})=>{
  sharedLinks=createSharedLinks({
   getState:()=>({teacher,allowed,slide,F,db,room}),
   resources:slideResources,notify
@@ -623,7 +623,7 @@ import("./shared-links.js").then(({createSharedLinks})=>{
 }).catch(()=>notify("웹자료 공유 기능을 불러오지 못했습니다. 새로고침해 주세요."));
 // Keep the two seminar video addresses editable without changing PowerPoint.
 // Registered URLs are shared through Firebase and are visible on all devices.
-import("./slide10-videos.js").then(({createSlide10Videos})=>{
+import("./slide10-videos.js?v=slide10-video-20261031").then(({createSlide10Videos})=>{
  slide10VideoController=createSlide10Videos({
   getState:()=>({teacher,allowed,F,db,auth,room}),
   resources:slideResources,
