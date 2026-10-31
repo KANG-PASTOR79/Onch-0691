@@ -130,7 +130,6 @@ const inFlightStrokeWrites=new Map();
 let authAPI=null,attendanceUnsubscribe=null,attendeeProfile=null,attendanceSaveBusy=false;
 let sharedLinks=null;
 let slide10VideoController=null;
-let slide23JejuController=null;
 let attendanceAlerts=null;
 let redesignedImagesActive=false,slide02CleanActive=false,slide04UprightActive=false,slide05TitleActive=false;
 const DESIGN_VERSION="god119-2026-10-31-original-faithful";
@@ -147,6 +146,7 @@ const slideResources={
 10:[{label:"삼손중창단 행사 홍보영상 · MEGA 영상",url:"https://mega.nz/file/6qxwCIRZ#hjUnv-AjIvEGEq7yZuuf0zLcM4d4SVJgqVyycZsmdrg",rect:[6.2,26.8,42.6,63.8]},{label:"주일설교요약영상 · MEGA 영상",url:"https://mega.nz/file/uqZRHLgA#8AXm5RoZ_QK0uy2VNp1MiKHr5iJt371ERC2n6JV3gGU",rect:[50.8,26.8,42.6,63.8]}],
 11:[{label:"설교 쇼츠 영상",url:"https://www.youtube.com/shorts/ywMLfSwuM5g",rect:[5.938,29.167,21.562,56.167]}],
 12:[{label:"창원온천교회 목회계획서 · MEGA 파일",url:"https://mega.nz/file/yy5UURwA#epnjq9xEPVEQPwKDxSq4X1Flz8Ndo-eXwHwqYOjbfvk",rect:[15.5,6.1,69.0,90.5],type:"document"}],
+23:[{label:"제주 수련회 일정표 · MEGA 파일",url:"https://mega.nz/file/vuw1QTSZ#baqzDFqS8A6y5d_grqpyPMpzEUrG32qhALx5kr10x2o",rect:[66.0,22.9,25.5,69.0],type:"document"}],
 25:[{label:"유튜브 쇼츠 원본 영상",url:"https://www.youtube.com/shorts/Pj5PScSJ0Q4",rect:[0,0.417,100,99.167]}],
 44:[{label:"2027_목회계획서.docx",local:true}],
 53:[{label:"목회계획서 샘플제작 결과물.docx",local:true}]
@@ -211,18 +211,6 @@ function showResources(n){
    button.onclick=()=>slide10VideoController?.play(i);
    hotspots.appendChild(button);
   });
- }
- if(n===23&&teacher&&!(slideResources[23]||[]).length){
-  // Exact right card from the original slide 23, not the other two cards.
-  // Once a MEGA link is saved, the ordinary accessible hyperlink replaces it.
-  const b=document.createElement("button");
-  b.type="button";b.className="god-local-video-hotspot";b.id="god-jeju23-hotspot";
-  b.title="행사 기획안 초안 · 제주 수련회 일정표 MEGA 링크 연결";
-  b.setAttribute("aria-label","행사 기획안 초안 · 제주 수련회 일정표 열기");
-  b.style.left="66.0%";b.style.top="22.9%";
-  b.style.width="25.5%";b.style.height="69.0%";
-  b.onclick=()=>slide23JejuController?.configure();
-  hotspots.appendChild(b);
  }
 }
 const canvas=$("penCanvas"),ctx=canvas.getContext("2d");
@@ -347,7 +335,7 @@ function show(){
   $("notice").textContent="실제 강의 PPT 슬라이드 이미지가 아직 업로드되지 않았습니다. GitHub GOD119/slides 폴더에 slide-01.webp부터 slide-56.webp까지 업로드하면 자동 표시됩니다.";
  };
  img.dataset.format="webp";img.src="slides/"+filename+".webp"+(slide===5&&slide05TitleActive?"?title=visitation-v1":slide===4&&slide04UprightActive?"?poster=portrait-v1":slide===2&&slide02CleanActive?"?motion=single-v3":redesignedImagesActive?"?design="+DESIGN_VERSION:"");
- showResources(slide);binding();sharedLinks?.onSlide();slide10VideoController?.onSlide();slide23JejuController?.onSlide();
+ showResources(slide);binding();sharedLinks?.onSlide();slide10VideoController?.onSlide();
 }
 function navigate(n){
  if(!allowed||clearingStrokes||undoInProgress)return;
@@ -366,7 +354,7 @@ let navigationTap=null;
 function isSlideLinkTarget(el){return !!el?.closest?.("a,button,input,select,textarea,[role=button]")}
 function canTapNavigate(e){
  return teacher&&allowed&&!clearingStrokes&&!undoInProgress&&tool==="cursor"
-  &&!sharedLinks?.isOpen?.()&&!slide10VideoController?.isOpen?.()&&!slide23JejuController?.isOpen?.()
+  &&!sharedLinks?.isOpen?.()&&!slide10VideoController?.isOpen?.()
   &&(e.pointerType==="pen"||e.pointerType==="touch")&&e.isPrimary!==false
   &&!isSlideLinkTarget(e.target);
 }
@@ -603,10 +591,6 @@ window.onkeydown=e=>{
   if(e.key==="Escape"){e.preventDefault();slide10VideoController.close()}
   return;
  }
- if(slide23JejuController?.isOpen?.()){
-  if(e.key==="Escape"){e.preventDefault();slide23JejuController.close()}
-  return;
- }
  if(sharedLinks?.isOpen?.()){
   if(e.key==="Escape"){e.preventDefault();sharedLinks.close()}
   return;
@@ -626,7 +610,7 @@ window.onkeydown=e=>{
 new ResizeObserver(fit).observe(canvas);
 async function connect(){
 if(!configured){status("로컬 미리보기",false);permission();return}
-try{const host="https://www.gstatic.com/firebasejs/11.10.0/";const [a,b,d]=await Promise.all([import(host+"firebase-app.js"),import(host+"firebase-auth.js"),import(host+"firebase-database.js")]);F=d;authAPI=b;const app=a.initializeApp(conf);db=d.getDatabase(app);auth=b.getAuth(app);sharedLinks?.ready();slide10VideoController?.ready();slide23JejuController?.ready();attendanceAlerts?.sync();
+try{const host="https://www.gstatic.com/firebasejs/11.10.0/";const [a,b,d]=await Promise.all([import(host+"firebase-app.js"),import(host+"firebase-auth.js"),import(host+"firebase-database.js")]);F=d;authAPI=b;const app=a.initializeApp(conf);db=d.getDatabase(app);auth=b.getAuth(app);sharedLinks?.ready();slide10VideoController?.ready();attendanceAlerts?.sync();
 d.onValue(d.ref(db,".info/connected"),s=>{status(s.val()?"실시간 연결됨":"연결 끊김",s.val()===true);if(!s.val())$("notice").textContent="실시간 연결이 끊겼습니다. Firebase 설정을 확인하세요.";});
 d.onValue(d.ref(db,remote("currentSlide")),s=>{const n=Number(s.val());if(n>=1&&n<=56&&n!==slide){slide=n;show()}});
 d.onValue(d.ref(db,remote("pointer")),s=>{if(teacher&&allowed&&tool==="laser")return;const p=s.val();$("laser").hidden=!(p&&p.active&&Date.now()-(p.at||0)<2500);if(!$("laser").hidden){$("laser").style.left=p.x*100+"%";$("laser").style.top=p.y*100+"%";clearTimeout(laserTimeout);laserTimeout=setTimeout(()=>$("laser").hidden=true,750)}});
@@ -706,18 +690,6 @@ import("./slide10-videos.js?v=mega-preset-two-20261031").then(({createSlide10Vid
  });
  slide10VideoController.ready();
 }).catch(()=>notify("10번 컴퓨터 영상 재생 기능을 불러오지 못했습니다. 새로고침해 주세요."));
-// The original third card on slide 23 links to the 제주 수련회 일정표.
-// A small in-slide setup appears only until its MEGA FILE share URL is saved.
-import("./slide23-jeju.js?v=jeju-plan-card-v1").then(({createSlide23Jeju})=>{
- slide23JejuController=createSlide23Jeju({
-  getState:()=>({teacher,allowed,F,db,auth,room}),
-  getSlide:()=>slide,
-  resources:slideResources,
-  onChange:()=>{if(slide===23){showResources(23);sharedLinks?.onSlide()}},
-  notify
- });
- slide23JejuController.ready();
-}).catch(()=>notify("23번 제주 일정표 링크 기능을 불러오지 못했습니다. 새로고침해 주세요."));
 // Lecturer-only arrival notifications are isolated from slide and pen logic.
 if(teacher)import("./attendance-alerts.js").then(({createAttendanceAlerts})=>{
  attendanceAlerts=createAttendanceAlerts({getState:()=>({teacher,db,F,auth,room})});
