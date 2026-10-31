@@ -122,6 +122,7 @@ let boundSlide=null,subscriptionEpoch=0,clearingStrokes=false,undoInProgress=fal
 const inFlightStrokeWrites=new Map();
 let authAPI=null,attendanceUnsubscribe=null,attendeeProfile=null,attendanceSaveBusy=false;
 let sharedLinks=null;
+let slide10VideoController=null;
 let attendanceAlerts=null;
 let redesignedImagesActive=false,slide02CleanActive=false,slide04UprightActive=false,slide05TitleActive=false;
 const DESIGN_VERSION="god119-2026-10-31-original-faithful";
@@ -151,7 +152,7 @@ function openSlideResource(event,rec,page){
 function showResources(n){
  const links=$("links"),hotspots=$("hotspots");links.replaceChildren();hotspots.replaceChildren();
  for(const rec of (slideResources[n]||[])){
-  if(rec.local){const el=document.createElement("span");el.className="muted";el.textContent="📎 "+rec.label+" — 강사 컴퓨터 파일, 별도 업로드 필요";links.appendChild(el);continue}
+  if(rec.local){const el=document.createElement("span");el.className="muted";el.textContent="📎 "+rec.label+(n===10?" — 아직 웹 영상 주소가 연결되지 않았습니다. 강사 화면의 「10번 · 강의 영상 연결」에서 등록해 주세요.":" — 강사 컴퓨터 파일, 별도 업로드 필요");links.appendChild(el);continue}
   const anchor=document.createElement("a");anchor.href=rec.url;anchor.target="_blank";anchor.rel="noopener noreferrer";anchor.textContent="↗ "+rec.label;
   anchor.addEventListener("click",event=>openSlideResource(event,rec,n));
   links.appendChild(anchor);
@@ -553,7 +554,7 @@ window.onkeydown=e=>{
 new ResizeObserver(fit).observe(canvas);
 async function connect(){
 if(!configured){status("로컬 미리보기",false);permission();return}
-try{const host="https://www.gstatic.com/firebasejs/11.10.0/";const [a,b,d]=await Promise.all([import(host+"firebase-app.js"),import(host+"firebase-auth.js"),import(host+"firebase-database.js")]);F=d;authAPI=b;const app=a.initializeApp(conf);db=d.getDatabase(app);auth=b.getAuth(app);sharedLinks?.ready();attendanceAlerts?.sync();
+try{const host="https://www.gstatic.com/firebasejs/11.10.0/";const [a,b,d]=await Promise.all([import(host+"firebase-app.js"),import(host+"firebase-auth.js"),import(host+"firebase-database.js")]);F=d;authAPI=b;const app=a.initializeApp(conf);db=d.getDatabase(app);auth=b.getAuth(app);sharedLinks?.ready();slide10VideoController?.ready();attendanceAlerts?.sync();
 d.onValue(d.ref(db,".info/connected"),s=>{status(s.val()?"실시간 연결됨":"연결 끊김",s.val()===true);if(!s.val())$("notice").textContent="실시간 연결이 끊겼습니다. Firebase 설정을 확인하세요.";});
 d.onValue(d.ref(db,remote("currentSlide")),s=>{const n=Number(s.val());if(n>=1&&n<=56&&n!==slide){slide=n;show()}});
 d.onValue(d.ref(db,remote("pointer")),s=>{if(teacher&&allowed&&tool==="laser")return;const p=s.val();$("laser").hidden=!(p&&p.active&&Date.now()-(p.at||0)<2500);if(!$("laser").hidden){$("laser").style.left=p.x*100+"%";$("laser").style.top=p.y*100+"%";clearTimeout(laserTimeout);laserTimeout=setTimeout(()=>$("laser").hidden=true,750)}});
@@ -620,6 +621,17 @@ import("./shared-links.js").then(({createSharedLinks})=>{
  sharedLinks.ready();
  sharedLinks.onSlide();
 }).catch(()=>notify("웹자료 공유 기능을 불러오지 못했습니다. 새로고침해 주세요."));
+// Keep the two seminar video addresses editable without changing PowerPoint.
+// Registered URLs are shared through Firebase and are visible on all devices.
+import("./slide10-videos.js").then(({createSlide10Videos})=>{
+ slide10VideoController=createSlide10Videos({
+  getState:()=>({teacher,allowed,F,db,auth,room}),
+  resources:slideResources,
+  onChange:()=>{if(slide===10){showResources(10);sharedLinks?.onSlide()}},
+  notify
+ });
+ slide10VideoController.ready();
+}).catch(()=>notify("10번 영상 연결 기능을 불러오지 못했습니다. 새로고침해 주세요."));
 // Lecturer-only arrival notifications are isolated from slide and pen logic.
 if(teacher)import("./attendance-alerts.js").then(({createAttendanceAlerts})=>{
  attendanceAlerts=createAttendanceAlerts({getState:()=>({teacher,db,F,auth,room})});
