@@ -34,7 +34,14 @@
   #slide02Motion .slide02-arrow,#slide02Motion .slide02-trails{animation:none!important}
   #slide02Motion .slide02-trails{display:none}
  }
- #hotspots{position:absolute;inset:0;z-index:2;pointer-events:none}#hotspots a{position:absolute;display:block;pointer-events:auto;box-sizing:border-box;border:2px solid transparent;border-radius:5px;outline-offset:2px}#hotspots a:hover,#hotspots a:focus-visible{border-color:#ffc979;background:#f9c35922}#penCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:3;touch-action:none;pointer-events:none}#laser{position:absolute;z-index:4;width:22px;height:22px;transform:translate(-50%,-50%);border-radius:50%;background:#ff4760;box-shadow:0 0 0 12px #ff47603a,0 0 18px #f64;pointer-events:none}#laser[hidden]{display:none}.row{display:flex;gap:9px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-top:13px}.muted{color:#a6b7d1;font-size:12px;line-height:1.6}.notice{border:1px solid #735f3a;background:#302719;color:#f7d7a2;padding:13px 16px;border-radius:12px;font-size:12px;line-height:1.6;margin-top:20px}.live-note{border-color:#326252;background:#122e2b;color:#b8ead9}aside{display:flex;flex-direction:column;gap:14px}aside[hidden]{display:none}.card{background:#13263c;border:1px solid #344d67;border-radius:15px;padding:17px}.card h3{margin:0 0 12px;font-size:17px}button,select,input{font:inherit}button{border:1px solid #465d7a;border-radius:9px;padding:10px 12px;color:#edf4ff;background:#1d344e;cursor:pointer;font-size:13px;font-weight:700}button:hover:not(:disabled){border-color:#8cb1d1}button:disabled{opacity:.4;cursor:not-allowed}.primary{background:linear-gradient(120deg,#f7d18f,#e9ab54);color:#1c2d40;border-color:#ebbd74}.two{display:flex;gap:8px}.two button{flex:1}.toolbox{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.toolbox button{font-size:12px;padding:12px 4px}.toolbox .active{border-color:#f7cd80;background:#564020;color:#ffe0a4}select,input{padding:11px;border-radius:9px;background:#081c30;border:1px solid #3f5d7c;color:white;width:100%;font-size:12px}.colors{display:flex;gap:10px;align-items:center;margin:14px 0}.colors button{width:24px;height:24px;border-radius:50%;padding:0;background:var(--c);border:2px solid #ffffff90}.colors .active{outline:2px solid white;outline-offset:2px}.links a{display:inline-block;margin:10px 7px 0 0;padding:9px 12px;border:1px solid #44688c;border-radius:8px;color:#aed7ff;text-decoration:none;font-size:12px}#pop{position:fixed;left:50%;bottom:25px;transform:translateX(-50%);border-radius:11px;background:#284c69;color:white;padding:12px 17px;z-index:10;display:none;font-size:13px}@media(max-width:1060px){main{grid-template-columns:1fr}aside{display:grid;grid-template-columns:repeat(2,1fr)}}@media(max-width:650px){main{display:block;padding:13px 9px}aside{display:block}.card{margin-top:12px}header{padding:10px}.brand strong{font-size:17px}.logo{font-size:14px}.status{font-size:10px}.slide-content h2{font-size:23px}}
+ #hotspots{position:absolute;inset:0;z-index:2;pointer-events:none}#hotspots a{position:absolute;display:block;pointer-events:auto;box-sizing:border-box;border:2px solid transparent;border-radius:5px;outline-offset:2px}#hotspots a:hover,#hotspots a:focus-visible{border-color:#ffc979;background:#f9c35922}
+#hotspots .god-local-video-hotspot{position:absolute;display:block;pointer-events:auto;cursor:pointer;
+ border:2px solid transparent;border-radius:11px;background:transparent;outline-offset:2px}
+#hotspots .god-local-video-hotspot:hover,#hotspots .god-local-video-hotspot:focus-visible{
+ border-color:#ffc979;background:#ffc9790f;outline:2px solid #ffc979}
+.god-local-video-link{background:#21425f;border:1px solid #7c9db8;border-radius:9px;padding:11px 13px;
+ color:#fff;cursor:pointer;font:inherit;font-weight:650}
+.god-local-video-link:hover,.god-local-video-link:focus-visible{border-color:#ffcd81}#penCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:3;touch-action:none;pointer-events:none}#laser{position:absolute;z-index:4;width:22px;height:22px;transform:translate(-50%,-50%);border-radius:50%;background:#ff4760;box-shadow:0 0 0 12px #ff47603a,0 0 18px #f64;pointer-events:none}#laser[hidden]{display:none}.row{display:flex;gap:9px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-top:13px}.muted{color:#a6b7d1;font-size:12px;line-height:1.6}.notice{border:1px solid #735f3a;background:#302719;color:#f7d7a2;padding:13px 16px;border-radius:12px;font-size:12px;line-height:1.6;margin-top:20px}.live-note{border-color:#326252;background:#122e2b;color:#b8ead9}aside{display:flex;flex-direction:column;gap:14px}aside[hidden]{display:none}.card{background:#13263c;border:1px solid #344d67;border-radius:15px;padding:17px}.card h3{margin:0 0 12px;font-size:17px}button,select,input{font:inherit}button{border:1px solid #465d7a;border-radius:9px;padding:10px 12px;color:#edf4ff;background:#1d344e;cursor:pointer;font-size:13px;font-weight:700}button:hover:not(:disabled){border-color:#8cb1d1}button:disabled{opacity:.4;cursor:not-allowed}.primary{background:linear-gradient(120deg,#f7d18f,#e9ab54);color:#1c2d40;border-color:#ebbd74}.two{display:flex;gap:8px}.two button{flex:1}.toolbox{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.toolbox button{font-size:12px;padding:12px 4px}.toolbox .active{border-color:#f7cd80;background:#564020;color:#ffe0a4}select,input{padding:11px;border-radius:9px;background:#081c30;border:1px solid #3f5d7c;color:white;width:100%;font-size:12px}.colors{display:flex;gap:10px;align-items:center;margin:14px 0}.colors button{width:24px;height:24px;border-radius:50%;padding:0;background:var(--c);border:2px solid #ffffff90}.colors .active{outline:2px solid white;outline-offset:2px}.links a{display:inline-block;margin:10px 7px 0 0;padding:9px 12px;border:1px solid #44688c;border-radius:8px;color:#aed7ff;text-decoration:none;font-size:12px}#pop{position:fixed;left:50%;bottom:25px;transform:translateX(-50%);border-radius:11px;background:#284c69;color:white;padding:12px 17px;z-index:10;display:none;font-size:13px}@media(max-width:1060px){main{grid-template-columns:1fr}aside{display:grid;grid-template-columns:repeat(2,1fr)}}@media(max-width:650px){main{display:block;padding:13px 9px}aside{display:block}.card{margin-top:12px}header{padding:10px}.brand strong{font-size:17px}.logo{font-size:14px}.status{font-size:10px}.slide-content h2{font-size:23px}}
 
 #penCanvas{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:contain}
 .bulk-erase{margin-top:16px;border-top:1px solid #344d69;padding-top:12px}
@@ -151,14 +158,52 @@ function openSlideResource(event,rec,page){
 }
 function showResources(n){
  const links=$("links"),hotspots=$("hotspots");links.replaceChildren();hotspots.replaceChildren();
- for(const rec of (slideResources[n]||[])){
-  if(rec.local){const el=document.createElement("span");el.className="muted";el.textContent="📎 "+rec.label+(n===10?" — 아직 웹 영상 주소가 연결되지 않았습니다. 강사 화면의 「10번 · 강의 영상 연결」에서 등록해 주세요.":" — 강사 컴퓨터 파일, 별도 업로드 필요");links.appendChild(el);continue}
+ for(const [i,rec] of (slideResources[n]||[]).entries()){
+  if(rec.local){
+   if(n===10){
+    if(teacher){
+     const btn=document.createElement("button");
+     btn.type="button";btn.className="god-local-video-link";
+     btn.textContent="▶ "+(i===0?"삼손중창단 행사 홍보영상":"주일설교요약영상")+" — 노트북 파일 재생";
+     btn.onclick=()=>slide10VideoController?.play(i);
+     links.appendChild(btn);
+    }else{
+     const info=document.createElement("span");
+     info.className="muted";
+     info.textContent=rec.label+" — 강사의 컴퓨터 파일입니다. 참석자 기기에서 자동 재생할 수 없습니다.";
+     links.appendChild(info);
+    }
+   }else{
+    const el=document.createElement("span");el.className="muted";
+    el.textContent="📎 "+rec.label+" — 강사 컴퓨터 파일, 별도 업로드 필요";
+    links.appendChild(el);
+   }
+   continue;
+  }
   const anchor=document.createElement("a");anchor.href=rec.url;anchor.target="_blank";anchor.rel="noopener noreferrer";anchor.textContent="↗ "+rec.label;
   anchor.addEventListener("click",event=>openSlideResource(event,rec,n));
   links.appendChild(anchor);
-  if(rec.rect){const hot=document.createElement("a");hot.href=rec.url;hot.target="_blank";hot.rel="noopener noreferrer";hot.title=rec.label+" 열기 (새 창)";hot.setAttribute("aria-label",rec.label+" 열기");const [x,y,w,h]=regionForSlideLink(n,rec);hot.style.left=x+"%";hot.style.top=y+"%";hot.style.width=w+"%";hot.style.height=h+"%";
+  if(rec.rect){
+   const hot=document.createElement("a");hot.href=rec.url;hot.target="_blank";hot.rel="noopener noreferrer";
+   hot.title=rec.label+" 열기 (새 창)";hot.setAttribute("aria-label",rec.label+" 열기");
+   const [x,y,w,h]=regionForSlideLink(n,rec);
+   hot.style.left=x+"%";hot.style.top=y+"%";hot.style.width=w+"%";hot.style.height=h+"%";
    hot.addEventListener("click",event=>openSlideResource(event,rec,n));
-   hotspots.appendChild(hot)}
+   hotspots.appendChild(hot);
+  }
+ }
+ if(n===10&&teacher){
+  // Click the same left and right visual examples as in the original PPT.
+  const areas=[[6.2,26.8,42.6,63.8],[50.8,26.8,42.6,63.8]];
+  areas.forEach(([x,y,w,h],i)=>{
+   const button=document.createElement("button");
+   button.type="button";button.className="god-local-video-hotspot";
+   button.setAttribute("aria-label",(i===0?"삼손중창단 행사 홍보영상":"주일설교요약영상")+" 파일 재생");
+   button.title=(i===0?"삼손중창단 행사 홍보영상":"주일설교요약영상")+" · 클릭하여 노트북 파일 재생";
+   button.style.left=x+"%";button.style.top=y+"%";button.style.width=w+"%";button.style.height=h+"%";
+   button.onclick=()=>slide10VideoController?.play(i);
+   hotspots.appendChild(button);
+  });
  }
 }
 const canvas=$("penCanvas"),ctx=canvas.getContext("2d");
@@ -283,7 +328,7 @@ function show(){
   $("notice").textContent="실제 강의 PPT 슬라이드 이미지가 아직 업로드되지 않았습니다. GitHub GOD119/slides 폴더에 slide-01.webp부터 slide-56.webp까지 업로드하면 자동 표시됩니다.";
  };
  img.dataset.format="webp";img.src="slides/"+filename+".webp"+(slide===5&&slide05TitleActive?"?title=visitation-v1":slide===4&&slide04UprightActive?"?poster=portrait-v1":slide===2&&slide02CleanActive?"?motion=single-v3":redesignedImagesActive?"?design="+DESIGN_VERSION:"");
- showResources(slide);binding();sharedLinks?.onSlide();
+ showResources(slide);binding();sharedLinks?.onSlide();slide10VideoController?.onSlide();
 }
 function navigate(n){
  if(!allowed||clearingStrokes||undoInProgress)return;
@@ -302,7 +347,7 @@ let navigationTap=null;
 function isSlideLinkTarget(el){return !!el?.closest?.("a,button,input,select,textarea,[role=button]")}
 function canTapNavigate(e){
  return teacher&&allowed&&!clearingStrokes&&!undoInProgress&&tool==="cursor"
-  &&!sharedLinks?.isOpen?.()
+  &&!sharedLinks?.isOpen?.()&&!slide10VideoController?.isOpen?.()
   &&(e.pointerType==="pen"||e.pointerType==="touch")&&e.isPrimary!==false
   &&!isSlideLinkTarget(e.target);
 }
@@ -535,6 +580,10 @@ $("clearAllStrokes").onclick=async()=>{
 };
 window.onkeydown=e=>{
  if(!teacher||!allowed||clearingStrokes||e.target?.isContentEditable)return;
+ if(slide10VideoController?.isOpen?.()){
+  if(e.key==="Escape"){e.preventDefault();slide10VideoController.close()}
+  return;
+ }
  if(sharedLinks?.isOpen?.()){
   if(e.key==="Escape"){e.preventDefault();sharedLinks.close()}
   return;
@@ -623,15 +672,16 @@ import("./shared-links.js?v=slide10-video-20261031").then(({createSharedLinks})=
 }).catch(()=>notify("웹자료 공유 기능을 불러오지 못했습니다. 새로고침해 주세요."));
 // Keep the two seminar video addresses editable without changing PowerPoint.
 // Registered URLs are shared through Firebase and are visible on all devices.
-import("./slide10-videos.js?v=slide10-video-20261031").then(({createSlide10Videos})=>{
+import("./slide10-videos.js?v=local-ppt-video-20261031").then(({createSlide10Videos})=>{
  slide10VideoController=createSlide10Videos({
   getState:()=>({teacher,allowed,F,db,auth,room}),
+  getSlide:()=>slide,
   resources:slideResources,
-  onChange:()=>{if(slide===10){showResources(10);sharedLinks?.onSlide()}},
+  onChange:()=>{if(slide===10)showResources(10)},
   notify
  });
  slide10VideoController.ready();
-}).catch(()=>notify("10번 영상 연결 기능을 불러오지 못했습니다. 새로고침해 주세요."));
+}).catch(()=>notify("10번 컴퓨터 영상 재생 기능을 불러오지 못했습니다. 새로고침해 주세요."));
 // Lecturer-only arrival notifications are isolated from slide and pen logic.
 if(teacher)import("./attendance-alerts.js").then(({createAttendanceAlerts})=>{
  attendanceAlerts=createAttendanceAlerts({getState:()=>({teacher,db,F,auth,room})});
