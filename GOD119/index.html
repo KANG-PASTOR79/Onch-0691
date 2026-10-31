@@ -123,7 +123,7 @@ const inFlightStrokeWrites=new Map();
 let authAPI=null,attendanceUnsubscribe=null,attendeeProfile=null,attendanceSaveBusy=false;
 let sharedLinks=null;
 let attendanceAlerts=null;
-let redesignedImagesActive=false,slide02CleanActive=false;
+let redesignedImagesActive=false,slide02CleanActive=false,slide04UprightActive=false;
 const DESIGN_VERSION="god119-2026-10-31-original-faithful";
 function regionForSlideLink(n,rec){
  if(!redesignedImagesActive)return rec.rect;
@@ -281,7 +281,7 @@ function show(){
   img.hidden=true;
   $("notice").textContent="실제 강의 PPT 슬라이드 이미지가 아직 업로드되지 않았습니다. GitHub GOD119/slides 폴더에 slide-01.webp부터 slide-56.webp까지 업로드하면 자동 표시됩니다.";
  };
- img.dataset.format="webp";img.src="slides/"+filename+".webp"+(slide===2&&slide02CleanActive?"?motion=single-v3":redesignedImagesActive?"?design="+DESIGN_VERSION:"");
+ img.dataset.format="webp";img.src="slides/"+filename+".webp"+(slide===4&&slide04UprightActive?"?poster=portrait-v1":slide===2&&slide02CleanActive?"?motion=single-v3":redesignedImagesActive?"?design="+DESIGN_VERSION:"");
  showResources(slide);binding();sharedLinks?.onSlide();
 }
 function navigate(n){
@@ -586,6 +586,18 @@ permission();show();fit();connect();
   if(typeof marker.sha256!=="string"||!/^[0-9a-f]{64}$/.test(marker.sha256))return;
   slide02CleanActive=true;
   if(slide===2)show();
+ }catch(e){}
+})();
+// Restore the original 2:3 portrait aspect ratio on slide 04.
+// Refresh the image only after the corrected WebP has been installed.
+(async()=>{
+ try{
+  const response=await fetch("slides/slide-04-upright.json?check="+Date.now(),{cache:"no-store"});
+  if(!response.ok)return;
+  const version=await response.json();
+  if(version.design!=="slide04-upright-portrait-v1"||version.slide!==4)return;
+  slide04UprightActive=true;
+  if(slide===4)show();
  }catch(e){}
 })();
 // Isolated optional module: a link-sharing problem must never stop the lecture.
