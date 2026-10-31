@@ -2,56 +2,37 @@
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#081525"><title>GOD119 | AI 목회자 세미나 실시간 강의실</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top left,#24426a,#091423 54%);font:15px system-ui,"Malgun Gothic",sans-serif;color:#edf5ff;min-height:100vh}header{border-bottom:1px solid #30425c;padding:14px clamp(14px,3vw,45px);display:flex;justify-content:space-between;align-items:center;gap:12px;background:#071524bd}.brand{display:flex;align-items:center;gap:13px}.logo{background:linear-gradient(135deg,#ffdb9b,#aa752f);color:#142235;border-radius:14px;padding:11px;font-weight:900;font-size:18px}.brand strong{font-size:24px;letter-spacing:.04em}.brand small{display:block;font-size:10px;color:#a4b8d6;letter-spacing:.1em}.status{font-size:12px;border:1px solid #4b6280;padding:9px;border-radius:40px;color:#f4c47d}main{max-width:1640px;margin:auto;padding:24px;display:grid;grid-template-columns:minmax(0,1fr) 325px;gap:22px}main.viewer{max-width:1370px;grid-template-columns:1fr}h1{font-size:clamp(22px,3vw,36px);margin:0 0 7px;letter-spacing:-.04em}.subtitle{font-size:13px;color:#a8b9d1;margin:0 0 20px}.gold{color:#f5bf73}.stage-wrap{border:1px solid #365673;background:#020915;padding:9px;border-radius:16px;box-shadow:0 20px 65px #0008}.stage{position:relative;aspect-ratio:16/9;background:linear-gradient(150deg,#f9fbff,#e3ebf5);overflow:hidden;border-radius:9px;color:#122c46;touch-action:pan-y}.slide-content{position:absolute;inset:0;padding:9%;display:flex;flex-direction:column;justify-content:center}.slide-content b{position:absolute;top:8%;font-size:clamp(9px,1vw,15px);color:#a78247;letter-spacing:.2em}.slide-content h2{font-size:clamp(22px,3.4vw,55px);letter-spacing:-.055em;line-height:1.3;margin:0 0 14px;max-width:90%}.slide-content p{font-size:clamp(11px,1.2vw,18px);color:#607083;max-width:83%}.slide-content em{font-size:clamp(20px,3.5vw,48px);font-style:normal;color:#c49e5d;font-weight:800;position:absolute;right:8%;bottom:7%}#picture{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;z-index:1}#picture[hidden]{display:none}
- /* Slide 2: animated golden transition. It is drawn over the unchanged original
-    slide image, so the original Korean text and slideshow/Pencil systems stay intact. */
- #slide02Motion{position:absolute;inset:0;z-index:2;
-  pointer-events:none;overflow:hidden;isolation:isolate}
- /* The uploaded slide-02.webp still contains its original static yellow chevron.
-    Paint precisely that chevron's empty center-gap region in the same navy
-    gradient BEFORE rendering the animated chevron, avoiding a double arrow. */
- #slide02Motion .slide02-static-cover{position:absolute;
-  left:46.9%;top:50.5%;width:7.55%;height:11.7%;
-  background:linear-gradient(180deg,#0e1829 0%,#0f192a 65%,#101a2b 100%);
-  pointer-events:none}
- #slide02Motion .slide02-motion-body{position:absolute;
-  left:44.5%;top:46.5%;width:13%;height:20%;
-  pointer-events:none;overflow:visible}
+ /* Slide 02 keeps its original typography and cards as an image.
+    After the old static arrow is physically removed from the image, this
+    layer draws exactly ONE animated chevron in its place. */
+ #slide02Motion{position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden}
  #slide02Motion[hidden]{display:none!important}
- #slide02Motion .slide02-trails{position:absolute;left:2%;top:30%;width:66%;height:42%;
-  background:
-    linear-gradient(90deg,transparent 0%,rgba(249,178,63,.0) 20%,rgba(250,183,71,.72) 63%,transparent 100%) 0 5%/85% 7% no-repeat,
-    linear-gradient(90deg,transparent,rgba(249,187,76,.62),transparent) 0 42%/100% 5% no-repeat,
-    linear-gradient(90deg,transparent,rgba(247,161,39,.7),transparent) 0 80%/80% 6% no-repeat;
-  filter:blur(2px) drop-shadow(0 0 5px rgba(255,182,69,.55));
-  animation:slide02Trail 1.85s ease-in-out infinite}
- #slide02Motion .slide02-ghost{display:none;position:absolute;left:21%;top:23%;width:55%;height:54%;
-  background:#ffb846;clip-path:polygon(0 0,55% 0,100% 50%,55% 100%,0 100%,44% 50%);
-  opacity:.35;filter:blur(1.3px);animation:slide02Ghost 1.85s ease-in-out infinite}
- #slide02Motion .slide02-arrow{position:absolute;left:21%;top:23%;width:55%;height:54%;
-  background:linear-gradient(120deg,#ffdb80,#f9b941 58%,#f2a82d);
+ #slide02Motion .slide02-static-cover,#slide02Motion .slide02-ghost{display:none!important}
+ #slide02Motion .slide02-motion-body{position:absolute;left:46.85%;top:50.8%;width:6.45%;height:10.2%;overflow:visible;pointer-events:none}
+ #slide02Motion .slide02-arrow{position:absolute;inset:0;
+  background:linear-gradient(115deg,#ffd178 0%,#f8bc4f 65%,#f1ac35 100%);
   clip-path:polygon(0 0,55% 0,100% 50%,55% 100%,0 100%,44% 50%);
-  filter:drop-shadow(0 0 8px rgba(250,183,67,.55));
-  animation:slide02ArrowTravel 1.85s cubic-bezier(.48,.05,.42,.95) infinite;
+  animation:slide02SingleArrow 1.85s ease-in-out infinite;
   will-change:transform,opacity}
- @keyframes slide02ArrowTravel{
-  0%{transform:translateX(-8%) scale(.97);opacity:.75}
-  45%{transform:translateX(9%) scale(1.04);opacity:1}
-  75%{transform:translateX(14%) scale(1.04);opacity:.88}
-  100%{transform:translateX(-8%) scale(.97);opacity:.75}
+ #slide02Motion .slide02-trails{position:absolute;left:-23%;top:33%;width:35%;height:35%;opacity:0;
+  background:repeating-linear-gradient(to bottom,transparent 0 18%,#ffc86f 22% 29%,transparent 34% 47%);
+  filter:blur(1.2px);
+  animation:slide02SpeedLines 1.85s ease-in-out infinite}
+ @keyframes slide02SingleArrow{
+  0%{transform:translateX(-7%);opacity:.75}
+  48%{transform:translateX(7%);opacity:1}
+  78%{transform:translateX(10%);opacity:1}
+  100%{transform:translateX(-7%);opacity:.75}
  }
- @keyframes slide02Trail{
-  0%{transform:translateX(-16%) scaleX(.65);opacity:.10}
-  50%{transform:translateX(14%) scaleX(1.1);opacity:.88}
-  100%{transform:translateX(19%) scaleX(.4);opacity:0}
- }
- @keyframes slide02Ghost{
-  0%{transform:translateX(-17%);opacity:0}
-  55%{transform:translateX(1%);opacity:.3}
-  100%{transform:translateX(8%);opacity:0}
+ @keyframes slide02SpeedLines{
+  0%{transform:translateX(-15%);opacity:0}
+  45%{transform:translateX(13%);opacity:.55}
+  80%{transform:translateX(22%);opacity:.2}
+  100%{transform:translateX(15%);opacity:0}
  }
  @media(prefers-reduced-motion:reduce){
-  #slide02Motion .slide02-trails,#slide02Motion .slide02-ghost,#slide02Motion .slide02-arrow{animation:none!important}
-  #slide02Motion .slide02-trails,#slide02Motion .slide02-ghost{display:none}
+  #slide02Motion .slide02-arrow,#slide02Motion .slide02-trails{animation:none!important}
+  #slide02Motion .slide02-trails{display:none}
  }
  #hotspots{position:absolute;inset:0;z-index:2;pointer-events:none}#hotspots a{position:absolute;display:block;pointer-events:auto;box-sizing:border-box;border:2px solid transparent;border-radius:5px;outline-offset:2px}#hotspots a:hover,#hotspots a:focus-visible{border-color:#ffc979;background:#f9c35922}#penCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:3;touch-action:none;pointer-events:none}#laser{position:absolute;z-index:4;width:22px;height:22px;transform:translate(-50%,-50%);border-radius:50%;background:#ff4760;box-shadow:0 0 0 12px #ff47603a,0 0 18px #f64;pointer-events:none}#laser[hidden]{display:none}.row{display:flex;gap:9px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-top:13px}.muted{color:#a6b7d1;font-size:12px;line-height:1.6}.notice{border:1px solid #735f3a;background:#302719;color:#f7d7a2;padding:13px 16px;border-radius:12px;font-size:12px;line-height:1.6;margin-top:20px}.live-note{border-color:#326252;background:#122e2b;color:#b8ead9}aside{display:flex;flex-direction:column;gap:14px}aside[hidden]{display:none}.card{background:#13263c;border:1px solid #344d67;border-radius:15px;padding:17px}.card h3{margin:0 0 12px;font-size:17px}button,select,input{font:inherit}button{border:1px solid #465d7a;border-radius:9px;padding:10px 12px;color:#edf4ff;background:#1d344e;cursor:pointer;font-size:13px;font-weight:700}button:hover:not(:disabled){border-color:#8cb1d1}button:disabled{opacity:.4;cursor:not-allowed}.primary{background:linear-gradient(120deg,#f7d18f,#e9ab54);color:#1c2d40;border-color:#ebbd74}.two{display:flex;gap:8px}.two button{flex:1}.toolbox{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.toolbox button{font-size:12px;padding:12px 4px}.toolbox .active{border-color:#f7cd80;background:#564020;color:#ffe0a4}select,input{padding:11px;border-radius:9px;background:#081c30;border:1px solid #3f5d7c;color:white;width:100%;font-size:12px}.colors{display:flex;gap:10px;align-items:center;margin:14px 0}.colors button{width:24px;height:24px;border-radius:50%;padding:0;background:var(--c);border:2px solid #ffffff90}.colors .active{outline:2px solid white;outline-offset:2px}.links a{display:inline-block;margin:10px 7px 0 0;padding:9px 12px;border:1px solid #44688c;border-radius:8px;color:#aed7ff;text-decoration:none;font-size:12px}#pop{position:fixed;left:50%;bottom:25px;transform:translateX(-50%);border-radius:11px;background:#284c69;color:white;padding:12px 17px;z-index:10;display:none;font-size:13px}@media(max-width:1060px){main{grid-template-columns:1fr}aside{display:grid;grid-template-columns:repeat(2,1fr)}}@media(max-width:650px){main{display:block;padding:13px 9px}aside{display:block}.card{margin-top:12px}header{padding:10px}.brand strong{font-size:17px}.logo{font-size:14px}.status{font-size:10px}.slide-content h2{font-size:23px}}
 
@@ -142,7 +123,7 @@ const inFlightStrokeWrites=new Map();
 let authAPI=null,attendanceUnsubscribe=null,attendeeProfile=null,attendanceSaveBusy=false;
 let sharedLinks=null;
 let attendanceAlerts=null;
-let redesignedImagesActive=false;
+let redesignedImagesActive=false,slide02CleanActive=false;
 const DESIGN_VERSION="god119-2026-10-31-original-faithful";
 function regionForSlideLink(n,rec){
  if(!redesignedImagesActive)return rec.rect;
@@ -275,7 +256,7 @@ function show(){
  slide=Math.max(1,Math.min(56,slide));
  // Both the presenter and every attendee render the same slide number.
  // No Firebase writes are made for this visual effect.
- $("slide02Motion").hidden=slide!==2;
+ $("slide02Motion").hidden=slide!==2||!slide02CleanActive;
  $("title").textContent=titles[slide-1];$("subtitle").textContent=titles[slide-1];
  $("number").textContent=String(slide).padStart(2,"0")+" / 56";
  $("bigNumber").textContent=String(slide).padStart(2,"0");$("slideSelect").value=String(slide);
@@ -293,7 +274,7 @@ function show(){
   img.hidden=true;
   $("notice").textContent="실제 강의 PPT 슬라이드 이미지가 아직 업로드되지 않았습니다. GitHub GOD119/slides 폴더에 slide-01.webp부터 slide-56.webp까지 업로드하면 자동 표시됩니다.";
  };
- img.dataset.format="webp";img.src="slides/"+filename+".webp"+(redesignedImagesActive?"?design="+DESIGN_VERSION:"");
+ img.dataset.format="webp";img.src="slides/"+filename+".webp"+(slide===2&&slide02CleanActive?"?motion=single-v3":redesignedImagesActive?"?design="+DESIGN_VERSION:"");
  showResources(slide);binding();sharedLinks?.onSlide();
 }
 function navigate(n){
@@ -580,6 +561,19 @@ permission();show();fit();connect();
   if(marker.design!==DESIGN_VERSION||marker.slideCount!==56)return;
   redesignedImagesActive=true;
   show();
+ }catch(e){}
+})();
+// The single chevron is activated only after GitHub commits the no-arrow
+// slide image and its matching marker. This prevents double arrows during
+// deployments, cached old images, or failures of the image-cleaning job.
+(async()=>{
+ try{
+  const res=await fetch("slides/slide-02-arrow-clean.json?v="+Date.now(),{cache:"no-store"});
+  if(!res.ok)return;
+  const marker=await res.json();
+  if(typeof marker.sha256!=="string"||!/^[0-9a-f]{64}$/.test(marker.sha256))return;
+  slide02CleanActive=true;
+  if(slide===2)show();
  }catch(e){}
 })();
 // Isolated optional module: a link-sharing problem must never stop the lecture.
