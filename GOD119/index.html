@@ -155,10 +155,9 @@ function openSlideResource(event,rec,page){
  // GOD119 stage. Attendee links still follow the browser's normal behavior.
  if(!teacher)return;
  const accepted=sharedLinks?.broadcast(rec,page);
- // The MEGA document is not an embeddable movie. Open the actual document
- // in MEGA on the presenter's click, and simultaneously share its link with
- // attendees through the existing in-slide synchronized resource panel.
- if(accepted&&rec.type!=="document")event.preventDefault();
+ // All registered slide links, including the ministry plan on slide 12,
+ // open inside GOD119. Only the explicit MEGA fallback button uses a new tab.
+ if(accepted)event.preventDefault();
 }
 function showResources(n){
  const links=$("links"),hotspots=$("hotspots");links.replaceChildren();hotspots.replaceChildren();
@@ -669,7 +668,7 @@ permission();show();fit();connect();
  }catch(e){}
 })();
 // Isolated optional module: a link-sharing problem must never stop the lecture.
-import("./shared-links.js?v=slide12-mega-document-20261031").then(({createSharedLinks})=>{
+import("./shared-links.js?v=slide12-inline-document-20261031").then(({createSharedLinks})=>{
  sharedLinks=createSharedLinks({
   getState:()=>({teacher,allowed,slide,F,db,room}),
   resources:slideResources,notify
