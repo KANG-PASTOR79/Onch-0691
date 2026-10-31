@@ -196,6 +196,9 @@ function showResources(n){
   // Click the same left and right visual examples as in the original PPT.
   const areas=[[6.2,26.8,42.6,63.8],[50.8,26.8,42.6,63.8]];
   areas.forEach(([x,y,w,h],i)=>{
+   // If MEGA has a shared URL, the regular hyperlink hotspot above owns this
+   // region. Never lay a local-file button over it and swallow the click.
+   if(!slideResources[10][i]?.local)return;
    const button=document.createElement("button");
    button.type="button";button.className="god-local-video-hotspot";
    button.setAttribute("aria-label",(i===0?"삼손중창단 행사 홍보영상":"주일설교요약영상")+" 파일 재생");
@@ -672,7 +675,7 @@ import("./shared-links.js?v=slide10-video-20261031").then(({createSharedLinks})=
 }).catch(()=>notify("웹자료 공유 기능을 불러오지 못했습니다. 새로고침해 주세요."));
 // Keep the two seminar video addresses editable without changing PowerPoint.
 // Registered URLs are shared through Firebase and are visible on all devices.
-import("./slide10-videos.js?v=local-ppt-video-20261031").then(({createSlide10Videos})=>{
+import("./slide10-videos.js?v=mega-embed-20261031").then(({createSlide10Videos})=>{
  slide10VideoController=createSlide10Videos({
   getState:()=>({teacher,allowed,F,db,auth,room}),
   getSlide:()=>slide,
