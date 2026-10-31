@@ -68,7 +68,7 @@
  outline:2px solid #fff0bf;outline-offset:2px;filter:brightness(1.12)}
 /* Slide 32: opens the user's actual NotebookLM notebook in a new tab.
    A separate tab is safer for Google's authenticated application than an iframe. */
-#hotspots a.god-notebook-link{
+#hotspots .god-notebook-link{
  position:absolute;z-index:2;display:flex;align-items:center;justify-content:center;
  box-sizing:border-box;pointer-events:auto;cursor:pointer;
  padding:clamp(5px,.65vw,12px) clamp(8px,.85vw,18px);
@@ -78,7 +78,7 @@
  text-decoration:none;font-size:clamp(12px,1.32vw,23px);
  font-weight:900;line-height:1.1;letter-spacing:-.02em;white-space:nowrap;
 }
-#hotspots a.god-notebook-link:hover,#hotspots a.god-notebook-link:focus-visible{
+#hotspots .god-notebook-link:hover,#hotspots .god-notebook-link:focus-visible{
  background:#ffe0a3;border-color:#fff5da;outline:2px solid #ffefbf;outline-offset:2px
 }
 .god-local-video-link{background:#21425f;border:1px solid #7c9db8;border-radius:9px;padding:11px 13px;
@@ -328,22 +328,50 @@ function showResources(n){
    hotspots.appendChild(button);
   }
  }
- if(n===32){
-  // The authenticated NotebookLM app is opened in a separate browser tab.
-  // This button is also visible to attendees; their Google account must have
-  // permission to view the notebook. No untrusted site is embedded in GOD119.
-  const notebook=document.createElement("a");
+ if(n===32&&teacher){
+  // Privacy first: attendees must never be given the private NotebookLM URL.
+  // It is NOT present in public website source or Firebase. The lecturer
+  // supplies it once for the current browser tab, stored in sessionStorage.
+  // Attendees only see the original slide 32, not the lecturer's notebook.
+  const notebook=document.createElement("button");
+  notebook.type="button";
   notebook.className="god-notebook-link";
-  notebook.href="https://notebook.google.com/notebook/b400e5a7-bac9-48a0-9ce4-24fcbc357653";
-  notebook.target="_blank";
-  notebook.rel="noopener noreferrer";
-  notebook.textContent="↗ NotebookLM 자료 열기";
-  notebook.title="설교자료 요약 및 강의 자료 · NotebookLM 원본 노트북 새 탭에서 열기";
-  notebook.setAttribute("aria-label","NotebookLM 설교 및 강의 자료 열기 (새 탭)");
+  notebook.textContent="↗ NotebookLM 강사용 열기";
+  notebook.title="강사 전용: 개인 NotebookLM 열기 (참석자에게 링크·노트북 내용은 공유하지 않음)";
+  notebook.setAttribute("aria-label","강사 전용 NotebookLM 열기 · 참석자 공유 안 함");
   notebook.style.left="54.5%";
   notebook.style.top="73.5%";
   notebook.style.width="34.0%";
   notebook.style.height="8.3%";
+  notebook.onclick=()=>{
+   if(!allowed){notify("강사 Google 로그인 후에 열 수 있습니다.");return}
+   const key="god119-presenter-only-notebooklm-link-v1";
+   let url="";
+   try{url=sessionStorage.getItem(key)||""}catch(_){}
+   if(!url){
+    const supplied=window.prompt("강사님만 사용할 NotebookLM 주소를 입력해 주세요. 참석자에게 공유되지 않고 이 탭에서만 기억됩니다.\n\n처음 한 번만 입력하면 됩니다.","");
+    if(supplied===null)return;
+    url=supplied.trim();
+   }
+   // Accept only an actual Google NotebookLM notebook URL.
+   let checked=null;
+   try{
+    const parsed=new URL(url);
+    if(parsed.protocol==="https:"&&parsed.hostname==="notebook.google.com"&&
+       /^\/notebook\/[A-Za-z0-9-]+\/?$/.test(parsed.pathname)&&
+       !parsed.username&&!parsed.password&&!parsed.search&&!parsed.hash)
+      checked=parsed.href;
+   }catch(_){}
+   if(!checked){
+    try{sessionStorage.removeItem(key)}catch(_){}
+    notify("NotebookLM 노트북 주소를 확인해 주세요. 다시 버튼을 누르면 입력할 수 있습니다.");
+    return;
+   }
+   try{sessionStorage.setItem(key,checked)}catch(_){}
+   // Only this lecturer device opens NotebookLM; no remote writes,
+   // no meeting broadcast and no audience URL are generated.
+   window.open(checked,"_blank","noopener,noreferrer");
+  };
   hotspots.appendChild(notebook);
  }
 }
