@@ -450,6 +450,22 @@ function showResources(n){
   fourthCard.appendChild(fourthHint);
   fourthCard.onclick=()=>navigate(55);
   hotspots.appendChild(fourthCard);
+  // Fifth practice card: sermon-summary video made before the sermon.
+  // This card opens slide 56, where the lecturer can use NotebookLM.
+  const fifthCard=document.createElement("button");
+  fifthCard.type="button";
+  fifthCard.className="god-local-video-hotspot";
+  fifthCard.title="05 설교 요약 영상만들기 (설교전 사용) · 56번 슬라이드로 이동";
+  fifthCard.setAttribute("aria-label","05 설교 요약 영상만들기 · 56번 슬라이드 보기");
+  fifthCard.style.left="6.2%";fifthCard.style.top="64.9%";
+  fifthCard.style.width="43.4%";fifthCard.style.height="17.4%";
+  const fifthHint=document.createElement("span");
+  fifthHint.className="god-exercise-next";
+  fifthHint.textContent="▶ 56번 보기";
+  fifthHint.setAttribute("aria-hidden","true");
+  fifthCard.appendChild(fifthHint);
+  fifthCard.onclick=()=>navigate(56);
+  hotspots.appendChild(fifthCard);
  }
  if(([29,30,31,32].includes(n))&&teacher){
   // Both exercise pairs can move between their two pages and return
@@ -568,6 +584,19 @@ function showResources(n){
   hotspots.appendChild(corner);
  }
  if(n===56&&teacher){
+  // Return to the practical-session menu without obstructing the NotebookLM corner.
+  const returnButton=document.createElement("button");
+  returnButton.type="button";
+  returnButton.className="god-practice-nav secondary";
+  returnButton.textContent="↩ 28번 목록";
+  returnButton.title="28번 실습 목록으로 돌아가기";
+  returnButton.setAttribute("aria-label","28번 실습 목록으로 돌아가기");
+  returnButton.style.left="79.1%";
+  returnButton.style.top="77.6%";
+  returnButton.style.width="17.5%";
+  returnButton.style.height="6.2%";
+  returnButton.onclick=()=>navigate(28);
+  hotspots.appendChild(returnButton);
   // Same visual workshop corner as the Mac CapCut launcher on slide 55.
   // Only the authenticated lecturer can activate the private notebook.
   // Slide 56 has a separately saved NotebookLM link from slide 32.
