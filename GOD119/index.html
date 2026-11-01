@@ -105,12 +105,6 @@
 #hotspots a.god-capcut-open:hover,#hotspots a.god-capcut-open:focus-visible{
  background:#ffda97;border-color:white;outline:2px solid #f8d99f;outline-offset:1px
 }
-#hotspots a.god-capcut-setup{position:static;display:block;pointer-events:auto;
- margin:0;padding:1px 2px;border:0;background:transparent;
- text-align:center;color:#8ee6f3;text-decoration:underline;
- font-size:clamp(10px,.72vw,14px);line-height:1.2;white-space:nowrap}
-#hotspots a.god-capcut-setup:hover,#hotspots a.god-capcut-setup:focus-visible{
- color:#fff3d3;text-decoration:underline;outline:1px solid #ffe2a3}
 #hotspots .god-notebook-link:hover,#hotspots .god-notebook-link:focus-visible{
  background:#ffe0a3;border-color:#fff5da;outline:2px solid #ffefbf;outline-offset:2px
 }
@@ -457,18 +451,11 @@ function showResources(n){
   launch.textContent="맥에 설치된 CapCut 실행 ↗";
   launch.title="맥 단축어 GOD119-CapCut 실행 · 단축어의 앱 열기 동작이 CapCut을 실행";
   launch.setAttribute("aria-label","강사 Mac에 설치된 CapCut 실행 (GOD119-CapCut 단축어 필요)");
-  const setup=document.createElement("a");
-  setup.className="god-capcut-setup";
-  setup.href="shortcuts://create-shortcut";
-  setup.textContent="최초 1회: 단축어 설정 ↗";
-  setup.title="Mac 단축어 앱 열기 · 이름 GOD119-CapCut, 동작 앱 열기 → CapCut으로 저장";
-  setup.setAttribute("aria-label","CapCut 실행용 Mac 단축어 만들기");
   const authenticate=e=>{
    if(!allowed){e.preventDefault();notify("강사 Google 로그인 후 CapCut 실행 버튼을 이용해 주세요.")}
   };
   launch.addEventListener("click",authenticate);
-  setup.addEventListener("click",authenticate);
-  corner.append(note,heading,launch,setup);
+  corner.append(note,heading,launch);
   hotspots.appendChild(corner);
  }
  if(n===32&&teacher){
