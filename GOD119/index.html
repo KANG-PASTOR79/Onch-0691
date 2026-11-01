@@ -234,33 +234,58 @@ function openSlideResource(event,rec,page){
 // The user-given personal deep link is intentionally NOT embedded in public
 // GitHub Pages source, or sent to Firebase/attendees. In the lecturer browser,
 // the validated link is retained only in this tab's sessionStorage.
-function launchPrivateNotebookLM(){
- if(!teacher||!allowed){notify("강사 Google 로그인 후 NotebookLM을 열어주세요.");return}
- const key="god119-presenter-only-notebooklm-link-v1";
- let url="";
- try{url=sessionStorage.getItem(key)||""}catch(_){}
- if(!url){
-  const supplied=window.prompt("강사용 NotebookLM 주소를 붙여넣어 주세요. 참석자에게 공유되지 않으며 이 브라우저 탭에서만 기억됩니다.\n\n처음 한 번 입력하면 32번과 56번에서 함께 사용할 수 있습니다.","");
-  if(supplied===null)return;
-  url=supplied.trim();
- }
- let checked=null;
+// Both teacher-only NotebookLM buttons use one persistent, local link.
+// Store only this URL on the lecturer's own browser, NEVER in Firebase,
+// shared slide resources, or publicly served source. Existing per-tab
+// sessionStorage data is automatically migrated to localStorage.
+function notebookLMUrl(raw){
  try{
-  const parsed=new URL(url);
+  const parsed=new URL(String(raw||"").trim());
   if(parsed.protocol==="https:"&&parsed.hostname==="notebook.google.com"&&
      /^\/notebook\/[A-Za-z0-9-]+\/?$/.test(parsed.pathname)&&
      !parsed.username&&!parsed.password&&!parsed.search&&!parsed.hash)
-   checked=parsed.href;
+   return parsed.href;
  }catch(_){}
- if(!checked){
-  try{sessionStorage.removeItem(key)}catch(_){}
-  notify("NotebookLM 주소를 확인해 주세요. 다시 버튼을 눌러 입력할 수 있습니다.");
-  return;
+ return null;
+}
+function launchPrivateNotebookLM(event){
+ if(!teacher||!allowed){notify("강사 Google 로그인 후 NotebookLM을 열어주세요.");return}
+ const key="god119-presenter-only-notebooklm-link-v1";
+ let url=null;
+ // Read persistent storage first; Shift+click allows the lecturer
+ // to change the stored link later without browser developer tools.
+ if(!event?.shiftKey){
+  try{url=notebookLMUrl(localStorage.getItem(key))}catch(_){}
+  if(!url){
+   try{
+    url=notebookLMUrl(sessionStorage.getItem(key));
+    if(url){
+     try{localStorage.setItem(key,url)}catch(_){}
+    }
+   }catch(_){}
+  }
  }
- try{sessionStorage.setItem(key,checked)}catch(_){}
- // Only the presenter opens their own authenticated NotebookLM tab.
- // No Firebase writes, student navigation, or slide-resource changes.
- window.open(checked,"_blank","noopener,noreferrer");
+ if(!url){
+  const supplied=window.prompt(
+   "강사용 NotebookLM 주소를 입력해 주세요. 이 맥의 브라우저에 저장되며, 32번과 56번에서 함께 사용합니다. 참석자에게는 전송되지 않습니다.",
+   event?.shiftKey?(function(){try{return localStorage.getItem(key)||""}catch(_){return ""}})():""
+  );
+  if(supplied===null)return;
+  url=notebookLMUrl(supplied);
+  if(!url){
+   notify("올바른 NotebookLM 노트북 주소를 입력해 주세요. 다시 눌러 등록할 수 있습니다.");
+   return;
+  }
+  let persisted=false;
+  try{localStorage.setItem(key,url);persisted=true}catch(_){}
+  if(!persisted){
+   try{sessionStorage.setItem(key,url)}catch(_){}
+   notify("브라우저에서 영구 저장을 허용하지 않아 다음에 주소를 다시 입력해야 할 수 있습니다.");
+  }
+ }
+ // Opens only in lecturer's locally authenticated Google account.
+ // This is not shared to attendees and does not reveal notebook contents.
+ window.open(url,"_blank","noopener,noreferrer");
 }
 function showResources(n){
  const links=$("links"),hotspots=$("hotspots");links.replaceChildren();hotspots.replaceChildren();
@@ -545,7 +570,7 @@ function showResources(n){
  if(n===32&&teacher){
   // Privacy first: attendees must never be given the private NotebookLM URL.
   // It is NOT present in public website source or Firebase. The lecturer
-  // supplies it once for the current browser tab, stored in sessionStorage.
+  // supplies it once on their own browser, stored in localStorage.
   // Attendees only see the original slide 32, not the lecturer's notebook.
   const notebook=document.createElement("button");
   notebook.type="button";
