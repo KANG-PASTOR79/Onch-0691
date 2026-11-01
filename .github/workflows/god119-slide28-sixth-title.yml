@@ -1,0 +1,45 @@
+name: Correct slide 28 card 06 wording
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/god119-slide28-sixth-title.yml'
+      - 'GOD119/scripts/fix_slide28_sixth_card.py'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: god119-slide28-sixth-card
+  cancel-in-progress: false
+
+jobs:
+  correct-slide-28-card06:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout slides
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Install Korean font and Pillow
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y fonts-noto-cjk
+          python -m pip install pillow
+      - name: Correct only wording in sixth card
+        run: python GOD119/scripts/fix_slide28_sixth_card.py
+      - name: Commit rendered slide
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add GOD119/slides/slide-28.webp GOD119/slides/slide-28-sixth-card.json
+          if git diff --cached --quiet; then
+            echo 'Slide 28 card 06 is already updated.'
+          else
+            git commit -m 'Slide 28 card 06: 다양한 서식 만들기'
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
