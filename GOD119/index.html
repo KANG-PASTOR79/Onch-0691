@@ -355,6 +355,22 @@ function showResources(n){
   thirdCard.appendChild(thirdHint);
   thirdCard.onclick=()=>navigate(33);
   hotspots.appendChild(thirdCard);
+  // Fourth practice card: click "04 설교 쇼츠 만들기" to enter slide 55.
+  // Same hotspot and visual hint design as the first three cards.
+  const fourthCard=document.createElement("button");
+  fourthCard.type="button";
+  fourthCard.className="god-local-video-hotspot";
+  fourthCard.title="04 설교 쇼츠 만들기 · 55번 슬라이드로 이동";
+  fourthCard.setAttribute("aria-label","04 설교 쇼츠 만들기 · 55번 슬라이드 보기");
+  fourthCard.style.left="51.5%";fourthCard.style.top="46.2%";
+  fourthCard.style.width="43.4%";fourthCard.style.height="17.4%";
+  const fourthHint=document.createElement("span");
+  fourthHint.className="god-exercise-next";
+  fourthHint.textContent="▶ 55번 보기";
+  fourthHint.setAttribute("aria-hidden","true");
+  fourthCard.appendChild(fourthHint);
+  fourthCard.onclick=()=>navigate(55);
+  hotspots.appendChild(fourthCard);
  }
  if(([29,30,31,32].includes(n))&&teacher){
   // Both exercise pairs can move between their two pages and return
@@ -431,6 +447,20 @@ function showResources(n){
   hotspots.appendChild(docButton);
  }
  if(n===55&&teacher){
+  // Return to the exercise menu from slide 55. The button is placed
+  // below the three content rows so it does not obstruct the CapCut card.
+  const returnButton=document.createElement("button");
+  returnButton.type="button";
+  returnButton.className="god-practice-nav secondary";
+  returnButton.textContent="↩ 28번 목록";
+  returnButton.title="28번 실습 목록으로 돌아가기";
+  returnButton.setAttribute("aria-label","28번 실습 목록으로 돌아가기");
+  returnButton.style.left="79.1%";
+  returnButton.style.top="77.6%";
+  returnButton.style.width="17.5%";
+  returnButton.style.height="6.2%";
+  returnButton.onclick=()=>navigate(28);
+  hotspots.appendChild(returnButton);
   // macOS desktop launcher. On this Mac the lecturer creates a Shortcut
   // named GOD119-CapCut containing one action: Open App -> CapCut.
   // Apple documents shortcuts://run-shortcut?name=... from a web browser.
