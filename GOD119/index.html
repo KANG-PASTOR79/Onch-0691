@@ -94,7 +94,7 @@
 }
 #hotspots .god-capcut-caption{font-size:clamp(9px,.75vw,14px);font-weight:700;letter-spacing:.10em;color:#66d2e5;line-height:1.1}
 #hotspots .god-capcut-title{font-size:clamp(12px,1.37vw,26px);font-weight:850;line-height:1.1;white-space:nowrap}
-#hotspots a.god-capcut-open{
+#hotspots .god-capcut-open{
  position:static;display:flex;align-items:center;justify-content:center;
  min-height:0;flex:1;box-sizing:border-box;width:100%;pointer-events:auto;
  padding:clamp(3px,.4vw,8px);background:#f2bd6b;color:#13253c;
@@ -102,7 +102,7 @@
  font-size:clamp(11px,1.08vw,21px);font-weight:850;letter-spacing:-.01em;
  text-decoration:none;white-space:nowrap
 }
-#hotspots a.god-capcut-open:hover,#hotspots a.god-capcut-open:focus-visible{
+#hotspots .god-capcut-open:hover,#hotspots .god-capcut-open:focus-visible{
  background:#ffda97;border-color:white;outline:2px solid #f8d99f;outline-offset:1px
 }
 #hotspots .god-notebook-link:hover,#hotspots .god-notebook-link:focus-visible{
@@ -229,6 +229,38 @@ function openSlideResource(event,rec,page){
  // All registered slide links, including the ministry plan on slide 12,
  // open inside GOD119. Only the explicit MEGA fallback button uses a new tab.
  if(accepted)event.preventDefault();
+}
+// Private NotebookLM launcher shared by slide 32 and slide 56.
+// The user-given personal deep link is intentionally NOT embedded in public
+// GitHub Pages source, or sent to Firebase/attendees. In the lecturer browser,
+// the validated link is retained only in this tab's sessionStorage.
+function launchPrivateNotebookLM(){
+ if(!teacher||!allowed){notify("강사 Google 로그인 후 NotebookLM을 열어주세요.");return}
+ const key="god119-presenter-only-notebooklm-link-v1";
+ let url="";
+ try{url=sessionStorage.getItem(key)||""}catch(_){}
+ if(!url){
+  const supplied=window.prompt("강사용 NotebookLM 주소를 붙여넣어 주세요. 참석자에게 공유되지 않으며 이 브라우저 탭에서만 기억됩니다.\n\n처음 한 번 입력하면 32번과 56번에서 함께 사용할 수 있습니다.","");
+  if(supplied===null)return;
+  url=supplied.trim();
+ }
+ let checked=null;
+ try{
+  const parsed=new URL(url);
+  if(parsed.protocol==="https:"&&parsed.hostname==="notebook.google.com"&&
+     /^\/notebook\/[A-Za-z0-9-]+\/?$/.test(parsed.pathname)&&
+     !parsed.username&&!parsed.password&&!parsed.search&&!parsed.hash)
+   checked=parsed.href;
+ }catch(_){}
+ if(!checked){
+  try{sessionStorage.removeItem(key)}catch(_){}
+  notify("NotebookLM 주소를 확인해 주세요. 다시 버튼을 눌러 입력할 수 있습니다.");
+  return;
+ }
+ try{sessionStorage.setItem(key,checked)}catch(_){}
+ // Only the presenter opens their own authenticated NotebookLM tab.
+ // No Firebase writes, student navigation, or slide-resource changes.
+ window.open(checked,"_blank","noopener,noreferrer");
 }
 function showResources(n){
  const links=$("links"),hotspots=$("hotspots");links.replaceChildren();hotspots.replaceChildren();
@@ -488,6 +520,28 @@ function showResources(n){
   corner.append(note,heading,launch);
   hotspots.appendChild(corner);
  }
+ if(n===56&&teacher){
+  // Same visual workshop corner as the Mac CapCut launcher on slide 55.
+  // Only the authenticated lecturer can activate the private notebook.
+  const corner=document.createElement("div");
+  corner.className="god-capcut-corner";
+  corner.setAttribute("aria-label","강사 전용 NotebookLM 노트북 작업실");
+  const note=document.createElement("div");
+  note.className="god-capcut-caption";
+  note.textContent="강사 전용 · NOTEBOOKLM WORKSHOP";
+  const heading=document.createElement("div");
+  heading.className="god-capcut-title";
+  heading.textContent="▣ NotebookLM 활용";
+  const open=document.createElement("button");
+  open.type="button";
+  open.className="god-capcut-open";
+  open.textContent="나의 NotebookLM 열기 ↗";
+  open.title="강사 전용 NotebookLM 노트북 열기 · 개인 자료는 참석자에게 공유하지 않음";
+  open.setAttribute("aria-label","강사 전용 NotebookLM 열기");
+  open.onclick=launchPrivateNotebookLM;
+  corner.append(note,heading,open);
+  hotspots.appendChild(corner);
+ }
  if(n===32&&teacher){
   // Privacy first: attendees must never be given the private NotebookLM URL.
   // It is NOT present in public website source or Firebase. The lecturer
@@ -503,35 +557,7 @@ function showResources(n){
   notebook.style.top="73.5%";
   notebook.style.width="34.0%";
   notebook.style.height="8.3%";
-  notebook.onclick=()=>{
-   if(!allowed){notify("강사 Google 로그인 후에 열 수 있습니다.");return}
-   const key="god119-presenter-only-notebooklm-link-v1";
-   let url="";
-   try{url=sessionStorage.getItem(key)||""}catch(_){}
-   if(!url){
-    const supplied=window.prompt("강사님만 사용할 NotebookLM 주소를 입력해 주세요. 참석자에게 공유되지 않고 이 탭에서만 기억됩니다.\n\n처음 한 번만 입력하면 됩니다.","");
-    if(supplied===null)return;
-    url=supplied.trim();
-   }
-   // Accept only an actual Google NotebookLM notebook URL.
-   let checked=null;
-   try{
-    const parsed=new URL(url);
-    if(parsed.protocol==="https:"&&parsed.hostname==="notebook.google.com"&&
-       /^\/notebook\/[A-Za-z0-9-]+\/?$/.test(parsed.pathname)&&
-       !parsed.username&&!parsed.password&&!parsed.search&&!parsed.hash)
-      checked=parsed.href;
-   }catch(_){}
-   if(!checked){
-    try{sessionStorage.removeItem(key)}catch(_){}
-    notify("NotebookLM 노트북 주소를 확인해 주세요. 다시 버튼을 누르면 입력할 수 있습니다.");
-    return;
-   }
-   try{sessionStorage.setItem(key,checked)}catch(_){}
-   // Only this lecturer device opens NotebookLM; no remote writes,
-   // no meeting broadcast and no audience URL are generated.
-   window.open(checked,"_blank","noopener,noreferrer");
-  };
+  notebook.onclick=launchPrivateNotebookLM;
   hotspots.appendChild(notebook);
  }
 }
