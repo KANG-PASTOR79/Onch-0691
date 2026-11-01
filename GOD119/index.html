@@ -201,7 +201,7 @@ let sharedLinks=null;
 let slide10VideoController=null;
 let slide53PlanController=null;
 let attendanceAlerts=null;
-let redesignedImagesActive=false,slide02CleanActive=false,slide04UprightActive=false,slide05TitleActive=false,slide49StageTitleActive=false,slide55SectionTitleActive=false;
+let redesignedImagesActive=false,slide02CleanActive=false,slide04UprightActive=false,slide05TitleActive=false,slide49StageTitleActive=false,slide55SectionTitleActive=false,slide28Card06Active=false;
 const DESIGN_VERSION="god119-2026-10-31-original-faithful";
 function regionForSlideLink(n,rec){
  if(!redesignedImagesActive)return rec.rect;
@@ -759,7 +759,7 @@ function show(){
   img.hidden=true;
   $("notice").textContent="실제 강의 PPT 슬라이드 이미지가 아직 업로드되지 않았습니다. GitHub GOD119/slides 폴더에 slide-01.webp부터 slide-56.webp까지 업로드하면 자동 표시됩니다.";
  };
- img.dataset.format="webp";img.src="slides/"+filename+".webp"+(slide===55&&slide55SectionTitleActive?"?title=section4-v1":slide===49&&slide49StageTitleActive?"?title=step1-v1":slide===5&&slide05TitleActive?"?title=visitation-v1":slide===4&&slide04UprightActive?"?poster=portrait-v1":slide===2&&slide02CleanActive?"?motion=single-v3":redesignedImagesActive?"?design="+DESIGN_VERSION:"");
+ img.dataset.format="webp";img.src="slides/"+filename+".webp"+(slide===28&&slide28Card06Active?"?card6=forms-v1":slide===55&&slide55SectionTitleActive?"?title=section4-v1":slide===49&&slide49StageTitleActive?"?title=step1-v1":slide===5&&slide05TitleActive?"?title=visitation-v1":slide===4&&slide04UprightActive?"?poster=portrait-v1":slide===2&&slide02CleanActive?"?motion=single-v3":redesignedImagesActive?"?design="+DESIGN_VERSION:"");
  showResources(slide);binding();sharedLinks?.onSlide();slide10VideoController?.onSlide();slide53PlanController?.onSlide();
 }
 function navigate(n){
@@ -1121,6 +1121,20 @@ permission();show();fit();if(teacher&&allowed)installPrivateNotebook56FromLink()
   slide55SectionTitleActive=true;
   if(slide===55)show();
  }catch(e){}
+})();
+// Load the revised card 06 wording only after the new slide-28 WebP is
+// available, so cached old images do not hide the change for attendees.
+(async()=>{
+ try{
+  const r=await fetch("slides/slide-28-sixth-card.json?check="+Date.now(),{cache:"no-store"});
+  if(!r.ok)return;
+  const marker=await r.json();
+  if(marker.slide!==28||marker.card!==6||
+     marker.design!=="slide28-sixth-form-title-v1"||
+     marker.title!=="다양한 서식 만들기")return;
+  slide28Card06Active=true;
+  if(slide===28)show();
+ }catch(_){}
 })();
 // Isolated optional module: a link-sharing problem must never stop the lecture.
 import("./shared-links.js?v=slide23-jeju-document-20261031").then(({createSharedLinks})=>{
