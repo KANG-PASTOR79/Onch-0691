@@ -222,6 +222,8 @@ let slide10VideoController=null;
 let slide53PlanController=null;
 let attendanceAlerts=null;
 let websiteWorkshop=null;
+// Slides 57–65 use a separate room key compatible with the existing 56-slide rule.
+let workshopActive=false,latestCurrentSlide=1;
 let redesignedImagesActive=false,slide02CleanActive=false,slide04UprightActive=false,slide05TitleActive=false,slide49StageTitleActive=false,slide55SectionTitleActive=false,slide28Card06Active=false;
 const DESIGN_VERSION="god119-2026-10-31-original-faithful";
 function regionForSlideLink(n,rec){
@@ -817,11 +819,15 @@ function navigate(n){
  if(!allowed||clearingStrokes||undoInProgress)return;
  const target=Math.max(1,Math.min(SLIDE_COUNT,n));
  if(target===slide)return;
+ workshopActive=target>=57;
  slide=target;show();
  if(db&&F){
-  // Send slide advance and hyperlink dismissal in one database update.
-  F.update(F.ref(db,"rooms/"+room),{currentSlide:slide,sharedLink:null})
-   .catch(()=>notify("슬라이드 이동을 전달하지 못했습니다. Firebase 연결을 확인하세요."));
+  // Preserve the originally validated currentSlide range 1–56.
+  const payload=target>=57
+   ?{workshopSlide:target,sharedLink:null}
+   :{currentSlide:target,workshopSlide:null,sharedLink:null};
+  F.update(F.ref(db,"rooms/"+room),payload)
+   .catch(()=>notify("슬라이드 이동에 실패했습니다. 강사 계정의 Firebase 쓰기 권한을 확인해 주세요."));
  }
 }
 // On the lecturer's iPad, Apple Pencil or finger taps change slides only in
@@ -1092,7 +1098,25 @@ async function connect(){
 if(!configured){status("로컬 미리보기",false);permission();return}
 try{const host="https://www.gstatic.com/firebasejs/11.10.0/";const [a,b,d]=await Promise.all([import(host+"firebase-app.js"),import(host+"firebase-auth.js"),import(host+"firebase-database.js")]);F=d;authAPI=b;const app=a.initializeApp(conf);db=d.getDatabase(app);auth=b.getAuth(app);sharedLinks?.ready();slide10VideoController?.ready();slide53PlanController?.ready();attendanceAlerts?.sync();
 d.onValue(d.ref(db,".info/connected"),s=>{status(s.val()?"실시간 연결됨":"연결 끊김",s.val()===true);if(!s.val())$("notice").textContent="실시간 연결이 끊겼습니다. Firebase 설정을 확인하세요.";});
-d.onValue(d.ref(db,remote("currentSlide")),s=>{const n=Number(s.val());if(n>=1&&n<=SLIDE_COUNT&&n!==slide){slide=n;show()}});
+d.onValue(d.ref(db,remote("currentSlide")),s=>{
+  const n=Number(s.val());
+  if(n>=1&&n<=56){
+   latestCurrentSlide=n;
+   if(!workshopActive&&n!==slide){slide=n;show()}
+  }
+ });
+ d.onValue(d.ref(db,remote("workshopSlide")),s=>{
+  const n=Number(s.val());
+  if(s.exists()&&n>=57&&n<=SLIDE_COUNT){
+   workshopActive=true;
+   if(n!==slide){slide=n;show()}
+  }else{
+   workshopActive=false;
+   if(latestCurrentSlide>=1&&latestCurrentSlide<=56&&slide!==latestCurrentSlide){
+    slide=latestCurrentSlide;show();
+   }
+  }
+ });
 d.onValue(d.ref(db,remote("pointer")),s=>{if(teacher&&allowed&&tool==="laser")return;const p=s.val();$("laser").hidden=!(p&&p.active&&Date.now()-(p.at||0)<2500);if(!$("laser").hidden){$("laser").style.left=p.x*100+"%";$("laser").style.top=p.y*100+"%";clearTimeout(laserTimeout);laserTimeout=setTimeout(()=>$("laser").hidden=true,750)}});
 binding();b.onAuthStateChanged(auth,u=>{user=u;allowed=teacher&&!!u;permission();if(teacher){installPrivateNotebook56FromLink();attendanceAlerts?.sync()}else loadAttendeeProfile(u)});
 $("login").onclick=async()=>{try{await b.signInWithPopup(auth,new b.GoogleAuthProvider())}catch(e){notify("Google 로그인 설정을 확인하세요.")}};
