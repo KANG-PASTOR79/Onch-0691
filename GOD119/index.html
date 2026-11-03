@@ -469,6 +469,34 @@ function showResources(n){
   fifthCard.appendChild(fifthHint);
   fifthCard.onclick=()=>navigate(56);
   hotspots.appendChild(fifthCard);
+  // Sixth practice card: interactive website workshop from slide 57 to 65.
+  const sixthCard=document.createElement("button");
+  sixthCard.type="button";
+  sixthCard.className="god-local-video-hotspot";
+  sixthCard.title="06 다양한 서식 만들기 · AI 교회 웹사이트 제작 실습 57~65번";
+  sixthCard.setAttribute("aria-label","06 다양한 서식 만들기 · AI 웹사이트 실습 57번부터 65번까지");
+  sixthCard.style.left="51.5%";sixthCard.style.top="64.9%";
+  sixthCard.style.width="43.4%";sixthCard.style.height="17.4%";
+  const sixthHint=document.createElement("span");
+  sixthHint.className="god-exercise-next";
+  sixthHint.textContent="▶ 57–65번 웹사이트 실습";
+  sixthHint.setAttribute("aria-hidden","true");
+  sixthCard.appendChild(sixthHint);
+  sixthCard.onclick=()=>navigate(57);
+  hotspots.appendChild(sixthCard);
+ }
+ if(n>=57&&n<=65&&teacher){
+  // One-click return to the practice menu while keeping existing work intact.
+  const back=document.createElement("button");
+  back.type="button";
+  back.className="god-practice-nav secondary";
+  back.textContent="↩ 28번 목록";
+  back.title="28번 다양한 실습 목록으로 돌아가기";
+  back.setAttribute("aria-label",back.title);
+  back.style.left="78%";back.style.top="83%";
+  back.style.width="17.5%";back.style.height="7.1%";
+  back.onclick=()=>navigate(28);
+  hotspots.appendChild(back);
  }
  if(([29,30,31,32].includes(n))&&teacher){
   // Both exercise pairs can move between their two pages and return
