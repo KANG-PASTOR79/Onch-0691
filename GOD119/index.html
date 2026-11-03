@@ -165,7 +165,7 @@
 <div class="row"><span class="muted" id="help">발표자와 참석자 화면을 동기화할 수 있는 강의실입니다.</span><div><button id="fullscreen">전체화면</button> <button id="copyLink">참석자 링크 복사</button></div></div>
 <div class="links" id="links"></div><p class="notice" id="notice">실제 PPT 56장 이미지를 표시하도록 준비되었습니다. 슬라이드가 임시 화면으로 보인다면 이미지 56개를 GitHub의 GOD119/slides 폴더에 업로드해야 합니다. 외부 웹 링크는 열 수 있지만 강사 컴퓨터의 MP4·DOCX 파일은 별도 연결이 필요합니다.</p></section>
 <aside id="instructor" hidden><div class="card"><h3>강사 전용 제어실</h3><button id="login" class="primary">Google 계정으로 로그인</button> <button id="logout" hidden>로그아웃</button><p class="muted" id="authText">로컬 미리보기: 별도 기기와 동기화되지 않습니다.</p><p class="muted" id="uidPanel" hidden>내 UID: <code id="uid"></code> <button id="copyUid">복사</button></p></div>
-<div class="card"><h3>01 · 슬라이드</h3><button type="button" id="jumpWorkshop" class="primary" style="width:100%;margin-bottom:12px;background:#f2c16f;color:#10283e;font-size:14px">🌐 57번 웹사이트 만들기 바로가기</button><div class="two"><button id="prev">← 이전</button><button class="primary" id="next">다음 →</button></div><p class="muted">슬라이드 선택</p><select id="slideSelect"></select><p class="muted" style="margin-top:12px">노트북: ← ↑ 이전 / → ↓ 다음<br>아이패드: <b>「선택」 모드</b>에서 Apple Pencil 또는 손가락으로 슬라이드를 톡 터치하면 다음 장, <b>왼쪽 25%</b>를 터치하면 이전 장으로 이동합니다. 「펜」 모드에서는 판서만 됩니다.</p></div>
+<div class="card"><h3>01 · 슬라이드</h3><div class="two"><button id="prev">← 이전</button><button class="primary" id="next">다음 →</button></div><p class="muted">슬라이드 선택</p><select id="slideSelect"></select><p class="muted" style="margin-top:12px">노트북: ← ↑ 이전 / → ↓ 다음<br>아이패드: <b>「선택」 모드</b>에서 Apple Pencil 또는 손가락으로 슬라이드를 톡 터치하면 다음 장, <b>왼쪽 25%</b>를 터치하면 이전 장으로 이동합니다. 「펜」 모드에서는 판서만 됩니다.</p></div>
 <div class="card"><h3>02 · 실시간 판서</h3><div class="toolbox"><button data-tool="cursor" class="active">↖ 선택</button><button data-tool="pen">✎ 펜</button><button data-tool="highlight">▰ 형광펜</button><button data-tool="eraser">⌫ 지우개</button><button data-tool="laser">◎ 포인터</button></div><div class="colors"><span class="muted">색상</span><button class="active" style="--c:#ef425f" data-color="#ef425f" aria-label="빨강"></button><button style="--c:#2e76ff" data-color="#2e76ff" aria-label="파랑"></button><button style="--c:#11ae83" data-color="#11ae83" aria-label="초록"></button><button style="--c:#ffbf32" data-color="#ffbf32" aria-label="노랑"></button></div><div class="two"><button id="undo" type="button" title="현재 슬라이드에서 마지막으로 그린 획 하나씩 되돌립니다.">↶ 한 획 되돌리기</button></div>
 <p class="muted">버튼을 누를 때마다 현재 슬라이드의 마지막 획 하나만 지워집니다. Mac은 ⌘Z, Windows는 Ctrl+Z도 사용할 수 있습니다.</p>
 <div class="bulk-erase" aria-label="판서 관리">
@@ -224,6 +224,18 @@ let attendanceAlerts=null;
 let websiteWorkshop=null;
 // Slides 57–65 use a separate room key compatible with the existing 56-slide rule.
 let workshopActive=false,latestCurrentSlide=1;
+let pendingSlide=null,remoteSlide=1;
+function showRemoteSlide(target){
+ if(!Number.isInteger(target)||target<1||target>SLIDE_COUNT)return;
+ remoteSlide=target;
+ // A local click is authoritative until its server write confirms or fails.
+ if(pendingSlide){
+  if(target===pendingSlide.target)pendingSlide=null;
+  else return;
+ }
+ workshopActive=target>=57;
+ if(slide!==target){slide=target;show()}
+}
 let redesignedImagesActive=false,slide02CleanActive=false,slide04UprightActive=false,slide05TitleActive=false,slide49StageTitleActive=false,slide55SectionTitleActive=false,slide28Card06Active=false;
 const DESIGN_VERSION="god119-2026-10-31-original-faithful";
 function regionForSlideLink(n,rec){
@@ -822,12 +834,20 @@ function navigate(n){
  workshopActive=target>=57;
  slide=target;show();
  if(db&&F){
-  // Preserve the originally validated currentSlide range 1–56.
+  // One atomic room update. A preceding 28 snapshot cannot roll back this click.
+  // currentSlide stays within 1–56 for backward-compatible database validation.
   const payload=target>=57
    ?{workshopSlide:target,sharedLink:null}
    :{currentSlide:target,workshopSlide:null,sharedLink:null};
+  const requested={target};pendingSlide=requested;
   F.update(F.ref(db,"rooms/"+room),payload)
-   .catch(()=>notify("슬라이드 이동에 실패했습니다. 강사 계정의 Firebase 쓰기 권한을 확인해 주세요."));
+   .then(()=>{if(pendingSlide===requested)pendingSlide=null;})
+   .catch(error=>{
+    if(pendingSlide===requested)pendingSlide=null;
+    // Do not misleadingly show a synchronized slide on failed broadcast.
+    notify("57~65번 이동을 서버에 저장하지 못했습니다. Firebase 강사 쓰기 권한을 확인해 주세요.");
+    console.warn("GOD119 workshop synchronization failed:",error?.code||error?.message||error);
+   });
  }
 }
 // On the lecturer's iPad, Apple Pencil or finger taps change slides only in
@@ -855,7 +875,7 @@ $("stage").addEventListener("pointerup",e=>{
 });
 $("stage").addEventListener("pointercancel",()=>navigationTap=null);
 $("stage").addEventListener("pointerleave",()=>navigationTap=null);
-$("jumpWorkshop").onclick=()=>navigate(57);$("prev").onclick=()=>navigate(slide-1);$("next").onclick=()=>navigate(slide+1);$("slideSelect").onchange=()=>navigate(Number($("slideSelect").value));
+$("prev").onclick=()=>navigate(slide-1);$("next").onclick=()=>navigate(slide+1);$("slideSelect").onchange=()=>navigate(Number($("slideSelect").value));
 for(let i=1;i<=SLIDE_COUNT;i++){const o=document.createElement("option");o.value=i;o.textContent=String(i).padStart(2,"0")+" · "+titles[i-1];$("slideSelect").appendChild(o)}
 function fit(){
  const r=canvas.getBoundingClientRect(),dpr=Math.min(window.devicePixelRatio||1,2);
@@ -1098,25 +1118,17 @@ async function connect(){
 if(!configured){status("로컬 미리보기",false);permission();return}
 try{const host="https://www.gstatic.com/firebasejs/11.10.0/";const [a,b,d]=await Promise.all([import(host+"firebase-app.js"),import(host+"firebase-auth.js"),import(host+"firebase-database.js")]);F=d;authAPI=b;const app=a.initializeApp(conf);db=d.getDatabase(app);auth=b.getAuth(app);sharedLinks?.ready();slide10VideoController?.ready();slide53PlanController?.ready();attendanceAlerts?.sync();
 d.onValue(d.ref(db,".info/connected"),s=>{status(s.val()?"실시간 연결됨":"연결 끊김",s.val()===true);if(!s.val())$("notice").textContent="실시간 연결이 끊겼습니다. Firebase 설정을 확인하세요.";});
-d.onValue(d.ref(db,remote("currentSlide")),s=>{
-  const n=Number(s.val());
-  if(n>=1&&n<=56){
-   latestCurrentSlide=n;
-   if(!workshopActive&&n!==slide){slide=n;show()}
-  }
- });
- d.onValue(d.ref(db,remote("workshopSlide")),s=>{
-  const n=Number(s.val());
-  if(s.exists()&&n>=57&&n<=SLIDE_COUNT){
-   workshopActive=true;
-   if(n!==slide){slide=n;show()}
-  }else{
-   workshopActive=false;
-   if(latestCurrentSlide>=1&&latestCurrentSlide<=56&&slide!==latestCurrentSlide){
-    slide=latestCurrentSlide;show();
-   }
-  }
- });
+// Listen to one atomic room snapshot. Separate listeners previously raced:
+// the old 28 snapshot could arrive after a 57 click and force a bounce.
+d.onValue(d.ref(db,"rooms/"+room),snapshot=>{
+ const data=snapshot.val()||{};
+ const original=Number(data.currentSlide);
+ if(Number.isInteger(original)&&original>=1&&original<=56)latestCurrentSlide=original;
+ const workshop=Number(data.workshopSlide);
+ const target=Number.isInteger(workshop)&&workshop>=57&&workshop<=SLIDE_COUNT
+  ?workshop:latestCurrentSlide;
+ showRemoteSlide(target);
+},error=>notify("강의실 동기화 정보를 읽지 못했습니다. Firebase 규칙을 확인해 주세요."));
 d.onValue(d.ref(db,remote("pointer")),s=>{if(teacher&&allowed&&tool==="laser")return;const p=s.val();$("laser").hidden=!(p&&p.active&&Date.now()-(p.at||0)<2500);if(!$("laser").hidden){$("laser").style.left=p.x*100+"%";$("laser").style.top=p.y*100+"%";clearTimeout(laserTimeout);laserTimeout=setTimeout(()=>$("laser").hidden=true,750)}});
 binding();b.onAuthStateChanged(auth,u=>{user=u;allowed=teacher&&!!u;permission();if(teacher){installPrivateNotebook56FromLink();attendanceAlerts?.sync()}else loadAttendeeProfile(u)});
 $("login").onclick=async()=>{try{await b.signInWithPopup(auth,new b.GoogleAuthProvider())}catch(e){notify("Google 로그인 설정을 확인하세요.")}};
