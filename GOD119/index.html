@@ -189,6 +189,8 @@
 </div></aside></main><div id="pop"></div>
 <script type="module">
 const titles=["AI 목회자 세미나","과거 사역활용 및 AI 실제 사용","꿈을 먹고 살지요","여러분의 AI 실력 성장","대심방 시 부재중 합성","5년 전 교회 모습","현재 교회 모습","주보 표지 제작","한 주간 말씀 게시물","AI 영상 활용","설교 Shorts","AI 목회계획서","목회 활용 사례 13","목회 활용 사례 14","목회 활용 사례 15","목회 활용 사례 16","목회 활용 사례 17","목회 활용 사례 18","목회 활용 사례 19","목회 활용 사례 20","목회 활용 사례 21","목회 활용 사례 22","목회 활용 사례 23","목회 활용 사례 24","목회 활용 사례 25","목회 활용 사례 26","목회 활용 사례 27","홍보물 만들기 실습","실전 가이드","프롬프트 정밀화","설교 보조작업","설교 프롬프트 실전","연간 목회계획서 제작","학습 목표","AI와 목회자의 역할","나쁜 프롬프트","좋은 프롬프트","프롬프트 6요소","역할 정의","목적 설정","교회 현황","과업 정의","조건 설정","출력 형식","마스터 프롬프트","실습: 교회 정보 입력","실습: AI와 대화","AI 결과 검증","1단계 · 실제 프롬프트 사용으로 인한 목회계획 제작","프롬프트 용어","단계별 실습","월별 목회계획","결과물 출력","AI는 도구, 목회는 사명","4. 설교 쇼츠 제작","설교 전 요약 영상"];
+titles.push("AI로 우리 교회 웹사이트 만들기","ChatGPT 실행 및 실습 준비","프롬프트 ① 교회 홈페이지 제작","홈페이지 HTML 저장과 실행","프롬프트 ② 디자인 수정","디자인 수정 결과 확인","프롬프트 ③ 강의 슬라이드 제작","강의 슬라이드 기능 시험","실습 마무리와 안전 점검");
+const SLIDE_COUNT=titles.length;
 const $=id=>document.getElementById(id), params=new URLSearchParams(location.search);
 const teacher=params.get("teacher")==="1", conf=(window.GOD119_CONFIG&&window.GOD119_CONFIG.firebase)||{}, room="god119-seminar";
 const configured=!!(conf.apiKey&&conf.projectId&&conf.databaseURL&&conf.authDomain&&conf.appId);
@@ -201,6 +203,7 @@ let sharedLinks=null;
 let slide10VideoController=null;
 let slide53PlanController=null;
 let attendanceAlerts=null;
+let websiteWorkshop=null;
 let redesignedImagesActive=false,slide02CleanActive=false,slide04UprightActive=false,slide05TitleActive=false,slide49StageTitleActive=false,slide55SectionTitleActive=false,slide28Card06Active=false;
 const DESIGN_VERSION="god119-2026-10-31-original-faithful";
 function regionForSlideLink(n,rec){
@@ -738,14 +741,16 @@ function binding(){
 }
 function saveLocal(){if(!db)localStorage.setItem(localKey(),JSON.stringify(strokes))}
 function show(){
- slide=Math.max(1,Math.min(56,slide));
+ slide=Math.max(1,Math.min(SLIDE_COUNT,slide));
  // Both the presenter and every attendee render the same slide number.
  // No Firebase writes are made for this visual effect.
  $("slide02Motion").hidden=slide!==2||!slide02CleanActive;
  $("title").textContent=titles[slide-1];$("subtitle").textContent=titles[slide-1];
- $("number").textContent=String(slide).padStart(2,"0")+" / 56";
+ $("number").textContent=String(slide).padStart(2,"0")+" / "+SLIDE_COUNT;
  $("bigNumber").textContent=String(slide).padStart(2,"0");$("slideSelect").value=String(slide);
  const img=$("picture"),here=slide,filename="slide-"+String(slide).padStart(2,"0");
+  if(slide>=57){img.hidden=true;img.removeAttribute("src");websiteWorkshop?.onSlide(slide);$("notice").textContent="AI 웹사이트 제작 실습 "+slide+" / "+SLIDE_COUNT+" · 참석자는 프롬프트 복사 버튼으로 실습합니다.";showResources(slide);binding();sharedLinks?.onSlide();slide10VideoController?.onSlide();slide53PlanController?.onSlide();return;}
+  websiteWorkshop?.onSlide(slide);
  img.hidden=true;
  img.onload=()=>{
   if(here!==slide)return;
@@ -764,7 +769,7 @@ function show(){
 }
 function navigate(n){
  if(!allowed||clearingStrokes||undoInProgress)return;
- const target=Math.max(1,Math.min(56,n));
+ const target=Math.max(1,Math.min(SLIDE_COUNT,n));
  if(target===slide)return;
  slide=target;show();
  if(db&&F){
@@ -799,7 +804,7 @@ $("stage").addEventListener("pointerup",e=>{
 $("stage").addEventListener("pointercancel",()=>navigationTap=null);
 $("stage").addEventListener("pointerleave",()=>navigationTap=null);
 $("prev").onclick=()=>navigate(slide-1);$("next").onclick=()=>navigate(slide+1);$("slideSelect").onchange=()=>navigate(Number($("slideSelect").value));
-for(let i=1;i<=56;i++){const o=document.createElement("option");o.value=i;o.textContent=String(i).padStart(2,"0")+" · "+titles[i-1];$("slideSelect").appendChild(o)}
+for(let i=1;i<=SLIDE_COUNT;i++){const o=document.createElement("option");o.value=i;o.textContent=String(i).padStart(2,"0")+" · "+titles[i-1];$("slideSelect").appendChild(o)}
 function fit(){
  const r=canvas.getBoundingClientRect(),dpr=Math.min(window.devicePixelRatio||1,2);
  const width=Math.max(1,Math.round(r.width*dpr)),height=Math.max(1,Math.round(r.height*dpr));
@@ -1041,13 +1046,14 @@ async function connect(){
 if(!configured){status("로컬 미리보기",false);permission();return}
 try{const host="https://www.gstatic.com/firebasejs/11.10.0/";const [a,b,d]=await Promise.all([import(host+"firebase-app.js"),import(host+"firebase-auth.js"),import(host+"firebase-database.js")]);F=d;authAPI=b;const app=a.initializeApp(conf);db=d.getDatabase(app);auth=b.getAuth(app);sharedLinks?.ready();slide10VideoController?.ready();slide53PlanController?.ready();attendanceAlerts?.sync();
 d.onValue(d.ref(db,".info/connected"),s=>{status(s.val()?"실시간 연결됨":"연결 끊김",s.val()===true);if(!s.val())$("notice").textContent="실시간 연결이 끊겼습니다. Firebase 설정을 확인하세요.";});
-d.onValue(d.ref(db,remote("currentSlide")),s=>{const n=Number(s.val());if(n>=1&&n<=56&&n!==slide){slide=n;show()}});
+d.onValue(d.ref(db,remote("currentSlide")),s=>{const n=Number(s.val());if(n>=1&&n<=SLIDE_COUNT&&n!==slide){slide=n;show()}});
 d.onValue(d.ref(db,remote("pointer")),s=>{if(teacher&&allowed&&tool==="laser")return;const p=s.val();$("laser").hidden=!(p&&p.active&&Date.now()-(p.at||0)<2500);if(!$("laser").hidden){$("laser").style.left=p.x*100+"%";$("laser").style.top=p.y*100+"%";clearTimeout(laserTimeout);laserTimeout=setTimeout(()=>$("laser").hidden=true,750)}});
 binding();b.onAuthStateChanged(auth,u=>{user=u;allowed=teacher&&!!u;permission();if(teacher){installPrivateNotebook56FromLink();attendanceAlerts?.sync()}else loadAttendeeProfile(u)});
 $("login").onclick=async()=>{try{await b.signInWithPopup(auth,new b.GoogleAuthProvider())}catch(e){notify("Google 로그인 설정을 확인하세요.")}};
 $("logout").onclick=()=>b.signOut(auth);
 }catch(e){allowed=false;permission();status("Firebase 설정 오류",false)}}
 permission();show();fit();if(teacher&&allowed)installPrivateNotebook56FromLink();connect();
+import("./website-workshop.js?v=20261104").then(({createWebsiteWorkshop})=>{websiteWorkshop=createWebsiteWorkshop();websiteWorkshop.onSlide(slide);}).catch(()=>{console.warn("웹사이트 제작 실습 슬라이드를 불러오지 못했습니다.");});
 // Activate new hyperlink hitboxes only after the validated 56-slide ZIP is
 // actually installed by GitHub Actions. This keeps old links functional until
 // the upload happens; no new icon/image can silently change the existing site.
