@@ -1118,17 +1118,23 @@ async function connect(){
 if(!configured){status("로컬 미리보기",false);permission();return}
 try{const host="https://www.gstatic.com/firebasejs/11.10.0/";const [a,b,d]=await Promise.all([import(host+"firebase-app.js"),import(host+"firebase-auth.js"),import(host+"firebase-database.js")]);F=d;authAPI=b;const app=a.initializeApp(conf);db=d.getDatabase(app);auth=b.getAuth(app);sharedLinks?.ready();slide10VideoController?.ready();slide53PlanController?.ready();attendanceAlerts?.sync();
 d.onValue(d.ref(db,".info/connected"),s=>{status(s.val()?"실시간 연결됨":"연결 끊김",s.val()===true);if(!s.val())$("notice").textContent="실시간 연결이 끊겼습니다. Firebase 설정을 확인하세요.";});
-// Listen to one atomic room snapshot. Separate listeners previously raced:
-// the old 28 snapshot could arrive after a 57 click and force a bounce.
-d.onValue(d.ref(db,"rooms/"+room),snapshot=>{
- const data=snapshot.val()||{};
- const original=Number(data.currentSlide);
- if(Number.isInteger(original)&&original>=1&&original<=56)latestCurrentSlide=original;
- const workshop=Number(data.workshopSlide);
- const target=Number.isInteger(workshop)&&workshop>=57&&workshop<=SLIDE_COUNT
-  ?workshop:latestCurrentSlide;
- showRemoteSlide(target);
-},error=>notify("강의실 동기화 정보를 읽지 못했습니다. Firebase 규칙을 확인해 주세요."));
+// Subscribe only to the two slide keys, not the full room (which contains
+// all pen strokes). The pendingSlide guard prevents old 28 events from
+// overriding a local 57 click while its database write is in flight.
+let remoteWorkshopSlide=null;
+const syncSlideSignals=()=>showRemoteSlide(
+ remoteWorkshopSlide!==null?remoteWorkshopSlide:latestCurrentSlide
+);
+d.onValue(d.ref(db,remote("currentSlide")),snapshot=>{
+ const n=Number(snapshot.val());
+ if(Number.isInteger(n)&&n>=1&&n<=56)latestCurrentSlide=n;
+ syncSlideSignals();
+},error=>notify("현재 슬라이드 정보 읽기에 실패했습니다."));
+d.onValue(d.ref(db,remote("workshopSlide")),snapshot=>{
+ const n=Number(snapshot.val());
+ remoteWorkshopSlide=snapshot.exists()&&Number.isInteger(n)&&n>=57&&n<=SLIDE_COUNT?n:null;
+ syncSlideSignals();
+},error=>notify("웹사이트 실습 슬라이드 동기화 정보를 읽지 못했습니다."));
 d.onValue(d.ref(db,remote("pointer")),s=>{if(teacher&&allowed&&tool==="laser")return;const p=s.val();$("laser").hidden=!(p&&p.active&&Date.now()-(p.at||0)<2500);if(!$("laser").hidden){$("laser").style.left=p.x*100+"%";$("laser").style.top=p.y*100+"%";clearTimeout(laserTimeout);laserTimeout=setTimeout(()=>$("laser").hidden=true,750)}});
 binding();b.onAuthStateChanged(auth,u=>{user=u;allowed=teacher&&!!u;permission();if(teacher){installPrivateNotebook56FromLink();attendanceAlerts?.sync()}else loadAttendeeProfile(u)});
 $("login").onclick=async()=>{try{await b.signInWithPopup(auth,new b.GoogleAuthProvider())}catch(e){notify("Google 로그인 설정을 확인하세요.")}};
