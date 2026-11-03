@@ -7,7 +7,7 @@
         ".read": true,
         ".write": "auth != null && auth.uid === 'REPLACE_WITH_PRESENTER_UID'",
         "currentSlide": {
-          ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 56"
+          ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 65"
         },
         "pointer": {
           ".validate": "newData.hasChildren(['x','y','active','at']) && newData.child('x').isNumber() && newData.child('x').val() >= 0 && newData.child('x').val() <= 1 && newData.child('y').isNumber() && newData.child('y').val() >= 0 && newData.child('y').val() <= 1 && newData.child('active').isBoolean() && newData.child('at').isNumber()"
