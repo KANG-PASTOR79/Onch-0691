@@ -122,6 +122,7 @@
 .bulk-erase strong{font-size:14px;color:#ffe4b8}
 
 
+.god-slide31-inline-download{display:inline-flex;align-items:center;justify-content:center;background:#edc57e!important;color:#10263a!important;border:1px solid #ffe1ae!important;font-weight:850;font-size:13px;padding:10px 14px;min-height:40px}
 /* Slide 31 one-file MEGA PDF download; no folder or account permissions. */
 .god-testament-pdf-download{position:absolute;left:9.4%;top:71%;width:50%;height:8.2%;z-index:5;display:flex;align-items:center;gap:7px;pointer-events:auto}
 .god-testament-pdf-button{display:flex;align-items:center;justify-content:center;box-sizing:border-box;min-height:34px;height:100%;flex:1;padding:4px 9px;background:#f2c777;border:2px solid #fff1b9;border-radius:14px;color:#162b3e;font-weight:900;font-size:clamp(11px,1.15vw,21px);text-decoration:none;cursor:pointer;text-align:center;box-shadow:0 3px 11px #020b1c88;white-space:nowrap}
@@ -454,6 +455,16 @@ function addTestamentPdfButton(n,links,hotspots){
  wrap.prepend(button);
  if(teacher&&url){const edit=document.createElement("button");edit.type="button";edit.className="god-testament-pdf-edit";edit.textContent="⚙ 링크 변경";edit.onclick=configureTestamentPdf;wrap.appendChild(edit)}
  hotspots.appendChild(wrap);
+ // Secondary action below the slide: no external MEGA page, even when an
+ // attendee taps outside the picture's clickable region on mobile.
+ if(url){
+  const extra=document.createElement("button");
+  extra.type="button";
+  extra.className="god-slide31-inline-download";
+  extra.textContent="⬇ GOD119에서 신약주석 PDF 저장 (MEGA 화면 이동 없음)";
+  extra.onclick=()=>button.click();
+  links.appendChild(extra);
+ }
  if(teacher){const guide=document.createElement("small");guide.className="muted";guide.textContent="31번 실습자료 · 신약주석 MEGA 개별 파일 링크만 공개";links.appendChild(guide)}
 }
 
