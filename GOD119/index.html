@@ -380,6 +380,15 @@ function showResources(n){
    }
    continue;
   }
+  // Slide 10 attendees never navigate to a MEGA file page. Lecturer
+  // broadcasts the video link; the attendee receives it in GOD119's overlay.
+  if(n===10&&!teacher){
+   const info=document.createElement("span");
+   info.className="muted";
+   info.textContent="▶ "+rec.label+" · 강사가 영상을 시작하면 이 화면 안에 표시됩니다.";
+   links.appendChild(info);
+   continue;
+  }
   const anchor=document.createElement("a");anchor.href=rec.url;anchor.target="_blank";anchor.rel="noopener noreferrer";anchor.textContent="↗ "+rec.label;
   anchor.addEventListener("click",event=>openSlideResource(event,rec,n));
   links.appendChild(anchor);
