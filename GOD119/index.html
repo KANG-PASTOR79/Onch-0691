@@ -380,6 +380,14 @@ function showResources(n){
    }
    continue;
   }
+  if(n===10&&rec.type==="seminarFolder"){
+   // This is a public file-folder share link, never the lecturer's MEGA account.
+   const a=document.createElement("a");a.href=rec.url;a.target="_blank";a.rel="noopener noreferrer";
+   a.textContent="📁 제일신목회세미나 · 공유 자료실 보기";
+   a.title="공유된 제일신목회세미나 폴더 안의 파일만 보거나 다운로드합니다.";
+   links.appendChild(a);
+   continue;
+  }
   // Slide 10 attendees never navigate to a MEGA file page. Lecturer
   // broadcasts the video link; the attendee receives it in GOD119's overlay.
   if(n===10&&!teacher){
@@ -1241,7 +1249,7 @@ permission();show();fit();if(teacher&&allowed)installPrivateNotebook56FromLink()
  }catch(_){}
 })();
 // Isolated optional module: a link-sharing problem must never stop the lecture.
-import("./shared-links.js?v=slide10-mobile-decrypt-20261105").then(({createSharedLinks})=>{
+import("./shared-links.js?v=seminar-folder-fast-20261105").then(({createSharedLinks})=>{
  sharedLinks=createSharedLinks({
   getState:()=>({teacher,allowed,slide,F,db,room}),
   resources:slideResources,notify
@@ -1251,7 +1259,7 @@ import("./shared-links.js?v=slide10-mobile-decrypt-20261105").then(({createShare
 }).catch(()=>notify("웹자료 공유 기능을 불러오지 못했습니다. 새로고침해 주세요."));
 // Keep the two seminar video addresses editable without changing PowerPoint.
 // Registered URLs are shared through Firebase and are visible on all devices.
-import("./slide10-videos.js?v=slide10-mobile-decrypt-20261105").then(({createSlide10Videos})=>{
+import("./slide10-videos.js?v=seminar-folder-fast-20261105").then(({createSlide10Videos})=>{
  slide10VideoController=createSlide10Videos({
   getState:()=>({teacher,allowed,F,db,auth,room}),
   getSlide:()=>slide,
