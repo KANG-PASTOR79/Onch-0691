@@ -221,6 +221,7 @@ let sharedLinks=null;
 let slide10VideoController=null;
 let slide53PlanController=null;
 let attendanceAlerts=null;
+let instructorQuickPanel=null;
 let websiteWorkshop=null;
 // Slides 57–65 use a separate room key compatible with the existing 56-slide rule.
 let workshopActive=false,latestCurrentSlide=1;
@@ -1153,7 +1154,7 @@ d.onValue(d.ref(db,remote("workshopSlide")),snapshot=>{
  syncSlideSignals();
 },error=>notify("웹사이트 실습 슬라이드 동기화 정보를 읽지 못했습니다."));
 d.onValue(d.ref(db,remote("pointer")),s=>{if(teacher&&allowed&&tool==="laser")return;const p=s.val();$("laser").hidden=!(p&&p.active&&Date.now()-(p.at||0)<2500);if(!$("laser").hidden){$("laser").style.left=p.x*100+"%";$("laser").style.top=p.y*100+"%";clearTimeout(laserTimeout);laserTimeout=setTimeout(()=>$("laser").hidden=true,750)}});
-binding();b.onAuthStateChanged(auth,u=>{user=u;allowed=teacher&&!!u;permission();if(teacher){installPrivateNotebook56FromLink();attendanceAlerts?.sync()}else loadAttendeeProfile(u)});
+binding();b.onAuthStateChanged(auth,u=>{user=u;allowed=teacher&&!!u;permission();if(teacher){installPrivateNotebook56FromLink();attendanceAlerts?.sync();instructorQuickPanel?.sync()}else loadAttendeeProfile(u)});
 $("login").onclick=async()=>{try{await b.signInWithPopup(auth,new b.GoogleAuthProvider())}catch(e){notify("Google 로그인 설정을 확인하세요.")}};
 $("logout").onclick=()=>b.signOut(auth);
 }catch(e){allowed=false;permission();status("Firebase 설정 오류",false)}}
@@ -1287,5 +1288,9 @@ import("./slide53-plan.js?v=slide53-mega-docx-v1").then(({createSlide53Plan})=>{
 if(teacher)import("./attendance-alerts.js").then(({createAttendanceAlerts})=>{
  attendanceAlerts=createAttendanceAlerts({getState:()=>({teacher,db,F,auth,room})});
  attendanceAlerts.sync();
-}).catch(()=>notify("출석 알림 기능을 불러오지 못했습니다. 새로고침해 주세요."));
+ return import("./instructor-quick-panel.js?v=20261105-1");
+}).then(mod=>{
+ instructorQuickPanel=mod.createInstructorQuickPanel({getState:()=>({teacher,db,F,auth,room})});
+ instructorQuickPanel.sync();
+}).catch(()=>notify("강사 실시간 출석·제출 현황을 불러오지 못했습니다. 새로고침해 주세요."));
 </script></body></html>
