@@ -22,6 +22,12 @@ export function createSharedLinks({getState,resources,notify}){
 .god-mega-video button{padding:12px 20px;background:#f3c37e;border:0;border-radius:10px;color:#162b3b;font-weight:900;font-size:clamp(14px,1.6vw,20px);cursor:pointer}
 .god-mega-video video{width:100%;height:auto;max-height:65vh;object-fit:contain}
 .god-mega-video p[data-error="true"]{color:#ffc290}
+.god-mega-alternative{display:flex;gap:8px;align-items:center;justify-content:center;padding:8px;color:#d9e8f5}
+.god-mega-alternative[hidden]{display:none!important}
+.god-mega-alternative button{border:1px solid #97afc9;color:#fff;background:#254665;border-radius:8px;padding:8px 12px;font-size:13px;cursor:pointer}
+.god-link-preview.god-video-mode{display:flex;flex-direction:column}
+.god-link-preview.god-video-mode iframe{flex:1;min-height:160px;height:auto}
+.god-link-preview.god-video-mode .god-mega-video{flex:1;min-height:160px}
 .god-link-preview[hidden],.god-link-document[hidden]{display:none!important}
 .god-link-document{flex:1;min-height:100px;border:1px solid #516e86;border-radius:12px;background:#10263b;display:flex;flex-direction:column;gap:6px;padding:clamp(5px,.8vw,10px);text-align:left;box-sizing:border-box;overflow:hidden}
 .god-doc-status{flex-shrink:0;color:#d8e6f4;font-size:clamp(11px,1vw,14px);padding:4px 6px;line-height:1.3}
@@ -48,6 +54,7 @@ export function createSharedLinks({getState,resources,notify}){
   <div class="god-link-bar"><strong id="godSharedTitle">강사 공유 자료</strong><button id="godSharedDismiss" type="button">↩ 원래 슬라이드로 돌아가기</button></div>
   <p id="godSharedHelp">강사가 공유 중인 자료입니다.</p>
   <div class="god-link-preview" id="godSharedPreview"><iframe id="godSharedFrame" title="강사가 공유한 웹페이지" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe><video id="godSharedVideo" controls playsinline preload="metadata" hidden></video>
+   <div id="godMegaAlternative" class="god-mega-alternative" hidden><span>MEGA 영상이 재생되지 않나요?</span><button type="button" id="godMegaAlternativeButton">다른 방식으로 보기</button></div>
    <div id="godMegaVideo" class="god-mega-video" hidden><p id="godMegaVideoStatus" role="status">영상을 준비하고 있습니다.</p><button id="godMegaVideoPlay" type="button">▶ 영상 재생 준비</button><video id="godMegaVideoPlayer" controls playsinline preload="metadata" hidden></video></div></div>
   <div class="god-link-document" id="godSharedDocument" hidden>
    <div class="god-doc-status" id="godSharedDocumentStatus" role="status">MEGA 목회계획서를 불러오는 중…</div>
@@ -65,7 +72,16 @@ export function createSharedLinks({getState,resources,notify}){
  const el=id=>document.getElementById(id);
  let value=null,dismissed=null,initialized=false;
  let documentPreview=null,previewId=null;
- let megaVideoViewer=null,megaVideoId=null,megaVideoLoading=null;
+ let megaVideoViewer=null,megaVideoId=null;
+ const altButton=el("godMegaAlternativeButton");
+ altButton.onclick=()=>{
+  const match=known(value);
+  if(!match||match.slide!==10)return;
+  el("godSharedFrame").hidden=true;
+  el("godSharedFrame").removeAttribute("src");
+  el("godMegaAlternative").hidden=true;
+  showMegaVideo(match.rec,match.id);
+ };
  async function showMegaVideo(rec,id){
   if(megaVideoId===id)return;
   megaVideoId=id;
@@ -143,6 +159,8 @@ export function createSharedLinks({getState,resources,notify}){
  }
  function hide(){
   el("godSharedLink").hidden=true;
+  el("godSharedPreview").classList.remove("god-video-mode");
+  el("godMegaAlternative").hidden=true;
   el("godSharedFrame").removeAttribute("src");
   const player=el("godSharedVideo");
   player.pause();player.removeAttribute("src");player.load();
@@ -166,12 +184,19 @@ export function createSharedLinks({getState,resources,notify}){
   const frame=el("godSharedFrame"),player=el("godSharedVideo");
   const megaVideo=/^https:\/\/(?:www\.)?mega\.nz\/file\//i.test(match.rec.url)&&match.slide===10;
   if(megaVideo){
-   frame.hidden=true;frame.removeAttribute("src");
+   // Fast path: MEGA official embed, no full video download from our JS.
+   // MEGA player compatibility is outside GOD119 control.
    player.pause();player.removeAttribute("src");player.load();player.hidden=true;
-   el("godSharedPreview").hidden=false;el("godSharedDocument").hidden=true;
+   el("godSharedPreview").hidden=false;
+   el("godSharedPreview").classList.add("god-video-mode");
+   el("godSharedDocument").hidden=true;
    resetDocumentPreview();el("godSharedLink").hidden=false;
-   el("godSharedHelp").textContent="영상은 GOD119 안에서 재생합니다. 참석자 화면에서 ‘영상 재생 준비’를 누르면 MEGA의 개별 영상 파일만 다운로드·암호 해제합니다.";
-   showMegaVideo(match.rec,match.id);
+   el("godSharedHelp").textContent="GOD119 화면 안에서 영상을 재생합니다. 먼저 화면 가운데 재생을 누르세요. MEGA 미리보기가 지원되지 않는 기기에서는 ‘다른 방식으로 보기’를 이용하세요.";
+   if(megaVideoId!==null)resetMegaVideo();
+   el("godMegaAlternative").hidden=false;
+   frame.hidden=false;
+   const src=target(match.rec.url);
+   if(frame.getAttribute("src")!==src)frame.src=src;
    return;
   }
   if(megaVideoId!==null)resetMegaVideo();
