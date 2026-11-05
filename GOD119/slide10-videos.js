@@ -11,6 +11,20 @@ export function createSlide10Videos({getState,resources,onChange,notify,getSlide
  // Firebase's new published path can override them if the lecturer later edits links.
  const DEFAULT_URLS=["https://mega.nz/file/6qxwCIRZ#hjUnv-AjIvEGEq7yZuuf0zLcM4d4SVJgqVyycZsmdrg","https://mega.nz/file/uqZRHLgA#8AXm5RoZ_QK0uy2VNp1MiKHr5iJt371ERC2n6JV3gGU"];
  let urls=[...DEFAULT_URLS],attached=false,received=false,selected=0;
+ let seminarFolder="";
+ function validSeminarFolder(value){
+  if(typeof value!=="string"||value.length>1300)return null;
+  try{
+   const u=new URL(value.trim());
+   if(u.protocol!=="https:"||!["mega.nz","www.mega.nz"].includes(u.hostname.toLowerCase())||u.username||u.password)return null;
+   // An individual shared folder link, not an account dashboard or an invitation with edit permissions.
+   if(/^\/folder\/[a-zA-Z0-9_-]{6,}\/??$/.test(u.pathname)&&/^#[a-zA-Z0-9_-]{10,}$/.test(u.hash))
+    return u.href;
+   if(u.pathname==="/"&&/^#F![a-zA-Z0-9_-]{6,}![a-zA-Z0-9_-]{10,}$/.test(u.hash))
+    return u.href;
+  }catch(_){}
+  return null;
+ }
  let layer=null,entry=null,message=null,player=null,objectURL=null;
 
  function normalized(raw){
@@ -39,6 +53,7 @@ export function createSlide10Videos({getState,resources,onChange,notify,getSlide
   resources[10]=names.map((name,i)=>urls[i]?
    {label:name+" · 영상",url:urls[i],rect:rects[i]}:
    {label:name+".mp4",local:true});
+  if(seminarFolder)resources[10].push({label:"제일신목회세미나 · 공유 자료실",url:seminarFolder,type:"seminarFolder"});
   onChange();
  }
  if(teacher){
@@ -46,7 +61,7 @@ export function createSlide10Videos({getState,resources,onChange,notify,getSlide
   setupBar.id="godVideo10Settings";
   setupBar.hidden=true;
   setupBar.style.cssText="margin-top:12px;padding:10px;border:1px solid #5a83a5;border-radius:10px;background:#102b42";
-  setupBar.innerHTML='<strong style="color:#ffe1a0">10번 영상 주소 변경</strong><p style="font-size:12px">참석자 모바일 재생용 영상 링크로 교체할 수 있습니다.</p><div style="display:flex;gap:8px"><button id="godVideo10ConfigureA" type="button">왼쪽 영상</button><button id="godVideo10ConfigureB" type="button">오른쪽 영상</button></div>';
+  setupBar.innerHTML='<strong style="color:#ffe1a0">10번 영상 주소 변경</strong><p style="font-size:12px">기기별 재생 문제가 있으면 모바일 호환 영상 링크로 교체할 수 있습니다.</p><div style="display:flex;gap:8px"><button id="godVideo10ConfigureA" type="button">왼쪽 영상</button><button id="godVideo10ConfigureB" type="button">오른쪽 영상</button></div><div style="margin-top:12px;border-top:1px solid #547388;padding-top:10px"><label for="god119SeminarFolder">제일신목회세미나 · 자료실 공유 링크 (선택)</label><input id="god119SeminarFolder" type="url" placeholder="https://mega.nz/folder/...#..." style="width:100%;padding:9px;background:#06172b;color:white;box-sizing:border-box"><button id="god119SaveFolder" type="button" style="margin-top:6px">읽기용 폴더 링크 저장</button><p id="god119FolderStatus" style="font-size:11px;color:#cde5ed">MEGA 전체 계정 주소가 아닌 폴더의 ‘링크 복사’를 사용하세요.</p></div>';
   $("slideSelect").insertAdjacentElement("afterend",setupBar);
   const css=document.createElement("style");
   css.textContent=`
@@ -104,6 +119,18 @@ export function createSlide10Videos({getState,resources,onChange,notify,getSlide
    entry.focus();
    return true;
   }
+  $("god119SaveFolder").onclick=async()=>{
+   const input=$("god119SeminarFolder");
+   const next=validSeminarFolder(input.value);
+   if(!next){$("god119FolderStatus").textContent="MEGA에서 제일신목회세미나 폴더만 선택한 뒤 ‘링크 복사’로 얻은 폴더 URL을 입력하세요. mega.nz/fm 주소는 사용할 수 없습니다.";return}
+   const {F,db,auth,allowed,room}=getState();
+   if(!F||!db||!allowed||!auth?.currentUser){$("god119FolderStatus").textContent="강사 로그인 후 저장할 수 있습니다.";return}
+   try{
+    await F.update(F.ref(db,"rooms/"+room+"/slide10VideosPublished"),{folder:next});
+    seminarFolder=next;refresh();
+    $("god119FolderStatus").textContent="세미나 폴더 링크를 저장했습니다. 해당 폴더 안의 자료만 링크를 아는 참석자에게 공개됩니다.";
+   }catch(e){$("god119FolderStatus").textContent="저장하지 못했습니다. 강사 Firebase 권한을 확인하세요."}
+  };
   $("godVideo10ConfigureA").onclick=()=>configure(0);
   $("godVideo10ConfigureB").onclick=()=>configure(1);
   $("godVideo10Cancel").onclick=close;
@@ -156,6 +183,8 @@ export function createSlide10Videos({getState,resources,onChange,notify,getSlide
    F.onValue(F.ref(db,"rooms/"+room+"/slide10VideosPublished"),snapshot=>{
     const data=snapshot.val()||{};
     urls=[normalized(data.a)||DEFAULT_URLS[0],normalized(data.b)||DEFAULT_URLS[1]];
+    seminarFolder=validSeminarFolder(data.folder)||"";
+    $("god119SeminarFolder").value=seminarFolder;
     received=true;refresh();
    },()=>notify("MEGA 영상 링크를 읽지 못했습니다. Firebase 권한을 확인해 주세요."));
   }
@@ -169,6 +198,7 @@ export function createSlide10Videos({getState,resources,onChange,notify,getSlide
   F.onValue(F.ref(db,"rooms/"+room+"/slide10VideosPublished"),snapshot=>{
    const data=snapshot.val()||{};
    urls=[normalized(data.a)||DEFAULT_URLS[0],normalized(data.b)||DEFAULT_URLS[1]];
+   seminarFolder=validSeminarFolder(data.folder)||"";
    received=true;refresh();
   });
  }
