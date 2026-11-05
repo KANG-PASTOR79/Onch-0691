@@ -1288,7 +1288,7 @@ import("./slide53-plan.js?v=slide53-mega-docx-v1").then(({createSlide53Plan})=>{
 if(teacher)import("./attendance-alerts.js").then(({createAttendanceAlerts})=>{
  attendanceAlerts=createAttendanceAlerts({getState:()=>({teacher,db,F,auth,room})});
  attendanceAlerts.sync();
- return import("./instructor-quick-panel.js?v=20261105-1");
+ return import("./instructor-quick-panel.js?v=20261105-collapsed2");
 }).then(mod=>{
  instructorQuickPanel=mod.createInstructorQuickPanel({getState:()=>({teacher,db,F,auth,room})});
  instructorQuickPanel.sync();
