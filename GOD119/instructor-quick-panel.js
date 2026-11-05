@@ -20,6 +20,7 @@ export function createInstructorQuickPanel({getState}){
  '#gq .review{flex-shrink:0;background:#f0c57f;color:#09273d;border:1px solid #ffe0ac;border-radius:7px;padding:7px;font-size:11px;font-weight:800;cursor:pointer}',
  '#gq .review:disabled{opacity:.55}',
  '#gq .help{font-size:11px;color:#cddfeb;line-height:1.5;margin-top:8px}',
+ '#gq .new-report{background:#fde0a0;color:#13283b;font-size:12px;font-weight:850;border-radius:8px;padding:9px;margin:9px 0}',
  '#gq [hidden]{display:none!important}'
  ].join('\n');
  document.head.appendChild(style);
@@ -28,7 +29,7 @@ export function createInstructorQuickPanel({getState}){
  '<div class="tabs" role="tablist">',
  '<button type="button" id="gqTabRoster" class="tab" role="tab" aria-selected="true">👥 전체 참석자</button>',
  '<button type="button" id="gqTabSubmit" class="tab" role="tab" aria-selected="false">📥 결과물 제출 <span id="gqPending">0</span></button>',
- '</div><div id="gqStats" class="stats" role="status">명단 연결 중…</div>',
+ '</div><div id="gqNewReport" class="new-report" role="status" hidden>📥 새로운 실습 결과물이 제출되었습니다. 제출 탭에서 확인하세요.</div><div id="gqStats" class="stats" role="status">명단 연결 중…</div>',
  '<div id="gqPanelRoster" role="tabpanel"><input id="gqFindRoster" type="search" placeholder="이름·소속 검색" aria-label="참석자 검색"><div id="gqRoster" class="list"></div></div>',
  '<div id="gqPanelSubmit" role="tabpanel" hidden><input id="gqFindSubmit" type="search" placeholder="제출자·파일명 검색" aria-label="제출 검색"><div id="gqSubmit" class="list"></div><p class="help">실제 MEGA 파일을 확인한 후 ‘수신 확인’을 눌러주세요. 제출 신고만으로는 수신이 증명되지 않습니다.</p></div>'
  ].join('');
@@ -94,12 +95,12 @@ export function createInstructorQuickPanel({getState}){
   $('gqTabSubmit').setAttribute('aria-selected',String(!a));
  }
  $('gqTabRoster').onclick=()=>select('roster');
- $('gqTabSubmit').onclick=()=>select('submit');
+ $('gqTabSubmit').onclick=()=>{$('gqNewReport').hidden=true;select('submit')};
  $('gqFindRoster').oninput=render;
  $('gqFindSubmit').oninput=render;
  function stop(){
   for(const f of unsub){try{f()}catch(e){}}
-  unsub=[];uid=null;roster={};submitted={};rReady=false;sReady=false;known=null;writing.clear();render();
+  unsub=[];uid=null;roster={};submitted={};rReady=false;sReady=false;known=null;writing.clear();$('gqNewReport').hidden=true;render();
  }
  function sync(){
   const {teacher,db,F,auth,room}=getState();
@@ -113,7 +114,7 @@ export function createInstructorQuickPanel({getState}){
    submitted=snap.val()||{};sReady=true;
    const ids=new Set(reports().map(v=>v.id));
    if(known&&[...ids].some(id=>!known.has(id))){
-    $('gqStats').textContent='📥 새로운 실습 제출 신고가 도착했습니다.';
+    $('gqNewReport').hidden=false;
    }
    known=ids;render();
   },()=>{$('gqStats').textContent='제출 현황 권한 확인 필요';}));
