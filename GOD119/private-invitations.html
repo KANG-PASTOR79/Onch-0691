@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>GOD119 · 비공개 참석자 초청 관리</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(140deg,#081726,#18344a);color:#f2f6fa;min-height:100vh}
+header{padding:18px max(16px,calc((100vw - 1050px)/2));background:#0b1d2e;border-bottom:1px solid #466174;display:flex;justify-content:space-between;align-items:center;gap:15px}
+h1{font-size:21px;margin:0}h2{font-size:16px;margin:0 0 12px}small,.muted{color:#b7cbd7;font-size:12px;line-height:1.6}
+main{max-width:1050px;padding:20px 15px;margin:auto}section,.box{background:#122b40;border:1px solid #395c70;border-radius:14px;padding:17px;margin-bottom:14px}
+button,a.btn{border:1px solid #668ea3;background:#1a4159;color:white;padding:10px 12px;border-radius:9px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}
+button.primary{background:#efd09b;color:#102435;border-color:#efd09b}button.warn{background:#55342d;border-color:#a66a5b}button:disabled{opacity:.4;cursor:not-allowed}
+input,textarea,select{width:100%;border:1px solid #668395;background:#092135;color:white;border-radius:9px;padding:10px;font:inherit;font-size:14px}
+textarea{min-height:115px;resize:vertical}label{display:block;font-size:12px;color:#d7e7ef;margin:0 0 6px}
+.row{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.row>*{min-width:0}.row .grow{flex:1}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.stat{background:#10263a;border-radius:10px;padding:12px}.stat strong{display:block;font-size:23px}
+table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:11px 8px;border-bottom:1px solid #39536a;text-align:left;vertical-align:middle}td:last-child{white-space:nowrap}
+.overflow{overflow-x:auto} .pill{color:#fee6bc} .hide,[hidden]{display:none!important}
+.notice{font-size:12px;line-height:1.6;color:#f1d3a9}.name{font-weight:800}#message{min-height:18px;line-height:1.5;color:#a8ead8;font-size:12px}#lockscreen{max-width:480px;margin:50px auto}.link{color:#f2d19d}
+@media(max-width:650px){header{flex-direction:column;align-items:flex-start}.grid{grid-template-columns:1fr 1fr}.row button{min-height:42px}td,th{padding:8px 5px}td:last-child{white-space:normal}}
+</style></head>
+<body>
+<header><div><h1>🔒 GOD119 · 참석자 초청 관리</h1><small>강사 본인 기기 전용 · 명단은 서버에 보내지 않습니다</small></div>
+<a class="btn" href="./?teacher=1">← 강사 화면으로</a></header>
+<main>
+<section id="lockscreen">
+<h2 id="lockTitle">비공개 명단 금고 만들기</h2>
+<p class="notice">첫 사용에는 별도의 명단 비밀번호를 설정합니다. 기존 강사 Google 로그인과 다른 잠금입니다. 명단은 이 브라우저에 암호화 저장되며 다른 기기로 자동 공유되지 않습니다.</p>
+<label for="password">명단 비밀번호 (12자 이상 권장)</label><input id="password" type="password" autocomplete="off" placeholder="영문·숫자 등을 섞은 긴 비밀번호">
+<div id="confirmWrap"><label for="confirm">비밀번호 다시 입력</label><input id="confirm" type="password" autocomplete="off"></div>
+<div class="row" style="margin-top:12px"><button id="unlock" class="primary">암호화 금고 시작</button><button id="restoreLocked">암호화 명단 백업 가져오기</button></div>
+<p id="lockMessage" class="notice"></p>
+</section>
+<div id="app" hidden>
+<section><div class="row" style="justify-content:space-between"><div><h2>초청 현황</h2><small>이름·전화번호는 이 기기에서 암호화 저장 · 다른 참석자에게 표시되지 않음</small></div><button id="lock">🔒 잠그기</button></div>
+<div class="grid" style="margin-top:12px"><div class="stat"><small>전체 대상</small><strong id="allCount">0</strong></div><div class="stat"><small>초청 완료</small><strong id="sentCount">0</strong></div><div class="stat"><small>미초청</small><strong id="pendingCount">0</strong></div></div></section>
+<section><h2>① 명단 불러오기</h2>
+<p class="notice">한글(HWP)에서 참석자 명단 표의 이름·교회·전화번호 열을 선택해 복사한 후 아래 칸에 붙여 넣으세요. 원본 파일을 이 대화나 GitHub에 업로드하지 않습니다. 직접 CSV/TSV 파일로 저장해 선택해도 됩니다.</p>
+<textarea id="paste" placeholder="이름&#9;교회&#9;연락처&#10;홍길동&#9;예시교회&#9;01012345678"></textarea>
+<div class="row" style="margin-top:9px"><button id="importPaste" class="primary">붙여넣은 명단 가져오기</button><label class="btn" for="importFile" style="cursor:pointer;margin:0">CSV/TSV 파일 선택</label><input type="file" id="importFile" accept=".csv,.tsv,.txt,text/csv,text/plain" hidden></div>
+<small>동일한 전화번호(없으면 이름·교회 조합)가 이미 있으면 초청 상태를 유지하고 중복 추가하지 않습니다. HWP 자체 파일은 직접 해석하지 않습니다.</small></section>
+<section><h2>② 참석자 검색 · 초청 관리</h2>
+<div class="row" style="margin-bottom:10px"><input id="search" class="grow" type="search" placeholder="이름·교회·전화번호 검색"><select id="filter" style="max-width:150px"><option value="all">전체</option><option value="pending">미초청</option><option value="sent">초청 완료</option></select></div>
+<div class="overflow"><table><thead><tr><th>이름 / 교회</th><th>전화번호</th><th>상태</th><th>초청</th></tr></thead><tbody id="people"></tbody></table></div><p id="empty" class="muted">명단을 가져오면 여기에 표시됩니다.</p></section>
+<section><h2>③ 초청 문자</h2>
+<p class="muted">명단에서 「문자 준비」를 누르면 아래 문안과 연락처가 자동 입력됩니다. 실제 문자는 발송하지 않으며, 목사님이 휴대전화나 문자 프로그램에서 직접 확인 후 보내셔야 합니다.</p>
+<div class="row"><div class="grow"><label for="toName">받는 사람</label><input id="toName" readonly></div><div class="grow"><label for="toPhone">전화번호</label><input id="toPhone" readonly></div></div>
+<label for="invitation" style="margin-top:10px">초청 문안 (자유롭게 수정 가능)</label><textarea id="invitation">안녕하세요. AI 목회자 세미나 GOD119에 초청합니다. 세미나 참석자용 화면: https://kang-pastor79.github.io/Onch-0691/GOD119/  참석을 부탁드립니다.</textarea>
+<div class="row" style="margin-top:10px"><button id="copyText" class="primary">문자 내용 복사</button><button id="openSms">문자 앱 열기</button><button id="markSent">초청 완료 표시</button></div>
+<p class="muted">「문자 앱 열기」는 기기에서 지원할 때만 실행되며 자동 전송되지 않습니다. 내용을 확인하고 직접 보내세요.</p></section>
+<section><h2>④ 백업 · 안전 관리</h2><p class="muted">브라우저 저장소를 지우거나 기기를 교체하면 명단이 사라질 수 있습니다. 주기적으로 암호화 백업 파일을 내려받아 안전하게 보관하세요.</p>
+<div class="row"><button id="backup">암호화 명단 백업 다운로드</button><button id="restore">암호화 명단 백업 복원</button><button id="erase" class="warn">이 기기의 명단 삭제</button></div>
+<p class="notice">공용 기기에서는 사용하지 마세요. 비밀번호를 잃어버리면 명단을 복구할 수 없습니다. 강의 화면 공유 중에는 이 창을 열지 마세요.</p>
+<p id="message" role="status" aria-live="polite"></p></section>
+</div>
+<input id="backupFile" type="file" accept=".json,application/json" hidden>
+</main>
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id), storageKey='god119-private-invite-v1';
+let people=[],key=null,salt=null,selected=null,encryptedRecord=null;
+const enc=new TextEncoder(),dec=new TextDecoder();
+const base64=bytes=>btoa(String.fromCharCode(...bytes));
+const unbase=str=>Uint8Array.from(atob(str),c=>c.charCodeAt(0));
+function status(msg){$('message').textContent=msg}
+function err(msg){$('lockMessage').textContent=msg}
+function saveRaw(obj){localStorage.setItem(storageKey,JSON.stringify(obj))}
+function getRaw(){try{return JSON.parse(localStorage.getItem(storageKey)||'null')}catch(_){return null}}
+async function derive(pass,s){const material=await crypto.subtle.importKey('raw',enc.encode(pass),'PBKDF2',false,['deriveKey']);return crypto.subtle.deriveKey({name:'PBKDF2',salt:s,iterations:250000,hash:'SHA-256'},material,{name:'AES-GCM',length:256},false,['encrypt','decrypt'])}
+async function encryptData(list,k,s){const iv=crypto.getRandomValues(new Uint8Array(12));const content=enc.encode(JSON.stringify({v:1,people:list}));const cipher=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},k,content));return {type:'god119-invite-encrypted',version:1,salt:base64(s),iv:base64(iv),data:base64(cipher),savedAt:new Date().toISOString()}}
+async function decryptData(payload,k){if(payload?.type!=='god119-invite-encrypted'||payload?.version!==1)throw Error('올바른 암호화 명단 파일이 아닙니다.');const buf=await crypto.subtle.decrypt({name:'AES-GCM',iv:unbase(payload.iv)},k,unbase(payload.data));const obj=JSON.parse(dec.decode(buf));if(obj?.v!==1||!Array.isArray(obj.people))throw Error('명단 자료 형식이 맞지 않습니다.');return obj.people}
+async function persist(){if(!key)return;const payload=await encryptData(people,key,salt);saveRaw(payload);encryptedRecord=payload;status('이 기기에 암호화 저장됐습니다.')}
+const clean=s=>String(s??'').trim().replace(/\u0000/g,'').slice(0,150);
+const digits=s=>String(s??'').replace(/\D/g,'');
+const normalizePhone=s=>{let d=digits(s);if(d.length===10&&d.startsWith('10'))d='0'+d;return d};
+function displayPhone(p){const d=normalizePhone(p);if(d.length===11)return d.replace(/(\d{3})(\d{4})(\d{4})/,'$1-$2-$3');if(d.length===10)return d.replace(/(\d{3})(\d{3})(\d{4})/,'$1-$2-$3');return d}
+function parseDelimited(text){const first=text.split(/\r?\n/).find(x=>x.trim())||'';const sep=first.includes('\t')?'\t':',';const rows=[];let row=[],v='',quote=false;
+for(let i=0;i<text.length;i++){const c=text[i];if(c==='"'){if(quote&&text[i+1]==='"'){v+='"';i++}else quote=!quote}else if(c===sep&&!quote){row.push(v);v=''}else if((c==='\n'||c==='\r')&&!quote){if(c==='\r'&&text[i+1]==='\n')i++;row.push(v);if(row.some(x=>x.trim()))rows.push(row);row=[];v=''}else v+=c}row.push(v);if(row.some(x=>x.trim()))rows.push(row);return rows}
+function convertRows(raw){if(!raw.length)return [];const heads=raw[0].map(x=>x.trim().replace(/\s/g,''));let nameIndex=heads.findIndex(h=>/^(성명|이름|참석자|목사님)$/.test(h)),churchIndex=heads.findIndex(h=>/교회|소속/.test(h)),phoneIndex=heads.findIndex(h=>/휴대|연락|전화|핸드폰/.test(h));let start=0;if(nameIndex>=0&&phoneIndex>=0)start=1;else{nameIndex=0;churchIndex=1;phoneIndex=2}if(phoneIndex<0)throw Error('연락처 열을 찾을 수 없습니다. 표 첫 행을 이름 / 교회 / 연락처로 정리해 주세요.');return raw.slice(start).map(r=>({name:clean(r[nameIndex]),church:clean(r[churchIndex]),phone:normalizePhone(r[phoneIndex]),sent:false})).filter(p=>p.name&&p.phone.length>=9)}
+function identity(p){return p.phone||p.name+'|'+p.church}
+async function importText(text){const parsed=convertRows(parseDelimited(text));if(!parsed.length)throw Error('읽어 들일 이름과 전화번호가 없습니다.');let count=0;const index=new Map(people.map((p,i)=>[identity(p),i]));for(const p of parsed){const id=identity(p);if(index.has(id))continue;index.set(id,people.length);people.push(p);count++}await persist();render();status('명단 '+parsed.length+'건 확인, 새로 '+count+'건 추가했습니다.')}
+function el(tag,text,css){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(css)n.className=css;return n}
+function render(){const total=people.length,sent=people.filter(p=>p.sent).length;$('allCount').textContent=total;$('sentCount').textContent=sent;$('pendingCount').textContent=total-sent;const q=$('search').value.trim().toLowerCase(),f=$('filter').value;const tbody=$('people');tbody.replaceChildren();let shown=0;people.forEach((p,i)=>{if(f==='sent'&&!p.sent||f==='pending'&&p.sent)return;if(q&&!(p.name+' '+p.church+' '+p.phone).toLowerCase().includes(q))return;shown++;const tr=el('tr');const person=el('td');person.append(el('div',p.name,'name'),el('small',p.church));tr.append(person,el('td',displayPhone(p.phone)),el('td',p.sent?'초청 완료':'미초청',p.sent?'pill':''));const acts=el('td');const prepare=el('button','문자 준비');prepare.onclick=()=>{selected=i;$('toName').value=p.name;$('toPhone').value=displayPhone(p.phone);$('invitation').value=p.name+' 목사님, 안녕하세요. AI 목회자 세미나 GOD119에 초청합니다. 참석자 화면: https://kang-pastor79.github.io/Onch-0691/GOD119/';$('invitation').scrollIntoView({behavior:'smooth',block:'center'})};acts.append(prepare);const toggle=el('button',p.sent?'미초청으로':'완료 표시');toggle.style.marginLeft='5px';toggle.onclick=async()=>{p.sent=!p.sent;await persist();render()};acts.append(toggle);tr.append(acts);tbody.append(tr)});$('empty').hidden=shown>0}
+async function init(){const raw=getRaw();$('lockTitle').textContent=raw?'비공개 명단 잠금 해제':'비공개 명단 금고 만들기';$('confirmWrap').hidden=!!raw;$('unlock').textContent=raw?'비밀번호로 열기':'비밀번호 설정하고 시작하기';if(!crypto?.subtle)err('현재 브라우저에서 암호화를 지원하지 않습니다. Chrome HTTPS 환경으로 접속하세요.')}
+async function unlock(){const pass=$('password').value;if(pass.length<8){err('비밀번호를 8자 이상 입력하세요.');return}const raw=getRaw();try{if(raw){salt=unbase(raw.salt);key=await derive(pass,salt);people=await decryptData(raw,key);encryptedRecord=raw}else{if(pass!==$('confirm').value)throw Error('비밀번호가 일치하지 않습니다.');salt=crypto.getRandomValues(new Uint8Array(16));key=await derive(pass,salt);people=[];await persist()}$('password').value='';$('confirm').value='';$('lockscreen').hidden=true;$('app').hidden=false;render()}catch(e){key=null;err('열 수 없습니다. 비밀번호 또는 백업 파일을 확인해 주세요.')}}
+$('unlock').onclick=unlock;$('password').addEventListener('keydown',e=>{if(e.key==='Enter')unlock()});
+$('lock').onclick=()=>{key=null;people=[];selected=null;$('toName').value='';$('toPhone').value='';$('lockscreen').hidden=false;$('app').hidden=true;init()};
+$('importPaste').onclick=async()=>{try{await importText($('paste').value);$('paste').value=''}catch(e){status('가져오기 실패: '+e.message)}};
+$('importFile').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{await importText(await f.text())}catch(ex){status('파일 읽기 실패: '+ex.message)}e.target.value=''};
+$('search').oninput=render;$('filter').onchange=render;
+$('copyText').onclick=async()=>{try{await navigator.clipboard.writeText($('invitation').value);status('문자 내용을 복사했습니다.')}catch(e){status('복사할 수 없습니다. 문자 내용을 직접 선택해 복사하세요.')}};
+$('openSms').onclick=()=>{if(selected===null){status('먼저 명단에서 문자 준비를 눌러주세요.');return}const p=people[selected];location.href='sms:'+p.phone+'?body='+encodeURIComponent($('invitation').value);status('문자 앱이 열렸다면 내용을 확인한 후 직접 전송해 주세요.')};
+$('markSent').onclick=async()=>{if(selected===null){status('먼저 명단에서 문자 준비를 눌러주세요.');return}if(!confirm('실제로 초청 문자를 보낸 것이 맞습니까?'))return;people[selected].sent=true;await persist();render();status('초청 완료로 표시했습니다.')};
+$('backup').onclick=async()=>{await persist();const blob=new Blob([JSON.stringify(encryptedRecord,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='GOD119_암호화_초청명단_'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);status('암호화 백업 다운로드를 시작했습니다. 안전한 장소에 보관하세요.')};
+let restoreFromLock=false;$('restore').onclick=()=>{restoreFromLock=false;$('backupFile').click()};$('restoreLocked').onclick=()=>{restoreFromLock=true;$('backupFile').click()};
+$('backupFile').onchange=async e=>{const file=e.target.files?.[0];e.target.value='';if(!file)return;try{const data=JSON.parse(await file.text());if(data.type!=='god119-invite-encrypted'||!data.salt||!data.iv||!data.data)throw Error('백업 형식이 맞지 않습니다.');const pass=prompt('백업 파일의 명단 비밀번호를 입력하세요.');if(!pass)return;const newSalt=unbase(data.salt),newKey=await derive(pass,newSalt);const list=await decryptData(data,newKey);
+if(!confirm('현재 이 기기의 명단을 백업 파일로 교체할까요? 기존 명단은 덮어써집니다.'))return;
+people=list;key=newKey;salt=newSalt;encryptedRecord=data;saveRaw(data);$('lockscreen').hidden=true;$('app').hidden=false;render();status('암호화 명단을 검증하고 복원했습니다.');$('lockMessage').textContent=''}catch(e){if(restoreFromLock)err('백업 복원에 실패했습니다. 파일과 비밀번호를 확인하세요.');else status('백업 복원 실패: '+e.message)}};
+$('erase').onclick=()=>{if(!confirm('이 기기에 저장된 참석자 명단을 완전히 삭제할까요? 암호화 백업이 없다면 복구할 수 없습니다.'))return;if(!confirm('최종 확인: 정말 명단을 삭제하시겠습니까?'))return;localStorage.removeItem(storageKey);location.reload()};
+init();
+})();
+</script></body></html>
