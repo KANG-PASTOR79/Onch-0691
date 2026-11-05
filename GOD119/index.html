@@ -216,7 +216,7 @@
 <div class="links" id="links"></div><p class="notice" id="notice">실제 PPT 56장 이미지를 표시하도록 준비되었습니다. 슬라이드가 임시 화면으로 보인다면 이미지 56개를 GitHub의 GOD119/slides 폴더에 업로드해야 합니다. 외부 웹 링크는 열 수 있지만 강사 컴퓨터의 MP4·DOCX 파일은 별도 연결이 필요합니다.</p></section>
 <aside id="instructor" hidden><div class="card"><h3>강사 전용 제어실</h3><button id="login" class="primary">Google 계정으로 로그인</button> <button id="logout" hidden>로그아웃</button><p class="muted" id="authText">로컬 미리보기: 별도 기기와 동기화되지 않습니다.</p><p class="muted" id="uidPanel" hidden>내 UID: <code id="uid"></code> <button id="copyUid">복사</button></p></div>
 <div class="card"><h3>01 · 슬라이드</h3><div class="two"><button id="prev">← 이전</button><button class="primary" id="next">다음 →</button></div><p class="muted">슬라이드 선택</p><select id="slideSelect"></select><details class="god-control-help"><summary>⌨ 슬라이드 조작 안내</summary><p class="muted">노트북: ← ↑ 이전 / → ↓ 다음<br>아이패드: <b>「선택」 모드</b>에서 Apple Pencil 또는 손가락으로 슬라이드를 톡 터치하면 다음 장, <b>왼쪽 25%</b>를 터치하면 이전 장으로 이동합니다. 「펜」 모드에서는 판서만 됩니다.</p></details></div>
-<div class="card god-compact-inking"><h3>02 · 실시간 판서</h3><p class="god-stylus-only-note">✍ 펜 전용 · 손가락 판서 방지</p>
+<div class="card god-compact-inking"><h3>02 · 실시간 판서</h3><p class="god-stylus-only-note">✍ 펜 전용 <span id="godInputDiagnostic" role="status" aria-live="polite">· 손가락 입력 차단 중</span></p>
 <div class="toolbox" aria-label="판서 도구"><button data-tool="cursor" class="active">↖ 선택</button><button data-tool="pen">✎ 펜</button><button data-tool="highlight">▰ 형광펜</button><button data-tool="eraser">⌫ 지우개</button><button data-tool="laser">◎ 포인터</button></div>
 <div class="god-ink-bottom">
 <div class="colors" aria-label="판서 색상"><span class="muted">색상</span><button class="active" style="--c:#ef425f" data-color="#ef425f" aria-label="빨강"></button><button style="--c:#2e76ff" data-color="#2e76ff" aria-label="파랑"></button><button style="--c:#11ae83" data-color="#11ae83" aria-label="초록"></button><button style="--c:#ffbf32" data-color="#ffbf32" aria-label="노랑"></button></div>
@@ -767,6 +767,31 @@ function clamp(n,min,max){return Math.max(min,Math.min(max,Number.isFinite(Numbe
 let penPrefs={...penDefaults};
 try{const saved=JSON.parse(localStorage.getItem(penSettingsKey)||"null");if(saved&&typeof saved==="object")penPrefs={...penDefaults,...saved}}catch(_){}
 let lastPenSeenAt=0,activePointer=null;
+let fingerContactActive=false,fingerGuardUntil=0;
+function inkInputStatus(message){
+ const diagnostic=document.getElementById("godInputDiagnostic");
+ if(diagnostic)diagnostic.textContent="· "+message;
+}
+function fingerTouchCheck(event){
+ const touches=Array.from(event.touches||[]);
+ // iPad Safari Touch.touchType: "stylus" for Apple Pencil, "direct" for finger.
+ // If a contact does not identify as a stylus, treat it as a finger.
+ return touches.some(t=>t.touchType!=="stylus");
+}
+// Block real touchscreen fingers even on browsers that incorrectly advertise
+// a touch gesture as a pen PointerEvent. Apple Pencil touches retain stylus type.
+canvas.addEventListener("touchstart",event=>{
+ if(fingerTouchCheck(event)){
+  fingerContactActive=true;fingerGuardUntil=Date.now()+700;
+  inkInputStatus("손가락 입력 차단됨");
+ }
+},{passive:true,capture:true});
+const finishTouch=event=>{
+ fingerContactActive=fingerTouchCheck(event);
+ if(fingerContactActive)fingerGuardUntil=Date.now()+450;
+};
+canvas.addEventListener("touchend",finishTouch,{passive:true,capture:true});
+canvas.addEventListener("touchcancel",finishTouch,{passive:true,capture:true});
 $("instructor").hidden=!teacher;$("layout").className=teacher?"":"viewer";if(teacher)$("publicLink").value=audience;
 $("attendanceGate").hidden=teacher;$("attendanceBadge").hidden=true;
 function attMessage(text){$("attStatus").textContent=text}
@@ -995,10 +1020,19 @@ function filteredPoint(prev,p,smooth){
  return [prev[0]+(p[0]-prev[0])*alpha,prev[1]+(p[1]-prev[1])*alpha,p[2],p[3]];
 }
 function acceptPen(e){
- // Pen-only input regardless of previously stored touch/auto preferences.
- // Finger touches or mouse input cannot draw, erase or send laser pointers.
- if(e.pointerType!=="pen")return false;
+ // Always refuse mouse and touch, including historical "auto" preference.
+ if(e.pointerType!=="pen"){
+  inkInputStatus(e.pointerType==="touch"?"손가락 입력 차단됨":"마우스 판서 차단됨");
+  return false;
+ }
+ // Some tablet browsers mislabel a finger as pen. A concurrently active
+ // direct touchscreen gesture is not accepted as a stylus stroke.
+ if(fingerContactActive||Date.now()<fingerGuardUntil){
+  inkInputStatus("손가락 입력 차단됨");
+  return false;
+ }
  lastPenSeenAt=Date.now();
+ inkInputStatus("스타일러스 인식됨");
  return true;
 }
 function newStroke(pt){return {id:"s"+Date.now()+"-"+(++seq),slide,tool,color,at:Date.now(),size:penPrefs.size,sensitivity:penPrefs.sensitivity,tiltBoost:penPrefs.tiltBoost,smooth:penPrefs.smooth,usePressure:penPrefs.usePressure,points:[pt]}}
@@ -1048,7 +1082,13 @@ canvas.onpointerdown=e=>{
 };
 canvas.onpointermove=e=>{
  if(!allowed||clearingStrokes||activePointer!==e.pointerId)return;
- if(e.pointerType==="pen")lastPenSeenAt=Date.now();
+ if(e.pointerType!=="pen"||fingerContactActive){
+  // Cancel the active ink gesture if its pointer changes into touch.
+  // Already persisted strokes are intentionally not cleared here.
+  drawing=null;activePointer=null;inkInputStatus("손가락 입력 차단됨");
+  return;
+ }
+ lastPenSeenAt=Date.now();
  const now=Date.now();
  if(tool==="laser"){if(now-lastPointer>80){lastPointer=now;laser(xy(e),true)}return}
  if(!drawing)return;
@@ -1066,6 +1106,7 @@ canvas.onpointermove=e=>{
 };
 function end(e){
  if(e&&activePointer!==e.pointerId)return;
+ if(e&&e.pointerType!=="pen"){drawing=null;activePointer=null;return}
  if(drawing){
   if(e&&e.type!=="pointercancel"){
    const pt=pointFrom(e,canvas.getBoundingClientRect());
