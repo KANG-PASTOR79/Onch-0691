@@ -147,6 +147,16 @@ export function createSharedLinks({getState,resources,notify}){
   el("godSharedPreview").hidden=false;
   resetDocumentPreview();
   el("godSharedOpen").textContent="↗ 새 탭에서 자료 열기";
+  // MEGA file preview depends on MEGA, the mobile browser and media codecs.
+  // An iframe cannot force MEGA to stream an unsupported MP4.
+  // Show precise mobile guidance rather than pretending playback is guaranteed.
+  if(match.slide===10 && /^https:\/\/(?:www\.)?mega\.nz\/file\//i.test(match.rec.url)){
+   const isMobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent||"");
+   el("godSharedHelp").textContent=isMobile
+    ?"이 영상은 MEGA의 모바일 재생 제한으로 화면 안에서 열리지 않을 수 있습니다. 미리보기가 불가능하면 아래 'MEGA에서 열기'를 누르고 MEGA 앱 또는 다운로드로 확인하세요. 앱 설치 없이 바로 재생하려면 강사가 모바일 호환 영상 주소로 교체해야 합니다."
+    :"MEGA 공유 영상입니다. 화면 안에서 재생되지 않으면 MEGA 원본 링크를 사용하세요. 재생 여부는 파일 코덱과 MEGA 지원 환경에 따라 다릅니다.";
+   el("godSharedOpen").textContent="↗ MEGA 원본 영상 열기 (재생 안 되면 앱·다운로드)";
+  }
   const src=target(match.rec.url);
   const direct=/\.(mp4|m4v|webm)$/i.test(new URL(match.rec.url).pathname);
   if(direct){
