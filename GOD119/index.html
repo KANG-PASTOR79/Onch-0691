@@ -121,6 +121,13 @@
 .bulk-erase .muted{margin:8px 0}
 .bulk-erase strong{font-size:14px;color:#ffe4b8}
 
+
+/* Slide 31 one-file MEGA PDF download; no folder or account permissions. */
+.god-testament-pdf-download{position:absolute;left:9.4%;top:71%;width:50%;height:8.2%;z-index:5;display:flex;align-items:center;gap:7px;pointer-events:auto}
+.god-testament-pdf-button{display:flex;align-items:center;justify-content:center;box-sizing:border-box;min-height:34px;height:100%;flex:1;padding:4px 9px;background:#f2c777;border:2px solid #fff1b9;border-radius:14px;color:#162b3e;font-weight:900;font-size:clamp(11px,1.15vw,21px);text-decoration:none;cursor:pointer;text-align:center;box-shadow:0 3px 11px #020b1c88;white-space:nowrap}
+.god-testament-pdf-button:hover:not(:disabled),.god-testament-pdf-button:focus-visible{background:#ffe1a3;outline:2px solid white;outline-offset:1px}
+.god-testament-pdf-button:disabled{opacity:.75;cursor:default;background:#36516a;color:#e1e6ed;border-color:#75869a}
+.god-testament-pdf-edit{background:#193951;border:1px solid #f7c979;color:#ffe4b3;border-radius:8px;cursor:pointer;min-height:30px;font-size:clamp(9px,.78vw,12px);padding:5px;white-space:nowrap}
 /* Compact instructor inking toolbar; preserves all existing tool IDs and events. */
 .god-compact-inking .toolbox{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:10px 0 9px}
 .god-compact-inking .toolbox button{min-width:0;min-height:42px;padding:8px 4px;font-size:clamp(11px,1.12vw,14px);white-space:nowrap}
@@ -387,6 +394,45 @@ function launchPrivateNotebookLM(event,slideNumber=32){
  // Opens locally in a Google-authenticated tab; no Firebase broadcast.
  window.open(url,"_blank","noopener,noreferrer");
 }
+// Share ONLY a MEGA individual-file URL for the 31st exercise; never folder access.
+let testamentPdfUrl="";
+function validTestamentPdfUrl(input){
+ try{
+  const u=new URL(String(input||"").trim());
+  if(u.protocol!=="https:"||u.hostname!=="mega.nz"||!u.pathname.startsWith("/file/"))return "";
+  if(!/^[A-Za-z0-9_-]+$/.test(u.pathname.slice(6))||!/^#[A-Za-z0-9_-]{16,}$/.test(u.hash))return "";
+  if(u.search)return "";
+  return u.href;
+ }catch(_){return ""}
+}
+async function configureTestamentPdf(){
+ if(!teacher||!allowed||!F||!db){notify("강사 Google 로그인 후 설정해 주세요.");return}
+ const answer=window.prompt("MEGA에서 '제일신목회세미나' 폴더 안의 '신약주석' PDF 하나를 선택하고 [링크 가져오기]로 만든 개별 파일 공유 주소만 붙여 넣으세요.\n폴더 링크와 MEGA 로그인 주소는 허용하지 않습니다.\n\n등록한 파일 링크는 참석자에게 공개됩니다.",testamentPdfUrl);
+ if(answer===null)return;
+ const url=validTestamentPdfUrl(answer);
+ if(!url){notify("MEGA 개별 파일 링크(https://mega.nz/file/…#…)만 등록해 주세요.");return}
+ if(!confirm("선택한 공유 링크 하나를 31번 슬라이드의 신약주석 PDF 다운로드 주소로 공개하시겠습니까?\n폴더 전체 링크가 아닌지 먼저 확인해 주세요."))return;
+ try{
+  await F.set(F.ref(db,remote("resourceLinks/newTestamentPdf")),url);
+  testamentPdfUrl=url;if(slide===31)showResources(31);
+  notify("PDF 개별 공유 링크 등록 완료. 참석자 화면에도 표시됩니다.");
+ }catch(e){notify("링크 등록 실패: 강사 Firebase 권한과 연결 상태를 확인해 주세요.")}
+}
+function addTestamentPdfButton(n,links,hotspots){
+ if(n!==31)return;
+ const wrap=document.createElement("div");wrap.className="god-testament-pdf-download";
+ const url=validTestamentPdfUrl(testamentPdfUrl),button=document.createElement(url?"a":"button");
+ button.className="god-testament-pdf-button";
+ button.textContent=url?"⬇ 신약주석 PDF 내려받기":teacher?"🔗 신약주석 링크 등록":"신약주석 PDF · 강사 준비 중";
+ if(url){button.href=url;button.target="_blank";button.rel="noopener noreferrer";button.title="MEGA에서 신약주석 PDF 1개를 엽니다."}
+ else if(teacher){button.type="button";button.onclick=configureTestamentPdf}
+ else{button.type="button";button.disabled=true}
+ wrap.appendChild(button);
+ if(teacher&&url){const edit=document.createElement("button");edit.type="button";edit.className="god-testament-pdf-edit";edit.textContent="⚙ 링크 변경";edit.onclick=configureTestamentPdf;wrap.appendChild(edit)}
+ hotspots.appendChild(wrap);
+ if(teacher){const guide=document.createElement("small");guide.className="muted";guide.textContent="31번 실습자료 · 신약주석 MEGA 개별 파일 링크만 공개";links.appendChild(guide)}
+}
+
 function showResources(n){
  const links=$("links"),hotspots=$("hotspots");links.replaceChildren();hotspots.replaceChildren();
  for(const [i,rec] of (slideResources[n]||[]).entries()){
@@ -620,6 +666,7 @@ function showResources(n){
    hotspots.appendChild(button);
   }
  }
+ addTestamentPdfButton(n,links,hotspots);
  if(n>=33&&n<=54&&teacher){
   // 22-slide ministry-plan section. The lecturer can proceed sequentially
   // or return to the practice menu from ANY page of this section.
@@ -1236,6 +1283,10 @@ d.onValue(d.ref(db,remote("workshopSlide")),snapshot=>{
  remoteWorkshopSlide=snapshot.exists()&&Number.isInteger(n)&&n>=57&&n<=SLIDE_COUNT?n:null;
  syncSlideSignals();
 },error=>notify("웹사이트 실습 슬라이드 동기화 정보를 읽지 못했습니다."));
+d.onValue(d.ref(db,remote("resourceLinks/newTestamentPdf")),snapshot=>{
+ testamentPdfUrl=validTestamentPdfUrl(snapshot.val());
+ if(slide===31)showResources(31);
+},error=>{if(slide===31)notify("신약주석 공유 링크를 읽지 못했습니다.")});
 d.onValue(d.ref(db,remote("pointer")),s=>{if(teacher&&allowed&&tool==="laser")return;const p=s.val();$("laser").hidden=!(p&&p.active&&Date.now()-(p.at||0)<2500);if(!$("laser").hidden){$("laser").style.left=p.x*100+"%";$("laser").style.top=p.y*100+"%";clearTimeout(laserTimeout);laserTimeout=setTimeout(()=>$("laser").hidden=true,750)}});
 binding();b.onAuthStateChanged(auth,u=>{user=u;allowed=teacher&&!!u;permission();if(teacher){installPrivateNotebook56FromLink();attendanceAlerts?.sync();instructorQuickPanel?.sync()}else loadAttendeeProfile(u)});
 $("login").onclick=async()=>{try{await b.signInWithPopup(auth,new b.GoogleAuthProvider())}catch(e){notify("Google 로그인 설정을 확인하세요.")}};
