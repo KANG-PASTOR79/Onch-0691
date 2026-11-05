@@ -123,6 +123,7 @@ export function createSharedLinks({getState,resources,notify}){
   if(!match||match.slide!==slide||(!teacher&&dismissed===match.id)){hide();return}
   el("godSharedTitle").textContent=(teacher?"강사 자료 보기 · ":"강사가 공유한 자료 · ")+match.rec.label;
   el("godSharedOpen").href=match.rec.url;
+  el("godSharedOpen").hidden=match.slide===10;
   el("godSharedDismiss").textContent=teacher?"↩ 슬라이드로 돌아가기 · 참석자도 함께 복귀":"↩ 슬라이드로 돌아가기";
   el("godSharedHelp").textContent=teacher?
    "강사와 참석자가 같은 링크 자료를 보고 있습니다. 설명을 마치면 위의 돌아가기 버튼을 누르세요. 웹사이트 보안 정책으로 표시되지 않으면 아래에서 새 탭으로 열 수 있습니다.":
@@ -147,16 +148,19 @@ export function createSharedLinks({getState,resources,notify}){
   el("godSharedPreview").hidden=false;
   resetDocumentPreview();
   el("godSharedOpen").textContent="↗ 새 탭에서 자료 열기";
-  // MEGA file preview depends on MEGA, the mobile browser and media codecs.
-  // An iframe cannot force MEGA to stream an unsupported MP4.
-  // Show precise mobile guidance rather than pretending playback is guaranteed.
+  // Show video inside the GOD119 attendee screen rather than inviting
+  // participants to leave the lecture for an external MEGA file page.
+  // MEGA still supplies the bytes for MEGA-sourced clips, and mobile browsers
+  // can refuse MEGA previews; the lecturer can replace the two URLs with
+  // embeddable YouTube unlisted video links or direct HTTPS MP4 links.
   if(match.slide===10 && /^https:\/\/(?:www\.)?mega\.nz\/file\//i.test(match.rec.url)){
    const isMobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent||"");
    el("godSharedHelp").textContent=isMobile
-    ?"이 영상은 MEGA의 모바일 재생 제한으로 화면 안에서 열리지 않을 수 있습니다. 미리보기가 불가능하면 아래 'MEGA에서 열기'를 누르고 MEGA 앱 또는 다운로드로 확인하세요. 앱 설치 없이 바로 재생하려면 강사가 모바일 호환 영상 주소로 교체해야 합니다."
-    :"MEGA 공유 영상입니다. 화면 안에서 재생되지 않으면 MEGA 원본 링크를 사용하세요. 재생 여부는 파일 코덱과 MEGA 지원 환경에 따라 다릅니다.";
-   el("godSharedOpen").textContent="↗ MEGA 원본 영상 열기 (재생 안 되면 앱·다운로드)";
+    ?"GOD119 화면 안에서 재생을 시도합니다. 아이폰에서 영상이 표시되지 않으면 이 MEGA 원본은 모바일 미리보기를 지원하지 않는 상태입니다. 강사가 재생 가능한 YouTube 미등록 공개 영상이나 HTTPS MP4 주소로 연결을 바꾸어야 합니다."
+    :"강사가 공유한 영상을 GOD119 안에 표시합니다. MEGA 측에서 재생을 제한하면 강사가 영상 주소를 교체해야 합니다.";
   }
+  if(match.slide===10&&!/^https:\/\/(?:www\.)?mega\.nz\/file\//i.test(match.rec.url))
+   el("godSharedHelp").textContent="GOD119 강의실 안에서 영상을 재생합니다. 휴대전화에서는 영상의 재생 버튼을 눌러 주세요.";
   const src=target(match.rec.url);
   const direct=/\.(mp4|m4v|webm)$/i.test(new URL(match.rec.url).pathname);
   if(direct){
