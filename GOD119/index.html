@@ -481,6 +481,23 @@ function addTestamentPdfButton(n,links,hotspots){
 // Slide 55: CapCut practical-session materials, shared as ONE ZIP file.
 // Never accepts a MEGA folder link. Attendee-side download stays within GOD119.
 let capcutZipUrl="";
+let capcutLinkChecked=false,capcutLinkReadError=false,capcutLinkRefreshPending=false;
+async function refreshCapcutZipLink(){
+ if(capcutLinkRefreshPending)return;
+ if(!F||!db){notify("실시간 연결을 확인하고 다시 시도해 주세요.");return}
+ capcutLinkRefreshPending=true;
+ try{
+  const snapshot=await F.get(F.ref(db,remote("resourceLinks/capcutMaterialsZip")));
+  capcutZipUrl=validCapcutZipUrl(snapshot.val());
+  capcutLinkChecked=true;capcutLinkReadError=false;
+  if(slide===55)showResources(55);
+  if(!capcutZipUrl)notify("55번 캡컷 자료 링크가 서버에 등록되지 않았습니다. 강사 화면에서 MEGA 개별 ZIP 파일 링크를 다시 등록해 주세요.");
+ }catch(err){
+  capcutLinkReadError=true;capcutLinkChecked=true;
+  notify("캡컷 자료 공유 정보를 읽지 못했습니다. 실시간 연결 상태를 확인해 주세요.");
+  if(slide===55)showResources(55);
+ }finally{capcutLinkRefreshPending=false}
+}
 function validCapcutZipUrl(input){
  try{
   const u=new URL(String(input||"").trim());
@@ -496,9 +513,13 @@ async function configureCapcutZip(){
  if(!url){notify("MEGA 개별 ZIP 파일 주소(https://mega.nz/file/...#...)만 사용할 수 있습니다.");return}
  if(!confirm("55번 슬라이드에 캡컷 자료 ZIP 파일 하나를 공개하시겠습니까?\n다른 개인정보나 파일은 ZIP에 넣지 않았는지 확인하세요."))return;
  try{
-  await F.set(F.ref(db,remote("resourceLinks/capcutMaterialsZip")),url);
-  capcutZipUrl=url;if(slide===55)showResources(55);
-  notify("캡컷 실습자료 ZIP 링크를 등록했습니다. 참석자가 GOD119에서 직접 내려받을 수 있습니다.");
+  const target=F.ref(db,remote("resourceLinks/capcutMaterialsZip"));
+  await F.set(target,url);
+  const saved=await F.get(target);
+  if(validCapcutZipUrl(saved.val())!==url)throw new Error("CAPCUT_LINK_NOT_CONFIRMED");
+  capcutZipUrl=url;capcutLinkChecked=true;capcutLinkReadError=false;
+  if(slide===55)showResources(55);
+  notify("캡컷 실습자료 ZIP 링크가 서버에 저장된 것을 확인했습니다. 참석자 화면에서 새로고침해 주세요.");
  }catch(e){notify("등록에 실패했습니다. 강사 Firebase 권한과 연결 상태를 확인해 주세요.")}
 }
 function addCapcutZipButton(n,links,hotspots){
@@ -506,7 +527,7 @@ function addCapcutZipButton(n,links,hotspots){
  const url=validCapcutZipUrl(capcutZipUrl);
  const button=document.createElement("button");
  button.type="button";button.className="god-capcut-download";
- button.textContent=url?"⬇ 캡컷 실습자료 전체 내려받기":teacher?"🔗 캡컷 ZIP 링크 등록":"캡컷 실습자료 · 강사 준비 중";
+ button.textContent=url?"⬇ 캡컷 실습자료 전체 내려받기":teacher?"🔗 캡컷 ZIP 링크 등록":capcutLinkReadError?"↻ 자료 연결 확인": "↻ 캡컷 자료 연결 확인";
  const status=document.createElement("span");
  status.className="god-capcut-download-status";
  status.setAttribute("role","status");status.setAttribute("aria-live","polite");
@@ -528,7 +549,7 @@ function addCapcutZipButton(n,links,hotspots){
    }finally{button.disabled=false;button.textContent="⬇ 캡컷 실습자료 전체 내려받기"}
   };
  }else if(teacher){button.onclick=configureCapcutZip}
- else{button.disabled=true}
+ else{button.onclick=refreshCapcutZipLink;button.title="캡컷 자료 링크를 서버에서 다시 확인합니다. 로그인이나 MEGA 사이트 이동은 하지 않습니다."}
  const line=document.createElement("div");line.className="god-capcut-inline";
  if(url){
   const secondary=document.createElement("button");secondary.type="button";
@@ -1396,9 +1417,12 @@ d.onValue(d.ref(db,remote("workshopSlide")),snapshot=>{
  syncSlideSignals();
 },error=>notify("웹사이트 실습 슬라이드 동기화 정보를 읽지 못했습니다."));
 d.onValue(d.ref(db,remote("resourceLinks/capcutMaterialsZip")),snapshot=>{
- capcutZipUrl=validCapcutZipUrl(snapshot.val());
+ capcutZipUrl=validCapcutZipUrl(snapshot.val());capcutLinkChecked=true;capcutLinkReadError=false;
  if(slide===55)showResources(55);
-},error=>{if(slide===55)notify("캡컷 ZIP 공유 링크를 읽지 못했습니다.")});
+},error=>{
+ capcutLinkReadError=true;capcutLinkChecked=true;
+ if(slide===55){showResources(55);notify("캡컷 ZIP 공유 링크를 읽지 못했습니다. Firebase 연결과 읽기 권한을 확인해 주세요.")}
+});
 d.onValue(d.ref(db,remote("resourceLinks/newTestamentPdf")),snapshot=>{
  testamentPdfUrl=validTestamentPdfUrl(snapshot.val());
  if(slide===31)showResources(31);
