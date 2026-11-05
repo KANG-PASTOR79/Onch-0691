@@ -73,7 +73,7 @@ export function createSharedLinks({getState,resources,notify}){
   el("godMegaVideo").hidden=false;
   el("godMegaVideoStatus").textContent="강사의 공유 영상을 준비하고 있습니다…";
   try{
-   const mod=await import("./mega-video-viewer.js?v=20261105-mobilevideo-v1");
+   const mod=await import("./mega-video-viewer.js?v=20261105-progress-timeout-v2");
    if(here!==megaVideoId)return;
    if(!megaVideoViewer)megaVideoViewer=mod.createMegaVideoViewer({
     host:el("godMegaVideo"),video:el("godMegaVideoPlayer"),
