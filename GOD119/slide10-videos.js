@@ -18,18 +18,19 @@ export function createSlide10Videos({getState,resources,onChange,notify,getSlide
   const text=raw.trim();if(!text)return "";
   try{
    const u=new URL(text);
-   if(u.protocol!=="https:"||!["mega.nz","www.mega.nz"].includes(u.hostname.toLowerCase())||u.username||u.password)return null;
-   const m=u.pathname.match(/^\/(file|embed)\/([a-zA-Z0-9_-]{6,})\/?$/);
+   if(u.protocol!=="https:"||u.username||u.password)return null;
+   const isMega=["mega.nz","www.mega.nz"].includes(u.hostname.toLowerCase());
+   const m=isMega?u.pathname.match(/^\/(file|embed)\/([a-zA-Z0-9_-]{6,})\/?$/):null;
    if(m&&/^#[a-zA-Z0-9_-]{10,}$/.test(u.hash))
     return "https://mega.nz/file/"+m[2]+u.hash;
-   if(u.pathname==="/"&&/^#![a-zA-Z0-9_-]{6,}![a-zA-Z0-9_-]{10,}$/.test(u.hash))return u.href;
+   if(isMega&&u.pathname==="/"&&/^#![a-zA-Z0-9_-]{6,}![a-zA-Z0-9_-]{10,}$/.test(u.hash))return u.href;
    // YouTube's unlisted links work inside GOD119 on phones that cannot preview MEGA.
    if(["youtube.com","www.youtube.com","m.youtube.com","youtu.be","www.youtu.be","www.youtube-nocookie.com"].includes(u.hostname.toLowerCase())){
     const id=u.hostname.toLowerCase().includes("youtu.be")?u.pathname.split("/")[1]:(u.searchParams.get("v")||u.pathname.match(/^\/(?:shorts|embed)\/([\w-]{11})/)?.[1]);
     if(id&&/^[a-zA-Z0-9_-]{11}$/.test(id))return "https://www.youtube.com/watch?v="+id;
    }
    // Direct HTTPS video URLs must be an actual video endpoint; no account links.
-   if(/^\/[^?#]+\.(?:mp4|m4v|webm)$/i.test(u.pathname)&&!u.hash)
+   if(!isMega&&/^\/[^?#]+\.(?:mp4|m4v|webm)$/i.test(u.pathname)&&!u.hash)
     return u.href;
   }catch(e){}
   return null;
@@ -41,6 +42,12 @@ export function createSlide10Videos({getState,resources,onChange,notify,getSlide
   onChange();
  }
  if(teacher){
+  const setupBar=document.createElement("div");
+  setupBar.id="godVideo10Settings";
+  setupBar.hidden=true;
+  setupBar.style.cssText="margin-top:12px;padding:10px;border:1px solid #5a83a5;border-radius:10px;background:#102b42";
+  setupBar.innerHTML='<strong style="color:#ffe1a0">10번 영상 주소 변경</strong><p style="font-size:12px">참석자 모바일 재생용 영상 링크로 교체할 수 있습니다.</p><div style="display:flex;gap:8px"><button id="godVideo10ConfigureA" type="button">왼쪽 영상</button><button id="godVideo10ConfigureB" type="button">오른쪽 영상</button></div>';
+  $("slideSelect").insertAdjacentElement("afterend",setupBar);
   const css=document.createElement("style");
   css.textContent=`
   #godVideo10Setup{position:absolute;inset:0;z-index:12;background:#08182bf5;display:flex;justify-content:center;align-items:center;padding:clamp(10px,2vw,28px);box-sizing:border-box}
@@ -97,6 +104,8 @@ export function createSlide10Videos({getState,resources,onChange,notify,getSlide
    entry.focus();
    return true;
   }
+  $("godVideo10ConfigureA").onclick=()=>configure(0);
+  $("godVideo10ConfigureB").onclick=()=>configure(1);
   $("godVideo10Cancel").onclick=close;
   $("godVideo10PlayingBack").onclick=close;
   $("godVideo10Save").onclick=async()=>{
@@ -150,7 +159,7 @@ export function createSlide10Videos({getState,resources,onChange,notify,getSlide
     received=true;refresh();
    },()=>notify("MEGA 영상 링크를 읽지 못했습니다. Firebase 권한을 확인해 주세요."));
   }
-  function onSlide(){if(getSlide()!==10&&!layer.hidden)close()}
+  function onSlide(){setupBar.hidden=getSlide()!==10;if(getSlide()!==10&&!layer.hidden)close()}
   return {ready,play,configure,close,isOpen:()=>!layer.hidden,onSlide};
  }
  function ready(){
