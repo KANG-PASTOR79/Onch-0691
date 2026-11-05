@@ -16,6 +16,12 @@ export function createSharedLinks({getState,resources,notify}){
 .god-link-preview{flex:1;min-height:100px;border:1px solid #496989;border-radius:8px;overflow:hidden;background:#182e47}
 .god-link-preview iframe{display:block;width:100%;height:100%;border:0;background:white}
 .god-link-preview video{display:block;width:100%;height:100%;object-fit:contain;background:#000}
+.god-mega-video{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;min-height:0;padding:clamp(12px,2vw,24px);gap:12px;box-sizing:border-box;overflow:auto}
+.god-mega-video[hidden]{display:none!important}
+.god-mega-video p{font-size:clamp(12px,1.5vw,19px);text-align:center;max-width:650px;line-height:1.6}
+.god-mega-video button{padding:12px 20px;background:#f3c37e;border:0;border-radius:10px;color:#162b3b;font-weight:900;font-size:clamp(14px,1.6vw,20px);cursor:pointer}
+.god-mega-video video{width:100%;height:auto;max-height:65vh;object-fit:contain}
+.god-mega-video p[data-error="true"]{color:#ffc290}
 .god-link-preview[hidden],.god-link-document[hidden]{display:none!important}
 .god-link-document{flex:1;min-height:100px;border:1px solid #516e86;border-radius:12px;background:#10263b;display:flex;flex-direction:column;gap:6px;padding:clamp(5px,.8vw,10px);text-align:left;box-sizing:border-box;overflow:hidden}
 .god-doc-status{flex-shrink:0;color:#d8e6f4;font-size:clamp(11px,1vw,14px);padding:4px 6px;line-height:1.3}
@@ -41,7 +47,8 @@ export function createSharedLinks({getState,resources,notify}){
  <div id="godSharedLink" class="god-link-overlay" hidden role="region" aria-label="강사가 공유한 외부 자료">
   <div class="god-link-bar"><strong id="godSharedTitle">강사 공유 자료</strong><button id="godSharedDismiss" type="button">↩ 원래 슬라이드로 돌아가기</button></div>
   <p id="godSharedHelp">강사가 공유 중인 자료입니다.</p>
-  <div class="god-link-preview" id="godSharedPreview"><iframe id="godSharedFrame" title="강사가 공유한 웹페이지" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe><video id="godSharedVideo" controls playsinline preload="metadata" hidden></video></div>
+  <div class="god-link-preview" id="godSharedPreview"><iframe id="godSharedFrame" title="강사가 공유한 웹페이지" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe><video id="godSharedVideo" controls playsinline preload="metadata" hidden></video>
+   <div id="godMegaVideo" class="god-mega-video" hidden><p id="godMegaVideoStatus" role="status">영상을 준비하고 있습니다.</p><button id="godMegaVideoPlay" type="button">▶ 영상 재생 준비</button><video id="godMegaVideoPlayer" controls playsinline preload="metadata" hidden></video></div></div>
   <div class="god-link-document" id="godSharedDocument" hidden>
    <div class="god-doc-status" id="godSharedDocumentStatus" role="status">MEGA 목회계획서를 불러오는 중…</div>
    <div class="god-doc-viewport" id="godSharedDocumentViewport">
@@ -58,6 +65,33 @@ export function createSharedLinks({getState,resources,notify}){
  const el=id=>document.getElementById(id);
  let value=null,dismissed=null,initialized=false;
  let documentPreview=null,previewId=null;
+ let megaVideoViewer=null,megaVideoId=null,megaVideoLoading=null;
+ async function showMegaVideo(rec,id){
+  if(megaVideoId===id)return;
+  megaVideoId=id;
+  const here=id;
+  el("godMegaVideo").hidden=false;
+  el("godMegaVideoStatus").textContent="강사의 공유 영상을 준비하고 있습니다…";
+  try{
+   const mod=await import("./mega-video-viewer.js?v=20261105-mobilevideo-v1");
+   if(here!==megaVideoId)return;
+   if(!megaVideoViewer)megaVideoViewer=mod.createMegaVideoViewer({
+    host:el("godMegaVideo"),video:el("godMegaVideoPlayer"),
+    status:el("godMegaVideoStatus"),button:el("godMegaVideoPlay")
+   });
+   megaVideoViewer.show(rec.url,id);
+  }catch(error){
+   if(here!==megaVideoId)return;
+   el("godMegaVideoStatus").textContent="GOD119 영상 플레이어를 불러오지 못했습니다. 강사에게 알려 주세요.";
+   el("godMegaVideoPlay").hidden=true;
+  }
+ }
+ function resetMegaVideo(){
+  megaVideoId=null;
+  megaVideoViewer?.reset();
+  el("godMegaVideo").hidden=true;
+  el("godMegaVideoPlay").hidden=false;
+ }
  async function showDocumentPreview(rec,id){
   if(previewId===id)return;
   previewId=id;
@@ -115,6 +149,7 @@ export function createSharedLinks({getState,resources,notify}){
   player.hidden=true;el("godSharedFrame").hidden=false;
   el("godSharedDocument").hidden=true;el("godSharedPreview").hidden=false;
   resetDocumentPreview();
+  resetMegaVideo();
  }
  function render(){
   const {teacher,slide}=getState(),match=known(value);
@@ -129,6 +164,17 @@ export function createSharedLinks({getState,resources,notify}){
    "강사와 참석자가 같은 링크 자료를 보고 있습니다. 설명을 마치면 위의 돌아가기 버튼을 누르세요. 웹사이트 보안 정책으로 표시되지 않으면 아래에서 새 탭으로 열 수 있습니다.":
    "강사가 공유한 웹자료입니다. 웹사이트 보안상 보이지 않으면 아래의 새 탭 버튼을 이용하세요.";
   const frame=el("godSharedFrame"),player=el("godSharedVideo");
+  const megaVideo=/^https:\/\/(?:www\.)?mega\.nz\/file\//i.test(match.rec.url)&&match.slide===10;
+  if(megaVideo){
+   frame.hidden=true;frame.removeAttribute("src");
+   player.pause();player.removeAttribute("src");player.load();player.hidden=true;
+   el("godSharedPreview").hidden=false;el("godSharedDocument").hidden=true;
+   resetDocumentPreview();el("godSharedLink").hidden=false;
+   el("godSharedHelp").textContent="영상은 GOD119 안에서 재생합니다. 참석자 화면에서 ‘영상 재생 준비’를 누르면 MEGA의 개별 영상 파일만 다운로드·암호 해제합니다.";
+   showMegaVideo(match.rec,match.id);
+   return;
+  }
+  if(megaVideoId!==null)resetMegaVideo();
   if(match.rec.type==="document"){
    // Each participant decrypts the original MEGA document in their own
    // browser and previews PDF/DOCX directly in this overlay. No extra tab
