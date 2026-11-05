@@ -128,6 +128,7 @@
 .god-testament-pdf-button:hover:not(:disabled),.god-testament-pdf-button:focus-visible{background:#ffe1a3;outline:2px solid white;outline-offset:1px}
 .god-testament-pdf-button:disabled{opacity:.75;cursor:default;background:#36516a;color:#e1e6ed;border-color:#75869a}
 .god-testament-pdf-edit{background:#193951;border:1px solid #f7c979;color:#ffe4b3;border-radius:8px;cursor:pointer;min-height:30px;font-size:clamp(9px,.78vw,12px);padding:5px;white-space:nowrap}
+.god-testament-pdf-status{position:absolute;top:105%;left:0;max-width:120%;padding:4px 8px;border-radius:7px;background:#0d2940ed;color:#ffe5ac;font-size:clamp(9px,.74vw,12px);line-height:1.3;pointer-events:none}
 /* Compact instructor inking toolbar; preserves all existing tool IDs and events. */
 .god-compact-inking .toolbox{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:10px 0 9px}
 .god-compact-inking .toolbox button{min-width:0;min-height:42px;padding:8px 4px;font-size:clamp(11px,1.12vw,14px);white-space:nowrap}
@@ -421,13 +422,36 @@ async function configureTestamentPdf(){
 function addTestamentPdfButton(n,links,hotspots){
  if(n!==31)return;
  const wrap=document.createElement("div");wrap.className="god-testament-pdf-download";
- const url=validTestamentPdfUrl(testamentPdfUrl),button=document.createElement(url?"a":"button");
+ const url=validTestamentPdfUrl(testamentPdfUrl),button=document.createElement("button");
  button.className="god-testament-pdf-button";
+ button.type="button";
  button.textContent=url?"⬇ 신약주석 PDF 내려받기":teacher?"🔗 신약주석 링크 등록":"신약주석 PDF · 강사 준비 중";
- if(url){button.href=url;button.target="_blank";button.rel="noopener noreferrer";button.title="MEGA에서 신약주석 PDF 1개를 엽니다."}
- else if(teacher){button.type="button";button.onclick=configureTestamentPdf}
- else{button.type="button";button.disabled=true}
- wrap.appendChild(button);
+ if(url){
+  button.title="GOD119 화면에서 신약주석 PDF만 내려받습니다. MEGA 계정 창은 열지 않습니다.";
+  const progress=document.createElement("span");
+  progress.className="god-testament-pdf-status";
+  progress.setAttribute("role","status");progress.setAttribute("aria-live","polite");
+  wrap.appendChild(progress);
+  button.onclick=async()=>{
+   if(button.disabled)return;
+   button.disabled=true;
+   button.textContent="⬇ PDF 다운로드 준비 중…";
+   progress.textContent="PDF 파일만 안전하게 내려받는 중입니다.";
+   try{
+    const {downloadSingleMegaPdf}=await import("./single-mega-pdf-download.js?v=20261105-v1");
+    await downloadSingleMegaPdf(url,(message)=>{progress.textContent=message});
+    progress.textContent="✓ 신약주석 PDF 다운로드를 시작했습니다. 브라우저의 다운로드 목록을 확인하세요.";
+   }catch(err){
+    progress.textContent="다운로드 실패: 네트워크 연결을 확인한 후 다시 눌러주세요.";
+    console.warn("신약주석 다운로드 실패:",err?.message||err);
+   }finally{
+    button.disabled=false;
+    button.textContent="⬇ 신약주석 PDF 내려받기";
+   }
+  };
+ }else if(teacher){button.onclick=configureTestamentPdf}
+ else{button.disabled=true}
+ wrap.prepend(button);
  if(teacher&&url){const edit=document.createElement("button");edit.type="button";edit.className="god-testament-pdf-edit";edit.textContent="⚙ 링크 변경";edit.onclick=configureTestamentPdf;wrap.appendChild(edit)}
  hotspots.appendChild(wrap);
  if(teacher){const guide=document.createElement("small");guide.className="muted";guide.textContent="31번 실습자료 · 신약주석 MEGA 개별 파일 링크만 공개";links.appendChild(guide)}
