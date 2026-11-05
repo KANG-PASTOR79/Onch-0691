@@ -19,6 +19,8 @@ export function createInstructorQuickPanel({getState}){
  '#gq .state.done{color:#b7f5d4}',
  '#gq .review{flex-shrink:0;background:#f0c57f;color:#09273d;border:1px solid #ffe0ac;border-radius:7px;padding:7px;font-size:11px;font-weight:800;cursor:pointer}',
  '#gq .review:disabled{opacity:.55}',
+ '#gq .result-view{flex-shrink:0;background:#244b65;color:#fff;border:1px solid #86a6bd;border-radius:7px;padding:7px;font-size:11px;font-weight:800;cursor:pointer}',
+ '#gq .submission-buttons{flex-shrink:0;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:5px}',
  '#gq .help{font-size:11px;color:#cddfeb;line-height:1.5;margin-top:8px}',
  '#gq .new-report{background:#fde0a0;color:#13283b;font-size:12px;font-weight:850;border-radius:8px;padding:9px;margin:9px 0}',
  '#gq [hidden]{display:none!important}'
@@ -36,6 +38,14 @@ export function createInstructorQuickPanel({getState}){
  parent.appendChild(pane);
  const $=id=>pane.querySelector('#'+id);
  let uid=null,unsub=[],roster={},submitted={},rReady=false,sReady=false,known=null,writing=new Set();
+ let viewerPromise=null;
+ function showResult(id,report){
+  if(!viewerPromise)viewerPromise=import("./submission-result-preview.js?v=result-view-20261105-v1")
+   .then(mod=>mod.createResultPreview())
+   .catch(error=>{viewerPromise=null;throw error});
+  viewerPromise.then(v=>v.open(id,report))
+   .catch(()=>{$('gqStats').textContent='결과물 열람창을 불러오지 못했습니다. 새로고침해 주세요.'});
+ }
  const t=(v,n=120)=>String(v??'').trim().slice(0,n);
  const rosters=()=>Object.entries(roster).filter(([,o])=>o&&o.profile&&typeof o.profile.name==='string')
   .map(([id,o])=>({id,p:o.profile,r:submitted[id]?.report,v:submitted[id]?.review})).sort((a,b)=>Number(a.p.registeredAt||0)-Number(b.p.registeredAt||0));
@@ -69,11 +79,15 @@ export function createInstructorQuickPanel({getState}){
   if(!selection.length)empty(submitList,sReady?'아직 제출 신고가 없거나 검색 결과가 없습니다.':'제출 현황을 불러오는 중…');
   for(const v of selection){
    const item=row(v.r.name,v.r.church,v.r.fileName);
+   const actions=document.createElement('div');actions.className='submission-buttons';
+   const view=document.createElement('button');view.type='button';view.className='result-view';
+   view.textContent='📄 결과물 보기';view.title='파일을 선택하거나 개별 MEGA 파일 링크를 연결하여 미리 봅니다.';
+   view.onclick=()=>showResult(v.id,v.r);
    const button=document.createElement('button');button.type='button';button.className='review';
    const checked=v.v.checked===true;button.textContent=checked?'✓ 확인완료':'수신 확인';
    button.disabled=writing.has(v.id);
    button.onclick=()=>mark(v.id,v.r,checked,button);
-   item.appendChild(button);submitList.appendChild(item);
+   actions.append(view,button);item.appendChild(actions);submitList.appendChild(item);
   }
  }
  async function mark(id,report,checked,button){
