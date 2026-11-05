@@ -7,7 +7,7 @@ export function createInstructorQuickPanel({getState}){
  '#gq{margin-top:13px;padding-top:12px;border-top:1px solid #56798a}',
  '#gq .tabs{display:flex;gap:6px}',
  '#gq .tab{flex:1;background:#15384a;border:1px solid #7597a9;color:#fff;padding:9px 4px;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer}',
- '#gq .tab[aria-selected=true]{background:#f0c57f;color:#11283a}',
+ '#gq .tab[aria-expanded=true]{background:#f0c57f;color:#11283a}',
  '#gq .stats{font-size:12px;color:#d6e7f2;padding:10px 1px;line-height:1.6}',
  '#gq input[type=search]{display:block;width:100%;box-sizing:border-box;background:#0c2b3d;color:#fff;border:1px solid #7195a9;border-radius:8px;padding:9px;margin-bottom:8px;font-size:12px}',
  '#gq .list{max-height:300px;overflow-y:auto;overscroll-behavior:contain;display:grid;gap:6px;padding-right:2px}',
@@ -26,12 +26,12 @@ export function createInstructorQuickPanel({getState}){
  document.head.appendChild(style);
  const pane=document.createElement("div");pane.id="gq";
  pane.innerHTML=[
- '<div class="tabs" role="tablist">',
- '<button type="button" id="gqTabRoster" class="tab" role="tab" aria-selected="true">👥 전체 참석자</button>',
- '<button type="button" id="gqTabSubmit" class="tab" role="tab" aria-selected="false">📥 결과물 제출 <span id="gqPending">0</span></button>',
+ '<div class="tabs" role="group" aria-label="강사 전용 명단 열람">',
+ '<button type="button" id="gqTabRoster" class="tab" aria-expanded="false" aria-controls="gqPanelRoster">👥 전체 참석자 열람 ▾</button>',
+ '<button type="button" id="gqTabSubmit" class="tab" aria-expanded="false" aria-controls="gqPanelSubmit">📥 결과물 제출 현황 <span id="gqPending">0</span> ▾</button>',
  '</div><div id="gqNewReport" class="new-report" role="status" hidden>📥 새로운 실습 결과물이 제출되었습니다. 제출 탭에서 확인하세요.</div><div id="gqStats" class="stats" role="status">명단 연결 중…</div>',
- '<div id="gqPanelRoster" role="tabpanel"><input id="gqFindRoster" type="search" placeholder="이름·소속 검색" aria-label="참석자 검색"><div id="gqRoster" class="list"></div></div>',
- '<div id="gqPanelSubmit" role="tabpanel" hidden><input id="gqFindSubmit" type="search" placeholder="제출자·파일명 검색" aria-label="제출 검색"><div id="gqSubmit" class="list"></div><p class="help">실제 MEGA 파일을 확인한 후 ‘수신 확인’을 눌러주세요. 제출 신고만으로는 수신이 증명되지 않습니다.</p></div>'
+ '<div id="gqPanelRoster" role="region" aria-label="전체 참석자 명단" hidden><input id="gqFindRoster" type="search" placeholder="이름·소속 검색" aria-label="참석자 검색"><div id="gqRoster" class="list"></div></div>',
+ '<div id="gqPanelSubmit" role="region" aria-label="제출 결과물 명단" hidden><input id="gqFindSubmit" type="search" placeholder="제출자·파일명 검색" aria-label="제출 검색"><div id="gqSubmit" class="list"></div><p class="help">실제 MEGA 파일을 확인한 후 ‘수신 확인’을 눌러주세요. 제출 신고만으로는 수신이 증명되지 않습니다.</p></div>'
  ].join('');
  parent.appendChild(pane);
  const $=id=>pane.querySelector('#'+id);
@@ -88,14 +88,26 @@ export function createInstructorQuickPanel({getState}){
    $('gqStats').textContent='확인 저장 실패 · 강사 Firebase 권한을 확인하세요.';
   }finally{writing.delete(id);button.disabled=false}
  }
+ let opened=null;
  function select(which){
-  const a=which==='roster';
-  $('gqPanelRoster').hidden=!a;$('gqPanelSubmit').hidden=a;
-  $('gqTabRoster').setAttribute('aria-selected',String(a));
-  $('gqTabSubmit').setAttribute('aria-selected',String(!a));
+  // Accordion: both lists remain hidden until the presenter explicitly opens one.
+  opened=opened===which?null:which;
+  const showRoster=opened==='roster',showSubmit=opened==='submit';
+  $('gqPanelRoster').hidden=!showRoster;
+  $('gqPanelSubmit').hidden=!showSubmit;
+  $('gqTabRoster').setAttribute('aria-expanded',String(showRoster));
+  $('gqTabSubmit').setAttribute('aria-expanded',String(showSubmit));
+  $('gqTabRoster').textContent=showRoster?'👥 전체 참석자 닫기 ▴':'👥 전체 참석자 열람 ▾';
+  // Keep the live count in the button while changing the disclosure label.
+  const button=$('gqTabSubmit');
+  button.replaceChildren(document.createTextNode(showSubmit?'📥 결과물 닫기 ':'📥 결과물 제출 현황 '));
+  const badge=document.createElement('span');badge.id='gqPending';badge.textContent=String(reports().length-reports().filter(v=>v.v.checked===true).length);
+  button.appendChild(badge);
+  button.appendChild(document.createTextNode(showSubmit?' ▴':' ▾'));
+  if(showSubmit)$('gqNewReport').hidden=true;
  }
  $('gqTabRoster').onclick=()=>select('roster');
- $('gqTabSubmit').onclick=()=>{$('gqNewReport').hidden=true;select('submit')};
+ $('gqTabSubmit').onclick=()=>select('submit');
  $('gqFindRoster').oninput=render;
  $('gqFindSubmit').oninput=render;
  function stop(){
