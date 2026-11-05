@@ -23,12 +23,20 @@ export function createSlide10Videos({getState,resources,onChange,notify,getSlide
    if(m&&/^#[a-zA-Z0-9_-]{10,}$/.test(u.hash))
     return "https://mega.nz/file/"+m[2]+u.hash;
    if(u.pathname==="/"&&/^#![a-zA-Z0-9_-]{6,}![a-zA-Z0-9_-]{10,}$/.test(u.hash))return u.href;
+   // YouTube's unlisted links work inside GOD119 on phones that cannot preview MEGA.
+   if(["youtube.com","www.youtube.com","m.youtube.com","youtu.be","www.youtu.be","www.youtube-nocookie.com"].includes(u.hostname.toLowerCase())){
+    const id=u.hostname.toLowerCase().includes("youtu.be")?u.pathname.split("/")[1]:(u.searchParams.get("v")||u.pathname.match(/^\/(?:shorts|embed)\/([\w-]{11})/)?.[1]);
+    if(id&&/^[a-zA-Z0-9_-]{11}$/.test(id))return "https://www.youtube.com/watch?v="+id;
+   }
+   // Direct HTTPS video URLs must be an actual video endpoint; no account links.
+   if(/^\/[^?#]+\.(?:mp4|m4v|webm)$/i.test(u.pathname)&&!u.hash)
+    return u.href;
   }catch(e){}
   return null;
  }
  function refresh(){
   resources[10]=names.map((name,i)=>urls[i]?
-   {label:name+" · MEGA 영상",url:urls[i],rect:rects[i]}:
+   {label:name+" · 영상",url:urls[i],rect:rects[i]}:
    {label:name+".mp4",local:true});
   onChange();
  }
@@ -55,9 +63,9 @@ export function createSlide10Videos({getState,resources,onChange,notify,getSlide
   <div class="video-setup-card" role="dialog" aria-modal="true" aria-labelledby="godVideo10Heading">
    <h3 id="godVideo10Heading">영상 연결</h3>
    <div id="godVideo10Entry" class="entry-area">
-    <p>두 영상은 이미 연결되어 있습니다. 공유 링크를 변경해야 할 때만 새 주소를 입력하세요.</p>
-    <input id="godVideo10URL" type="url" autocomplete="off" placeholder="https://mega.nz/file/파일ID#공유키" aria-label="MEGA 영상 파일 공유 링크">
-    <p id="godVideo10Message" role="status">MEGA 폴더 주소가 아닌 영상 파일의 공유 링크를 입력해 주세요.</p>
+    <p>현재 MEGA 공유 링크가 연결되어 있습니다. 아이폰에서도 GOD119 안에서 재생하려면 재생 권한이 있는 YouTube 미등록 공개 영상 주소나 직접 재생 가능한 HTTPS MP4 주소로 교체하세요.</p>
+    <input id="godVideo10URL" type="url" autocomplete="off" placeholder="YouTube 미등록 공개 주소 · HTTPS MP4 주소 · MEGA 공유주소" aria-label="영상 재생 주소">
+    <p id="godVideo10Message" role="status">YouTube 미등록 공개 링크, HTTPS MP4 주소 또는 기존 MEGA 개별 파일 링크를 입력하세요.</p>
     <div class="actions"><button type="button" class="primary" id="godVideo10Save">링크 저장하고 영상 열기</button><button type="button" id="godVideo10Cancel">취소</button></div>
     <details><summary style="cursor:pointer;color:#ffe0a2">인터넷 연결 없이 노트북 MP4로만 재생하기</summary>
      <p>참석자에게 전송되지는 않으며 강사 노트북에서만 재생됩니다.</p>
@@ -81,9 +89,9 @@ export function createSlide10Videos({getState,resources,onChange,notify,getSlide
   function configure(i){
    if(i!==0&&i!==1)return false;
    selected=i;
-   $("godVideo10Heading").textContent=names[i]+" · MEGA 연결";
+   $("godVideo10Heading").textContent=names[i]+" · 영상 연결";
    entry.value=urls[i]||"";
-   message.textContent=urls[i]?"저장된 MEGA 영상 링크를 변경할 수 있습니다.":"MEGA에서 해당 파일의 공유 링크를 복사해 붙여넣으세요.";
+   message.textContent=urls[i]?"연결된 영상 주소를 변경할 수 있습니다.":"모바일 재생 가능한 YouTube 영상 링크나 HTTPS MP4 주소를 붙여넣으세요.";
    $("godVideo10Entry").hidden=false;$("godVideo10Playing").hidden=true;
    layer.hidden=false;
    entry.focus();
@@ -93,13 +101,13 @@ export function createSlide10Videos({getState,resources,onChange,notify,getSlide
   $("godVideo10PlayingBack").onclick=close;
   $("godVideo10Save").onclick=async()=>{
    const next=normalized(entry.value);
-   if(next===null){message.textContent="올바른 MEGA 개별 파일 공유 링크를 입력해 주세요. 폴더 링크는 사용할 수 없습니다.";return}
+   if(next===null){message.textContent="YouTube 영상 링크, HTTPS MP4 주소 또는 MEGA 개별 파일 링크만 사용할 수 있습니다.";return}
    const {F,db,auth,allowed,room}=getState();
    if(!F||!db||!allowed||!auth?.currentUser){
     message.textContent="먼저 강사 Google 로그인과 실시간 연결을 확인해 주세요.";return;
    }
    const button=$("godVideo10Save");button.disabled=true;
-   message.textContent="MEGA 영상 링크 저장 중…";
+   message.textContent="영상 주소 저장 중…";
    try{
     // Update one link only; never erase the other linked video.
     await F.update(F.ref(db,"rooms/"+room+"/slide10VideosPublished"),{[selected===0?"a":"b"]:next});
@@ -108,7 +116,7 @@ export function createSlide10Videos({getState,resources,onChange,notify,getSlide
     if(next){
      const rec=resources[10][selected];
      openShared(rec,10);
-    }else notify("MEGA 연결을 해제했습니다. 영상을 보려면 다시 링크를 등록하세요.");
+    }else notify("영상 연결을 해제했습니다. 재생하려면 다시 링크를 등록하세요.");
    }catch(e){message.textContent="링크를 저장하지 못했습니다. 강사 권한과 Firebase 상태를 확인하세요."}
    finally{button.disabled=false}
   };
