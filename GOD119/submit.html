@@ -28,7 +28,7 @@ input:focus{outline:2px solid #dbbc82;outline-offset:1px}
  <p class="muted">세미나에서 완성한 이미지 · PDF · TXT · MP4 파일을 목사님께 제출하는 안내 페이지입니다.</p>
  <section class="card notice">
   <strong>무료 클라우드 제출 안내</strong>
-  <p>1인당 파일 1개, 200MB 이하를 권장합니다. MEGA 무료 저장 공간에는 현재 15GB 한도가 표시되어 있습니다. <b>200MB 제한은 안내 사항이며, MEGA에서 자동 차단되지 않습니다.</b> 필요한 경우 여러 파일을 압축하여 1개로 제출해 주세요.</p>
+  <p>파일별 200MB 이하를 권장합니다. 결과물이 여러 개면 파일마다 이름 뒤에 번호를 붙여 제출하세요. MEGA 무료 저장 공간에는 현재 15GB 한도가 표시되어 있습니다. <b>200MB 제한은 안내 사항이며, MEGA에서 자동 차단되지 않습니다.</b> 필요한 경우 여러 파일을 압축하여 1개로 제출해 주세요.</p>
   <p>파일 요청 링크를 가진 누구나 업로드할 수 있습니다. 개인정보, 비밀번호, 교인 명단 등 민감한 내용은 포함하지 마세요.</p>
  </section>
  <section class="card">
@@ -44,23 +44,24 @@ input:focus{outline:2px solid #dbbc82;outline-offset:1px}
    <option value=".txt">텍스트 (.txt / .md)</option>
    <option value=".mp4">동영상 (.mp4)</option>
   </select>
-  <p style="margin-top:15px;font-weight:750">권장 파일 이름</p>
-  <div class="filename" id="suggestedName" aria-live="polite">홍길동_실습결과.pdf</div>
+  <p style="margin-top:15px;font-weight:750">첫 번째 결과물 권장 파일명</p>
+  <div class="filename" id="suggestedName" aria-live="polite">홍길동1.pdf</div>
   <div class="actions"><button id="copyFilename" type="button">권장 파일명 복사</button></div>
-  <p class="smallNote" id="copyFeedback" aria-live="polite">실제 파일의 확장자는 원본 형식에 맞게 유지하세요. 예: PNG 사진은 .png, 마크다운은 .md</p>
+  <p class="smallNote" id="copyFeedback" aria-live="polite">파일이 2개 이상이면 홍길동1.jpg, 홍길동2.pdf, 홍길동3.mp4처럼 이름 뒤에 1, 2, 3을 붙여 주세요. 확장자는 원본 그대로 유지하세요.</p>
  </section>
  <section class="card">
   <h2>2 · MEGA 제출 페이지로 이동</h2>
   <div class="step"><b>①</b><p>컴퓨터 또는 태블릿에 저장된 실습 결과물 파일을 준비합니다.</p></div>
-  <div class="step"><b>②</b><p>위 권장 파일명으로 <strong>실제 파일을 이름 변경</strong>합니다. 복사 버튼은 이름 텍스트만 복사하며 파일을 자동 변경하지 않습니다.</p></div>
+  <div class="step"><b>②</b><p>결과물이 여러 개라면 <strong>본인 이름 뒤에 번호를 붙여</strong> 저장합니다. 예: 홍길동1.jpg · 홍길동2.pdf · 홍길동3.mp4 (확장자는 실제 파일 형식에 맞게 유지).</p></div>
   <div class="step"><b>③</b><p>아래 버튼으로 MEGA 파일 요청 페이지를 엽니다. 업로드 과정에서 이름을 묻는 경우 실제 제출자 이름을 적습니다.</p></div>
   <a class="cta" id="megaLink" href="https://mega.nz/filerequest/MwN2xydC7XQ" target="_blank" rel="noopener noreferrer">↗ MEGA에 실습 결과물 제출하기</a>
-  <p class="smallNote">새 탭에서 MEGA 사이트가 열립니다. 파일을 실제로 업로드하고 MEGA의 완료 안내를 확인해야 제출이 끝납니다.</p>
+  <p class="smallNote">새 탭에서 MEGA 사이트가 열립니다. 모든 결과물 업로드를 마친 후 완료 안내를 확인해 주세요.</p>
+  <p class="smallNote" style="color:#ffe2a3;font-weight:750">📌 제출 전 확인: 파일은 본인 이름+번호 순서로 저장해 주세요. 예: 홍길동1.jpg, 홍길동2.pdf, 홍길동3.mp4. 다른 사람의 결과물과 구분하기 위한 안내입니다.</p>
   <div id="reportSection" style="margin-top:20px;padding-top:17px;border-top:1px solid #4b6981">
-    <label class="flex" style="align-items:flex-start;gap:12px"><input id="uploadConfirmed" type="checkbox" style="width:21px;min-width:21px;min-height:21px;margin-top:3px"> <span><strong>MEGA 업로드를 완료했습니다.</strong><span class="smallNote" style="display:block;margin-top:5px">내 이름으로 파일명을 변경해 업로드했고, MEGA에서 완료 화면을 확인했습니다.</span></span></label>
+    <label class="flex" style="align-items:flex-start;gap:12px"><input id="uploadConfirmed" type="checkbox" style="width:21px;min-width:21px;min-height:21px;margin-top:3px"> <span><strong>MEGA 업로드를 완료했습니다.</strong><span class="smallNote" style="display:block;margin-top:5px">제출할 파일에 내 이름과 번호를 붙여 모두 업로드했고, MEGA 완료 화면을 확인했습니다.</span></span></label>
     <div class="actions" style="margin-top:13px"><button id="reportButton" type="button" class="primary" disabled>✓ 제출 완료 알리기</button></div>
     <p class="smallNote" id="reportStatus" role="status" aria-live="polite">MEGA 업로드를 완료한 뒤 체크하고 제출 완료 알리기를 눌러주세요.</p>
-    <p class="smallNote">실제 업로드 여부는 강사가 MEGA에서 확인합니다. GOD119에는 이름과 권장 파일명이 신고되며 파일 자체는 전송되지 않습니다.</p>
+    <p class="smallNote">실제 업로드 여부는 강사가 MEGA에서 확인합니다. GOD119에는 이름과 첫 번째 권장 파일명이 대표로 신고되며, 여러 파일의 개별 이름·개수는 자동으로 확인되지 않습니다.</p>
   </div>
   <p style="margin-top:16px"><a href="./">← 강의 화면으로 돌아가기</a></p>
  </section>
@@ -72,7 +73,7 @@ const $=id=>document.getElementById(id),name=$("submitName"),kind=$("submitKind"
 const conf=window.GOD119_CONFIG?.firebase||{},configured=!!(conf.apiKey&&conf.projectId&&conf.authDomain&&conf.databaseURL&&conf.appId);
 let auth=null,db=null,a=null,d=null,ready=false,watch=null;
 function clean(t){return String(t).trim().replace(/[\\/:*?"<>|\u0000-\u001F]/g,"").replace(/\s+/g,"_").slice(0,50)}
-function filename(){return(clean(name.value)||"이름")+"_실습결과"+kind.value}
+function filename(){return(clean(name.value)||"이름")+"1"+kind.value}
 function reportKind(){return kind.value===".mp4"?"mp4":kind.value===".pdf"?"pdf":kind.value===".txt"?"text":"image"}
 function update(){
  display.textContent=filename();
@@ -82,7 +83,7 @@ function update(){
 $("copyFilename").onclick=async()=>{
  const feedback=$("copyFeedback");
  if(!clean(name.value)){feedback.textContent="먼저 제출자 이름을 입력해 주세요.";return}
- try{await navigator.clipboard.writeText(filename());feedback.textContent="복사했습니다. 실제 파일명을 변경하고 확장자는 원본 형식에 맞춰 유지하세요."}
+ try{await navigator.clipboard.writeText(filename());feedback.textContent="첫 번째 파일명 복사 완료. 나머지는 이름2, 이름3 순서로 변경하고 실제 확장자를 유지하세요."}
  catch(e){feedback.textContent="복사가 안 되면 위 파일명을 직접 선택하여 복사하세요."}
 };
 function msg(message,isError=false){$("reportStatus").textContent=message;$("reportStatus").className=isError?"error":"smallNote"}
