@@ -290,6 +290,7 @@ let slide10VideoController=null;
 let slide53PlanController=null;
 let attendanceAlerts=null;
 let instructorQuickPanel=null;
+let attendeeFeedbackNotification=null;
 let websiteWorkshop=null;
 // Slides 57–65 use a separate room key compatible with the existing 56-slide rule.
 let workshopActive=false,latestCurrentSlide=1;
@@ -1478,7 +1479,7 @@ d.onValue(d.ref(db,remote("resourceLinks/newTestamentPdf")),snapshot=>{
  if(slide===31)showResources(31);
 },error=>{if(slide===31)notify("신약주석 공유 링크를 읽지 못했습니다.")});
 d.onValue(d.ref(db,remote("pointer")),s=>{if(teacher&&allowed&&tool==="laser")return;const p=s.val();$("laser").hidden=!(p&&p.active&&Date.now()-(p.at||0)<2500);if(!$("laser").hidden){$("laser").style.left=p.x*100+"%";$("laser").style.top=p.y*100+"%";clearTimeout(laserTimeout);laserTimeout=setTimeout(()=>$("laser").hidden=true,750)}});
-binding();b.onAuthStateChanged(auth,u=>{user=u;allowed=teacher&&!!u;permission();if(teacher){installPrivateNotebook56FromLink();attendanceAlerts?.sync();instructorQuickPanel?.sync();if(allowed)sharedLinks?.cleanupRemovedSlide7Link?.()}else loadAttendeeProfile(u)});
+binding();b.onAuthStateChanged(auth,u=>{user=u;allowed=teacher&&!!u;permission();if(teacher){installPrivateNotebook56FromLink();attendanceAlerts?.sync();instructorQuickPanel?.sync();if(allowed)sharedLinks?.cleanupRemovedSlide7Link?.()}else{loadAttendeeProfile(u);attendeeFeedbackNotification?.sync(u)}});
 $("login").onclick=async()=>{try{await b.signInWithPopup(auth,new b.GoogleAuthProvider())}catch(e){notify("Google 로그인 설정을 확인하세요.")}};
 $("logout").onclick=()=>b.signOut(auth);
 }catch(e){allowed=false;permission();status("Firebase 설정 오류",false)}}
@@ -1608,6 +1609,14 @@ import("./slide53-plan.js?v=slide53-mega-docx-v1").then(({createSlide53Plan})=>{
  });
  slide53PlanController.ready();
 }).catch(()=>notify("53번 목회계획서 문서 연결 기능을 불러오지 못했습니다. 새로고침해 주세요."));
+// Only the authenticated participant's own submissions/<room>/<uid> may be read.
+// Personal feedback appears in a live modal in the existing lecture view.
+if(!teacher)import("./attendee-feedback-notification.js?v=feedback-live-20261106").then(mod=>{
+ attendeeFeedbackNotification=mod.createAttendeeFeedbackNotification({
+  getState:()=>({teacher,F,db,room})
+ });
+ attendeeFeedbackNotification.sync(auth?.currentUser||null);
+}).catch(()=>notify("개인 피드백 알림을 불러오지 못했습니다. 강의 화면을 새로고침해 주세요."));
 // Lecturer-only arrival notifications are isolated from slide and pen logic.
 if(teacher)import("./attendance-alerts.js").then(({createAttendanceAlerts})=>{
  attendanceAlerts=createAttendanceAlerts({getState:()=>({teacher,db,F,auth,room})});
