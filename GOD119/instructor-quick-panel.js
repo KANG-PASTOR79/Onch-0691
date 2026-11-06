@@ -59,7 +59,7 @@ export function createInstructorQuickPanel({getState}){
  '<button type="button" id="gqTabSubmit" class="tab" aria-expanded="false" aria-controls="gqPanelSubmit">📥 결과물 제출 현황 <span id="gqPending">0</span> ▾</button>',
  '</div><div id="gqNewReport" class="new-report" role="status" hidden>📥 새로운 실습 결과물이 제출되었습니다. 제출 탭에서 확인하세요.</div><div id="gqStats" class="stats" role="status">명단 연결 중…</div>',
  '<div id="gqPanelRoster" role="region" aria-label="전체 참석자 명단" hidden><input id="gqFindRoster" type="search" placeholder="이름·소속 검색" aria-label="참석자 검색"><div id="gqRoster" class="list"></div></div>',
- '<div id="gqPanelSubmit" role="region" aria-label="제출 결과물 명단" hidden><input id="gqFindSubmit" type="search" placeholder="제출자·파일명 검색" aria-label="제출 검색"><div id="gqSubmit" class="list"></div><p class="help">파일 내용 식별값이 있는 제출물은 폴더에서 자동으로 찾을 수 있습니다. 간편 제출한 파일은 MEGA 보관함에서 직접 확인한 뒤 수신 확인을 눌러주세요.</p></div>'
+ '<div id="gqPanelSubmit" role="region" aria-label="제출 결과물 명단" hidden><input id="gqFindSubmit" type="search" placeholder="제출자·파일명 검색" aria-label="제출 검색"><div id="gqSubmit" class="list"></div><p class="help">개인정보 보호: 파일 식별값이 없는 간편 제출은 자동으로 다른 파일을 검색하지 않습니다. 해당 참석자의 파일 하나를 직접 확인해 연결해 주세요.</p></div>'
  ].join('');
  parent.appendChild(pane);
  // Presenter-only popup. In projected fullscreen mode, never reveal personal names.
@@ -155,7 +155,7 @@ export function createInstructorQuickPanel({getState}){
 
  let viewerPromise=null;
  function showResult(id,report){
-  if(!viewerPromise)viewerPromise=import("./submission-result-preview.js?v=local-image-find-20261106-2104")
+  if(!viewerPromise)viewerPromise=import("./submission-result-preview.js?v=isolated-results-20261106-2115")
    .then(mod=>mod.createResultPreview())
    .catch(error=>{viewerPromise=null;throw error});
   viewerPromise.then(v=>v.open(id,report))
@@ -203,7 +203,7 @@ export function createInstructorQuickPanel({getState}){
    item.classList.add('submission-item');
    const actions=document.createElement('div');actions.className='submission-buttons';
    const view=document.createElement('button');view.type='button';view.className='result-view';
-   view.textContent='📄 결과물 보기';view.title='GOD119 참석자 계정과 연결된 결과물을 MEGA 동기화 폴더에서 찾아 미리 봅니다.';
+   view.textContent='📄 결과물 보기';view.title='파일 식별값이 있는 제출물은 일치하는 파일만, 간편 제출은 강사가 직접 확인한 파일만 표시합니다.';
    view.onclick=()=>showResult(v.id,v.r);
    const button=document.createElement('button');button.type='button';button.className='review';
    const checked=isChecked(v.r,v.v);button.textContent=checked?'✓ 확인완료':'수신 확인';
