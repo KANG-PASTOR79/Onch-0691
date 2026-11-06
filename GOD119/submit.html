@@ -76,12 +76,18 @@ function update(){
 }
 function formatSize(n){return n<1024*1024?Math.ceil(n/1024)+"KB":(n/(1024*1024)).toFixed(1)+"MB"}
 submissionFiles.addEventListener("change",()=>{
- selectedFiles=Array.from(submissionFiles.files||[]).slice(0,5);
- if((submissionFiles.files?.length||0)>5)msg("한 번에 최대 5개 파일까지 선택할 수 있습니다. 많으면 ZIP으로 압축해 주세요.",true);
- const total=selectedFiles.reduce((sum,f)=>sum+f.size,0);
- $("selectedFileNames").textContent=selectedFiles.length?
- selectedFiles.map((f,i)=>(i+1)+". "+f.name+" ("+formatSize(f.size)+")").join(" · ")+" · 총 "+formatSize(total):
- "아직 파일을 선택하지 않았습니다.";
+ const files=Array.from(submissionFiles.files||[]);
+ const total=files.reduce((sum,f)=>sum+f.size,0);
+ if(files.length>5||files.some(f=>f.size>250*1024*1024)){
+  selectedFiles=[];submissionFiles.value="";
+  $("selectedFileNames").textContent="제출할 파일을 다시 선택해 주세요.";
+  msg("한 번에 최대 5개, 파일당 250MB 이하로 선택해 주세요. 많으면 ZIP으로 묶어 주세요.",true);
+ }else{
+  selectedFiles=files;
+  $("selectedFileNames").textContent=selectedFiles.length?
+   selectedFiles.map((f,i)=>(i+1)+". "+f.name+" ("+formatSize(f.size)+")").join(" · ")+" · 총 "+formatSize(total):
+   "아직 파일을 선택하지 않았습니다.";
+ }
  $("uploadConfirmed").checked=false;update();
 });
 $("uploadConfirmed").addEventListener("change",update);
