@@ -76,8 +76,8 @@ function update(){
 }
 function formatSize(n){return n<1024*1024?Math.ceil(n/1024)+"KB":(n/(1024*1024)).toFixed(1)+"MB"}
 submissionFiles.addEventListener("change",()=>{
- selectedFiles=Array.from(submissionFiles.files||[]).slice(0,20);
- if((submissionFiles.files?.length||0)>20)msg("한 번에 최대 20개 파일만 선택할 수 있습니다.",true);
+ selectedFiles=Array.from(submissionFiles.files||[]).slice(0,5);
+ if((submissionFiles.files?.length||0)>5)msg("한 번에 최대 5개 파일까지 선택할 수 있습니다. 많으면 ZIP으로 압축해 주세요.",true);
  const total=selectedFiles.reduce((sum,f)=>sum+f.size,0);
  $("selectedFileNames").textContent=selectedFiles.length?
  selectedFiles.map((f,i)=>(i+1)+". "+f.name+" ("+formatSize(f.size)+")").join(" · ")+" · 총 "+formatSize(total):
@@ -141,7 +141,7 @@ $("reportButton").onclick=async()=>{
  const current=auth.currentUser;
  if(!current||current.uid!==participant.uid){msg("출석 등록 계정이 변경되었습니다. 강의실에서 다시 접속해 주세요.",true);update();return}
  try{
-  const {fingerprintFile}=await import("./submission-file-fingerprint.js?v=1");
+  const {fingerprintFile,packFileFingerprints}=await import("./submission-file-fingerprint.js?v=2");
   const files=[];
   for(let i=0;i<selectedFiles.length;i++){
    const f=selectedFiles[i];
@@ -151,11 +151,11 @@ $("reportButton").onclick=async()=>{
   }
   const first=selectedFiles[0],lower=first.name.toLowerCase();
   const kind=/\.(mp4|webm)$/.test(lower)?"mp4":/\.pdf$/.test(lower)?"pdf":/\.(txt|md|csv)$/.test(lower)?"text":"image";
-  const report={name:participant.name,church:participant.church||"미기재",kind,
-   fileName:first.name.slice(0,140),files,at:d.serverTimestamp(),matchVersion:1};
+  const report={name:participant.name,church:(participant.church||"미기재").slice(0,45),kind,
+   fileName:packFileFingerprints(files),at:d.serverTimestamp()};
   await d.set(d.ref(db,"submissions/god119-seminar/"+participant.uid+"/report"),report);
   $("uploadConfirmed").checked=false;
-  msg("✓ 제출 완료! 파일명을 바꾸지 않아도 강사가 파일 내용으로 자동 연결해 확인할 수 있습니다.");
+  msg("✓ 제출 신고가 저장되었습니다! 파일 내용을 바탕으로 강사 화면에서 조회할 수 있습니다.");
  }catch(e){
   msg("제출 기록을 저장하지 못했습니다. 파일을 다시 선택한 뒤 시도해 주세요. ("+String(e?.code||e?.message||"오류").slice(0,85)+")",true);
  }finally{update()}
