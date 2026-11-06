@@ -50,7 +50,7 @@ export function createInstructorQuickPanel({getState}){
  '<button type="button" id="gqTabSubmit" class="tab" aria-expanded="false" aria-controls="gqPanelSubmit">📥 결과물 제출 현황 <span id="gqPending">0</span> ▾</button>',
  '</div><div id="gqNewReport" class="new-report" role="status" hidden>📥 새로운 실습 결과물이 제출되었습니다. 제출 탭에서 확인하세요.</div><div id="gqStats" class="stats" role="status">명단 연결 중…</div>',
  '<div id="gqPanelRoster" role="region" aria-label="전체 참석자 명단" hidden><input id="gqFindRoster" type="search" placeholder="이름·소속 검색" aria-label="참석자 검색"><div id="gqRoster" class="list"></div></div>',
- '<div id="gqPanelSubmit" role="region" aria-label="제출 결과물 명단" hidden><input id="gqFindSubmit" type="search" placeholder="제출자·파일명 검색" aria-label="제출 검색"><div id="gqSubmit" class="list"></div><p class="help">실제 MEGA 파일을 확인한 후 ‘수신 확인’을 눌러주세요. 제출 신고만으로는 수신이 증명되지 않습니다.</p></div>'
+ '<div id="gqPanelSubmit" role="region" aria-label="제출 결과물 명단" hidden><input id="gqFindSubmit" type="search" placeholder="제출자·파일명 검색" aria-label="제출 검색"><div id="gqSubmit" class="list"></div><p class="help">신규 제출물은 파일 이름이 달라도 MEGA 동기화 폴더에서 내용 식별값으로 찾습니다. 실제 파일을 열어 확인한 후 수신 확인을 눌러주세요.</p></div>'
  ].join('');
  parent.appendChild(pane);
  const feedbackModal=document.createElement('div');feedbackModal.id='gqFeedbackBox';feedbackModal.hidden=true;
@@ -109,7 +109,7 @@ export function createInstructorQuickPanel({getState}){
  let uid=null,unsub=[],roster={},submitted={},rReady=false,sReady=false,known=null,writing=new Set();
  let viewerPromise=null;
  function showResult(id,report){
-  if(!viewerPromise)viewerPromise=import("./submission-result-preview.js?v=name-number-matches-20261106")
+  if(!viewerPromise)viewerPromise=import("./submission-result-preview.js?v=content-fingerprint-20261106")
    .then(mod=>mod.createResultPreview())
    .catch(error=>{viewerPromise=null;throw error});
   viewerPromise.then(v=>v.open(id,report))
@@ -151,7 +151,7 @@ export function createInstructorQuickPanel({getState}){
    item.classList.add('submission-item');
    const actions=document.createElement('div');actions.className='submission-buttons';
    const view=document.createElement('button');view.type='button';view.className='result-view';
-   view.textContent='📄 결과물 보기';view.title='파일을 선택하거나 개별 MEGA 파일 링크를 연결하여 미리 봅니다.';
+   view.textContent='📄 결과물 보기';view.title='GOD119 참석자 계정과 연결된 결과물을 MEGA 동기화 폴더에서 찾아 미리 봅니다.';
    view.onclick=()=>showResult(v.id,v.r);
    const button=document.createElement('button');button.type='button';button.className='review';
    const checked=v.v.checked===true;button.textContent=checked?'✓ 확인완료':'수신 확인';
