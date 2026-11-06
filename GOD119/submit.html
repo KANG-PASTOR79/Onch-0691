@@ -15,7 +15,7 @@
 .cta{display:block;text-align:center;background:linear-gradient(110deg,#f7d48f,#f0ae56);color:#18283a!important;text-decoration:none;font-weight:800;padding:15px 16px;border-radius:12px;margin:17px 0 6px}
 .smallNote{font-size:12px;color:#bbcbdb}
 input:focus{outline:2px solid #dbbc82;outline-offset:1px}
-/* High-visibility submission filename instruction, without changing upload behavior. */
+/* Highlight the free and no-rename workflow. */
 .upload-highlight{
   position:relative;isolation:isolate;overflow:hidden;
   margin:18px 0 21px;padding:22px 24px;
@@ -59,38 +59,34 @@ input:focus{outline:2px solid #dbbc82;outline-offset:1px}
  <p class="muted">처음 참석하신 분은 먼저 <a href="./">GOD119 강의실에서 출석 등록</a>을 해 주세요. 같은 브라우저에서 출석 등록과 제출 신고를 하면 강사 현황판에서 한 사람의 기록으로 연결됩니다.</p>
  <p class="muted">세미나에서 완성한 이미지 · PDF · TXT · MP4 파일을 목사님께 제출하는 안내 페이지입니다.</p>
  <section class="card notice">
-  <strong>무료 클라우드 제출 안내</strong>
-  <p>파일별 200MB 이하를 권장합니다. 결과물이 여러 개면 파일마다 이름 뒤에 번호를 붙여 제출하세요. MEGA 무료 저장 공간에는 현재 15GB 한도가 표시되어 있습니다. <b>200MB 제한은 안내 사항이며, MEGA에서 자동 차단되지 않습니다.</b> 필요한 경우 여러 파일을 압축하여 1개로 제출해 주세요.</p>
-  <p>파일 요청 링크를 가진 누구나 업로드할 수 있습니다. 개인정보, 비밀번호, 교인 명단 등 민감한 내용은 포함하지 마세요.</p>
+  <strong>무료 · 파일명 변경 없이 제출</strong>
+  <p>참석자 계정에 파일을 자동으로 연결할 수 있도록, GOD119에서 파일을 먼저 선택합니다. 파일 자체는 기존 MEGA 무료 제출함에 업로드합니다. 강사는 파일 내용 식별값으로 연결해 보므로 <b>이름을 붙이거나 파일명을 변경하지 않아도 됩니다.</b></p>
+  <p>다른 참석자의 파일은 볼 수 없습니다. 개인정보, 비밀번호, 교인 명단 등 민감한 자료는 제출하지 마세요.</p>
  </section>
  <section class="card">
-  <h2>1 · 제출자 정보 확인</h2>
-  <p class="muted">제출자 이름을 입력하고 파일 종류를 선택해 주세요. 실제 업로드할 파일 이름을 아래 권장 파일명과 똑같이 변경해 주셔야 강사가 결과물을 확인할 수 있습니다.</p>
-  <div class="formgrid">
-   <div><label for="submitName">이름</label><input id="submitName" type="text" maxlength="35" placeholder="예: 홍길동" autocomplete="name"></div>
-  </div>
-  <label for="submitKind">파일 종류</label>
-  <select id="submitKind">
-   <option value=".pdf">PDF 문서 (.pdf)</option>
-   <option value=".jpg">이미지 (.jpg / .png 등)</option>
-   <option value=".txt">텍스트 (.txt / .md)</option>
-   <option value=".mp4">동영상 (.mp4)</option>
-  </select>
-  <p style="margin-top:15px;font-weight:750">첫 번째 결과물 권장 파일명</p>
-  <div class="filename" id="suggestedName" aria-live="polite">홍길동1.pdf</div>
-  <div class="actions"><button id="copyFilename" type="button">권장 파일명 복사</button></div>
-  <p class="smallNote" id="copyFeedback" aria-live="polite">파일이 2개 이상이면 홍길동1.jpg, 홍길동2.pdf, 홍길동3.mp4처럼 이름 뒤에 1, 2, 3을 붙여 주세요. 확장자는 원본 그대로 유지하세요.</p>
+  <h2>1 · 출석 등록 확인</h2>
+  <p class="muted">GOD119에서 출석 등록한 계정으로 접속합니다. 해당 계정으로 제출 결과물이 연결됩니다.</p>
+  <div class="filename" id="submitIdentity">등록된 이름 확인 중…</div>
+  <div id="identityHelp" class="smallNote">출석 등록 정보가 보이지 않으면 강의실로 돌아가 이름과 교회를 등록해 주세요.</div>
+  <p style="margin:12px 0 0"><a href="./">← 강의실에서 출석 등록하기</a></p>
  </section>
  <section class="card">
-  <h2>2 · MEGA 제출 페이지로 이동</h2>
-  <p class="upload-highlight">📌 <strong>실습 결과물은 본인 이름에 번호를 붙여(예: 홍길동1.jpg, 홍길동2.pdf, 홍길동3.mp4) 아래 MEGA에 업로드해 주세요.</strong></p>
-  <a class="cta" id="megaLink" href="https://mega.nz/filerequest/MwN2xydC7XQ" target="_blank" rel="noopener noreferrer">↗ MEGA에 실습 결과물 제출하기</a>
-  <p class="smallNote">새 탭에서 MEGA 사이트가 열립니다. 모든 결과물 업로드를 마친 후 완료 안내를 확인해 주세요.</p>
+  <h2>2 · 결과물 파일 선택</h2>
+  <p class="upload-highlight">📌 <strong>파일명을 바꿀 필요 없습니다!<br>그냥 파일을 선택하세요.</strong></p>
+  <label for="submissionFiles">제출할 결과물 (여러 개 동시 선택 가능)</label>
+  <input type="file" id="submissionFiles" multiple accept=".pdf,.docx,.png,.jpg,.jpeg,.webp,.gif,.txt,.md,.csv,.mp4,.webm" style="width:100%;padding:12px;border:1px solid #7ba2bd;border-radius:9px;background:#0b263b;color:white;box-sizing:border-box">
+  <div class="filename" id="selectedFileNames" aria-live="polite">아직 파일을 선택하지 않았습니다.</div>
+  <p class="smallNote">GOD119는 파일 내용의 식별값만 계산해 기록합니다. 이 단계에서 파일은 업로드되지 않습니다. 동영상 등 대용량 파일도 선택할 수 있지만 MEGA 저장 공간 한도는 확인해 주세요.</p>
+ </section>
+ <section class="card">
+  <h2>3 · MEGA에 같은 파일 업로드</h2>
+  <a class="cta" id="megaLink" href="https://mega.nz/filerequest/MwN2xydC7XQ" target="_blank" rel="noopener noreferrer">↗ MEGA 무료 제출함 열기 · 같은 파일 선택</a>
+  <p class="smallNote">새 창의 MEGA에서 <b>2단계에서 선택한 동일한 파일</b>을 다시 선택하고 업로드 완료까지 진행하세요. 파일 이름을 바꾸거나 제출자 이름을 파일명에 붙일 필요는 없습니다.</p>
   <div id="reportSection" style="margin-top:20px;padding-top:17px;border-top:1px solid #4b6981">
-    <label class="flex" style="align-items:flex-start;gap:12px"><input id="uploadConfirmed" type="checkbox" style="width:21px;min-width:21px;min-height:21px;margin-top:3px"> <span><strong>MEGA 업로드를 완료했습니다.</strong><span class="smallNote" style="display:block;margin-top:5px">제출할 파일에 내 이름과 번호를 붙여 모두 업로드했고, MEGA 완료 화면을 확인했습니다.</span></span></label>
-    <div class="actions" style="margin-top:13px"><button id="reportButton" type="button" class="primary" disabled>✓ 제출 완료 알리기</button></div>
-    <p class="smallNote" id="reportStatus" role="status" aria-live="polite">MEGA 업로드를 완료한 뒤 체크하고 제출 완료 알리기를 눌러주세요.</p>
-    <p class="smallNote">실제 업로드 여부는 강사가 MEGA에서 확인합니다. GOD119에는 이름과 첫 번째 권장 파일명이 대표로 신고되며, 여러 파일의 개별 이름·개수는 자동으로 확인되지 않습니다.</p>
+    <label class="flex" style="align-items:flex-start;gap:12px"><input id="uploadConfirmed" type="checkbox" style="width:21px;min-width:21px;min-height:21px;margin-top:3px"> <span><strong>MEGA에서 같은 파일을 모두 업로드했습니다.</strong><span class="smallNote" style="display:block;margin-top:5px">MEGA의 업로드 완료 화면을 확인하셨을 때만 체크해 주세요.</span></span></label>
+    <div class="actions" style="margin-top:13px"><button id="reportButton" type="button" class="primary" disabled>✓ 결과물 제출 완료 알리기</button></div>
+    <p class="smallNote" id="reportStatus" role="status" aria-live="polite">1단계 출석 등록 · 2단계 파일 선택 · 3단계 MEGA 업로드 후 제출 버튼을 누르세요.</p>
+    <p class="smallNote">선택한 파일의 크기와 내용 식별값을 해당 참석자의 계정에 기록합니다. 파일 자체는 MEGA에 보관되며, 강사 화면은 동기화 폴더에서 내용이 같은 파일을 찾습니다. 완전히 동일한 파일이 여러 개 있으면 강사가 선택해야 할 수 있습니다.</p>
   </div>
   <p style="margin-top:16px"><a href="./">← 강의 화면으로 돌아가기</a></p>
  </section>
@@ -98,66 +94,94 @@ input:focus{outline:2px solid #dbbc82;outline-offset:1px}
 </main>
 <script src="./config.js"></script>
 <script type="module">
-const $=id=>document.getElementById(id),name=$("submitName"),kind=$("submitKind"),display=$("suggestedName");
-const conf=window.GOD119_CONFIG?.firebase||{},configured=!!(conf.apiKey&&conf.projectId&&conf.authDomain&&conf.databaseURL&&conf.appId);
-let auth=null,db=null,a=null,d=null,ready=false,watch=null;
-function clean(t){return String(t).trim().replace(/[\\/:*?"<>|\u0000-\u001F]/g,"").replace(/\s+/g,"_").slice(0,50)}
-function filename(){return(clean(name.value)||"이름")+"1"+kind.value}
-function reportKind(){return kind.value===".mp4"?"mp4":kind.value===".pdf"?"pdf":kind.value===".txt"?"text":"image"}
-function update(){
- display.textContent=filename();
- $("reportButton").disabled=!ready||!name.value.trim()||!$("uploadConfirmed").checked;
-}
-[name,kind,$("uploadConfirmed")].forEach(el=>el.addEventListener("input",update));
-$("copyFilename").onclick=async()=>{
- const feedback=$("copyFeedback");
- if(!clean(name.value)){feedback.textContent="먼저 제출자 이름을 입력해 주세요.";return}
- try{await navigator.clipboard.writeText(filename());feedback.textContent="첫 번째 파일명 복사 완료. 나머지는 이름2, 이름3 순서로 변경하고 실제 확장자를 유지하세요."}
- catch(e){feedback.textContent="복사가 안 되면 위 파일명을 직접 선택하여 복사하세요."}
-};
+const $=id=>document.getElementById(id),conf=window.GOD119_CONFIG?.firebase||{};
+const configured=!!(conf.apiKey&&conf.projectId&&conf.authDomain&&conf.databaseURL&&conf.appId);
+const submissionFiles=$("submissionFiles");
+let auth=null,db=null,a=null,d=null,ready=false,watch=null,participant=null,selectedFiles=[];
+const safe=t=>String(t??"").trim().slice(0,140);
 function msg(message,isError=false){$("reportStatus").textContent=message;$("reportStatus").className=isError?"error":"smallNote"}
+function update(){
+ $("reportButton").disabled=!ready||!participant||!selectedFiles.length||!$("uploadConfirmed").checked;
+}
+function formatSize(n){return n<1024*1024?Math.ceil(n/1024)+"KB":(n/(1024*1024)).toFixed(1)+"MB"}
+submissionFiles.addEventListener("change",()=>{
+ selectedFiles=Array.from(submissionFiles.files||[]).slice(0,20);
+ if((submissionFiles.files?.length||0)>20)msg("한 번에 최대 20개 파일만 선택할 수 있습니다.",true);
+ const total=selectedFiles.reduce((sum,f)=>sum+f.size,0);
+ $("selectedFileNames").textContent=selectedFiles.length?
+ selectedFiles.map((f,i)=>(i+1)+". "+f.name+" ("+formatSize(f.size)+")").join(" · ")+" · 총 "+formatSize(total):
+ "아직 파일을 선택하지 않았습니다.";
+ $("uploadConfirmed").checked=false;update();
+});
+$("uploadConfirmed").addEventListener("change",update);
 function ownRecord(user){
  if(watch){watch();watch=null}
  if(!user||!db||!d)return;
  watch=d.onValue(d.ref(db,"submissions/god119-seminar/"+user.uid),snap=>{
   const data=snap.val();
   if(!data?.report)return;
-  const text=data.review?.checked===true?"강사님이 MEGA 파일 수신을 확인했습니다.":"제출 신고가 접수되었습니다. 강사님의 MEGA 파일 확인을 기다리는 중입니다.";
+  const text=data.review?.checked===true?
+   "강사님이 제출 파일 수신을 확인했습니다.":
+   "제출 기록이 접수되었습니다. 강사님의 파일 확인을 기다리고 있습니다.";
   const feedback=data.feedback;
   const fb=feedback&&feedback.fileName===data.report.fileName&&["received","revise","praise"].includes(feedback.kind)&&typeof feedback.message==="string"?
    "\n\n💬 강사 개인 피드백 ["+({received:"제출 확인",revise:"보완 요청",praise:"칭찬"}[feedback.kind])+"]: "+feedback.message.slice(0,400):"";
   msg(text+" (제출자: "+String(data.report.name||"")+")"+fb);
- },error=>msg("제출 신고 확인 권한이 없습니다. Firebase 데이터베이스 보안 규칙 게시 여부를 확인해 주세요.",true));
+ },()=>msg("제출 기록 열람 권한이 없습니다. Firebase 규칙을 확인해 주세요.",true));
+}
+async function identify(user){
+ participant=null;ready=false;update();
+ if(!user){$("submitIdentity").textContent="먼저 GOD119 강의실에서 출석 등록이 필요합니다.";msg("강의실에서 출석 등록 후 이 페이지로 돌아와 주세요.",true);return}
+ try{
+  const snap=await d.get(d.ref(db,"attendance/god119-seminar/"+user.uid+"/profile"));
+  if(auth.currentUser?.uid!==user.uid)return;
+  const p=snap.val();
+  if(!p||!String(p.name||"").trim()){
+   $("submitIdentity").textContent="등록된 출석 이름이 없습니다.";
+   msg("GOD119 강의실에서 먼저 출석 등록해 주세요. 다른 브라우저를 이용하면 계정 연결이 되지 않습니다.",true);
+   return;
+  }
+  participant={uid:user.uid,name:safe(p.name).slice(0,35),church:safe(p.church).slice(0,60)};
+  $("submitIdentity").textContent="✓ "+participant.name+" · "+(participant.church||"교회 미기재")+" · 계정 연결 완료";
+  ready=true;update();
+  msg("파일을 선택하고 MEGA에서 같은 파일을 업로드한 후 제출 완료를 눌러주세요.");
+  ownRecord(user);
+ }catch(e){$("submitIdentity").textContent="출석 등록 확인에 실패했습니다.";msg("출석 등록을 읽을 권한이 없습니다. 기존 강의실에서 다시 접속해 주세요.",true)}
 }
 async function connect(){
- if(!configured){msg("현재 Firebase 연결 설정이 없어 제출 완료 신고 기능을 사용할 수 없습니다.",true);return}
+ if(!configured){msg("Firebase 연결 설정을 확인할 수 없습니다.",true);return}
  try{
   const host="https://www.gstatic.com/firebasejs/11.10.0/";
   const [app,authentication,database]=await Promise.all([import(host+"firebase-app.js"),import(host+"firebase-auth.js"),import(host+"firebase-database.js")]);
-  a=authentication;d=database;auth=a.getAuth(app.initializeApp(conf));db=d.getDatabase();
-  ready=true;update();
-  msg("MEGA 업로드를 마친 후 체크하고 제출 완료 알리기를 눌러주세요.");
-  a.onAuthStateChanged(auth,user=>{ownRecord(user)});
- }catch(e){msg("Firebase 연결에 실패했습니다. 인터넷 연결 후 새로고침하세요.",true)}
+  a=authentication;d=database;
+  const instance=app.getApps().length?app.getApp():app.initializeApp(conf);
+  auth=a.getAuth(instance);db=d.getDatabase(instance);
+  a.onAuthStateChanged(auth,user=>identify(user));
+ }catch(e){msg("Firebase 연결에 실패했습니다. 인터넷 연결을 확인해 주세요.",true)}
 }
 $("reportButton").onclick=async()=>{
- if(!ready||!name.value.trim()||!$("uploadConfirmed").checked)return;
- const report={name:name.value.trim().slice(0,35),church:"미기재",kind:reportKind(),fileName:filename().slice(0,140),at:d.serverTimestamp()};
+ if(!ready||!participant||!selectedFiles.length||!$("uploadConfirmed").checked)return;
  const button=$("reportButton");button.disabled=true;
- msg("제출 신고를 전송하고 있습니다…");
+ const current=auth.currentUser;
+ if(!current||current.uid!==participant.uid){msg("출석 등록 계정이 변경되었습니다. 강의실에서 다시 접속해 주세요.",true);update();return}
  try{
-  // Only the participant's anonymous Firebase UID can write this person's report.
-  // If already signed in with a Google account, keep that session instead of replacing it.
-  let user=auth.currentUser;
-  if(!user)user=(await a.signInAnonymously(auth)).user;
-  await d.set(d.ref(db,"submissions/god119-seminar/"+user.uid+"/report"),report);
+  const {fingerprintFile}=await import("./submission-file-fingerprint.js?v=1");
+  const files=[];
+  for(let i=0;i<selectedFiles.length;i++){
+   const f=selectedFiles[i];
+   msg("제출자에게 파일 연결 중… "+(i+1)+" / "+selectedFiles.length+" · "+f.name);
+   const fp=await fingerprintFile(f);
+   files.push({name:f.name.slice(0,140),size:f.size,method:fp.method,hash:fp.hash});
+  }
+  const first=selectedFiles[0],lower=first.name.toLowerCase();
+  const kind=/\.(mp4|webm)$/.test(lower)?"mp4":/\.pdf$/.test(lower)?"pdf":/\.(txt|md|csv)$/.test(lower)?"text":"image";
+  const report={name:participant.name,church:participant.church||"미기재",kind,
+   fileName:first.name.slice(0,140),files,at:d.serverTimestamp(),matchVersion:1};
+  await d.set(d.ref(db,"submissions/god119-seminar/"+participant.uid+"/report"),report);
   $("uploadConfirmed").checked=false;
-  msg("✓ 제출 완료 알림이 강사에게 전달되었습니다. 실제 파일은 강사가 MEGA에서 확인합니다.");
+  msg("✓ 제출 완료! 파일명을 바꾸지 않아도 강사가 파일 내용으로 자동 연결해 확인할 수 있습니다.");
  }catch(e){
-  const errorCode=String(e?.code||"");
-  msg(errorCode.includes("operation-not-allowed")?
-   "Firebase에서 익명 로그인이 비활성화되어 있습니다. 강사에게 알려주세요.":
-   "제출 신고 전송에 실패했습니다. Firebase의 익명 로그인 및 제출 보안 규칙 설정을 확인하고 다시 시도하세요.",true);
+  msg("제출 기록을 저장하지 못했습니다. 파일을 다시 선택한 뒤 시도해 주세요. ("+String(e?.code||e?.message||"오류").slice(0,85)+")",true);
  }finally{update()}
 };
 update();connect();
