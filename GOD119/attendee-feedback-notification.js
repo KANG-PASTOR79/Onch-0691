@@ -74,5 +74,13 @@ export function createAttendeeFeedbackNotification({getState}){
     console.warn("Private feedback read unavailable:",String(error?.code||""));
   });
  }
+ // The browser hides ordinary page overlays during fullscreen presentation.
+ // Move only this participant's feedback UI into the fullscreen subtree.
+ function alignFullscreen(){
+  const container=document.fullscreenElement||document.body;
+  if(bell.parentNode!==container)container.append(bell);
+  if(overlay.parentNode!==container)container.append(overlay);
+ }
+ document.addEventListener("fullscreenchange",alignFullscreen);
  return {sync,reset};
 }
