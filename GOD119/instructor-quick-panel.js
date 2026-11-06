@@ -155,7 +155,7 @@ export function createInstructorQuickPanel({getState}){
 
  let viewerPromise=null;
  function showResult(id,report){
-  if(!viewerPromise)viewerPromise=import("./submission-result-preview.js?v=single-preview-20261106-2159")
+  if(!viewerPromise)viewerPromise=import("./submission-result-preview.js?v=multi-files-20261106-2210")
    .then(mod=>mod.createResultPreview())
    .catch(error=>{viewerPromise=null;throw error});
   viewerPromise.then(v=>v.open(id,report))
@@ -203,7 +203,7 @@ export function createInstructorQuickPanel({getState}){
    item.classList.add('submission-item');
    const actions=document.createElement('div');actions.className='submission-buttons';
    const view=document.createElement('button');view.type='button';view.className='result-view';
-   view.textContent='👁 미리보기';view.title='결과물 미리보기. 처음 한 번만 해당 참석자의 파일을 선택하면 다음부터 바로 열립니다.';
+   view.textContent='👁 미리보기';view.title='수신 확인 상태와 관계없이 열립니다. 이 참석자에게 직접 연결한 여러 결과물을 각각 미리볼 수 있습니다.';
    view.onclick=()=>showResult(v.id,v.r);
    const button=document.createElement('button');button.type='button';button.className='review';
    const checked=isChecked(v.r,v.v);button.textContent=checked?'✓ 확인완료':'수신 확인';
