@@ -24,3 +24,31 @@ export async function fingerprintFile(file,method=null){
   const digest=await crypto.subtle.digest("SHA-256",data);
   return {method:mode,hash:toHex(digest)};
 }
+
+export function packFileFingerprints(files){
+  if(!Array.isArray(files)||!files.length||files.length>5)throw Error("MAX_FIVE_FILES_PER_REPORT");
+  const parts=files.map(f=>{
+    const size=Number(f.size),method=f.method==="full-sha256-v1"?"f":f.method==="sample-sha256-v1"?"s":null;
+    if(!Number.isSafeInteger(size)||size<0||size>250*1024*1024||
+       !method||!(/^[a-f0-9]{64}$/i.test(String(f.hash||""))))throw Error("INVALID_FILE_MANIFEST");
+    return size.toString(36)+method+String(f.hash).slice(0,18).toLowerCase();
+  });
+  const output="G119v2:"+parts.join(".");
+  if(output.length>140)throw Error("FILE_MANIFEST_TOO_LONG");
+  return output;
+}
+export function unpackFileFingerprints(packed){
+  const raw=String(packed||"");
+  if(!raw.startsWith("G119v2:"))return [];
+  const parts=raw.slice(7).split(".");
+  if(!parts.length||parts.length>5)return [];
+  const result=[];
+  for(let i=0;i<parts.length;i++){
+    const m=/^([0-9a-z]+)([fs])([a-f0-9]{18})$/.exec(parts[i]);
+    if(!m)return [];
+    const size=parseInt(m[1],36);
+    if(!Number.isSafeInteger(size)||size<0||size>250*1024*1024)return [];
+    result.push({name:"결과물 "+(i+1),size,method:m[2]==="f"?"full-sha256-v1":"sample-sha256-v1",hash:m[3]});
+  }
+  return result;
+}
