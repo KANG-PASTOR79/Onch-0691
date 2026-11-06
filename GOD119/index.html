@@ -545,13 +545,19 @@ function addCapcutZipButton(n,links,hotspots){
    button.disabled=true;button.textContent="⬇ ZIP 준비 중…";
    capcutDownloadStatus="GOD119 화면에서 다운로드 중…";status.textContent=capcutDownloadStatus;
    try{
-    const {downloadSingleMegaCapcutZip}=await import("./single-mega-capcut-zip.js?v=20261106-1");
+    const {downloadSingleMegaCapcutZip}=await import("./single-mega-capcut-zip.js?v=20261106-large-stream-v2");
     await downloadSingleMegaCapcutZip(url,message=>{capcutDownloadStatus=message;status.textContent=message});
-    capcutDownloadStatus="✓ ZIP 저장 요청 완료. 브라우저 다운로드 목록을 확인하세요.";status.textContent=capcutDownloadStatus;
+    capcutDownloadStatus="✓ 캡컷 ZIP 저장 완료 또는 다운로드 시작 · 저장한 폴더를 확인하세요.";status.textContent=capcutDownloadStatus;
    }catch(e){
     const reason=String(e?.message||"");
     capcutDownloadStatus=reason==="NOT_ZIP"?"다운로드 불가: MEGA 파일명이 .zip으로 끝나지 않습니다.":
-      reason==="ZIP_SIZE_LIMIT"?"다운로드 불가: ZIP 파일이 250MB 제한을 초과했거나 크기를 읽을 수 없습니다.":
+      reason==="ZIP_SIZE_LIMIT"?"저장 제한: 파일이 2GB 제한을 넘었습니다.":
+      reason==="ZIP_SIZE_UNKNOWN"?"다운로드 불가: MEGA에서 ZIP 파일 크기를 확인할 수 없습니다.":
+      reason==="ZIP_TOO_LARGE"?"다운로드 불가: ZIP이 2GB를 초과합니다. 여러 ZIP으로 나누어 주세요.":
+      reason==="STREAM_SAVE_UNSUPPORTED"?"이 브라우저는 큰 ZIP 직접 저장을 지원하지 않습니다. 최신 Chrome/Edge 컴퓨터에서 열어 주세요.":
+      reason==="DOWNLOAD_CANCELLED"?"다운로드 취소: 파일 저장 위치를 다시 선택해 주세요.":
+      reason==="ZIP_STALLED"?"다운로드 중단: 60초 동안 데이터가 수신되지 않았습니다. 다시 시도해 주세요.":
+      reason==="ZIP_INCOMPLETE"?"다운로드 실패: ZIP 일부만 수신됐습니다. 다시 시도해 주세요.":
       reason==="INVALID_ZIP"?"다운로드 불가: ZIP 파일이 손상되었거나 형식을 확인할 수 없습니다.":
       reason==="MEGA_MODULE_TIMEOUT"?"다운로드 불가: MEGA 연결 모듈을 불러오지 못했습니다.":
       reason==="MEGA_INFO_TIMEOUT"?"다운로드 불가: MEGA 파일 정보를 가져오지 못했습니다. 공유 링크를 확인하세요.":
