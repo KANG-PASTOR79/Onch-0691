@@ -261,6 +261,20 @@ export function createSharedLinks({getState,resources,notify}){
  }
  el("godSharedDismiss").onclick=close;
  el("godSharingStop").onclick=stopSharing;
+ async function cleanupRemovedSlide7Link(){
+  const {teacher,allowed,F,db,room}=getState();
+  if(!teacher||!allowed||!F||!db)return;
+  const path=F.ref(db,"rooms/"+room+"/sharedLink");
+  try{
+   const snapshot=await F.get(path);
+   const record=snapshot.val();
+   // Remove only stale 7th-slide links no longer declared as a resource.
+   // Current cafe blog OPEN and every other slide resource are unaffected.
+   if(record?.slide===7 && typeof record.url==="string" && !known(record)){
+    await F.remove(path);
+   }
+  }catch(_){/* Never block presentation on cleanup failure. */}
+ }
  function ready(){
   if(initialized)return;
   const {F,db,room}=getState();if(!F||!db)return;
@@ -279,5 +293,5 @@ export function createSharedLinks({getState,resources,notify}){
    .catch(()=>notify("링크 공유에 실패했습니다. Firebase 연결을 확인하세요."));
   return true;
  }
- return {ready,broadcast,onSlide:render,close,isOpen:()=>!el("godSharedLink").hidden};
+ return {ready,broadcast,cleanupRemovedSlide7Link,onSlide:render,close,isOpen:()=>!el("godSharedLink").hidden};
 }
