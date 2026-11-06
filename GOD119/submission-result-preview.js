@@ -215,7 +215,7 @@ export function createResultPreview(){
     cleanup();
     const key=fileKey(id,report);current={key,report};
     el("grpTitle").textContent=safe(report.name)+" · 제출 결과물";
-    el("grpInfo").textContent=safe(report.church)+" · "+safe(report.fileName);
+    el("grpInfo").textContent="제출 파일: "+safe(report.fileName);
     el("grpFile").value="";
     el("grpUrl").value=links[key]||"";
     modal.hidden=false;
