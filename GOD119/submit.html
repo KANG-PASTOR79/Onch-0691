@@ -78,11 +78,11 @@ function ownRecord(user){
  watch=d.onValue(d.ref(db,"submissions/god119-seminar/"+user.uid),snap=>{
   const data=snap.val();
   if(!data?.report)return;
-  const text=data.review?.checked===true?
+  const text=data.review?.checked===true && Number(data.review.at)>=Number(data.report.at)?
    "강사님이 제출 파일 수신을 확인했습니다.":
    "제출 기록이 접수되었습니다. 강사님의 파일 확인을 기다리고 있습니다.";
   const feedback=data.feedback;
-  const fb=feedback&&feedback.fileName===data.report.fileName&&["received","revise","praise"].includes(feedback.kind)&&typeof feedback.message==="string"?
+  const fb=feedback&&Number(feedback.at)>=Number(data.report.at)&&feedback.fileName===data.report.fileName&&["received","revise","praise"].includes(feedback.kind)&&typeof feedback.message==="string"?
    "\n\n💬 강사 개인 피드백 ["+({received:"제출 확인",revise:"보완 요청",praise:"칭찬"}[feedback.kind])+"]: "+feedback.message.slice(0,400):"";
   msg(text+" (제출자: "+String(data.report.name||"")+")"+fb);
  },()=>msg("제출 기록 열람 권한이 없습니다. Firebase 규칙을 확인해 주세요.",true));
@@ -126,7 +126,7 @@ $("reportButton").onclick=async()=>{
  }
  try{
   const report={name:participant.name,church:(participant.church||"미기재").slice(0,45),
-   kind:"file",fileName:"MEGA 업로드 완료 (간편 제출)",at:d.serverTimestamp()};
+   kind:"image",fileName:"MEGA 업로드 완료 (간편 제출)",at:d.serverTimestamp()};
   await d.set(d.ref(db,"submissions/god119-seminar/"+participant.uid+"/report"),report);
   $("uploadConfirmed").checked=false;
   msg("✓ 제출 신고가 등록되었습니다. 강사가 MEGA에서 실제 파일을 확인하면 확인 완료로 표시됩니다.");
