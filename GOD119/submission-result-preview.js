@@ -1,3 +1,4 @@
+import {unpackFileFingerprints} from "./submission-file-fingerprint.js?v=2";
 // Instructor-only submission preview. File-request reports only contain filenames,
 // so an individual file share URL or locally selected file is needed once.
 export function createResultPreview(){
@@ -112,9 +113,9 @@ export function createResultPreview(){
   // New submissions are linked by file bytes and size, not by user-editable names.
   // MEGA may append an upload-session ID to filenames without changing contents.
   async function findByFileContent(handle,reported,token,key,maxFiles=3000){
-    const {fingerprintFile}=await import("./submission-file-fingerprint.js?v=1");
+    const {fingerprintFile}=await import("./submission-file-fingerprint.js?v=2");
     const wanted=reported.filter(f=>f&&Number.isFinite(f.size)&&f.size>=0&&
-      typeof f.hash==="string"&&/^[a-f0-9]{64}$/i.test(f.hash)&&
+      typeof f.hash==="string"&&/^(?:[a-f0-9]{18}|[a-f0-9]{64})$/i.test(f.hash)&&
       ["full-sha256-v1","sample-sha256-v1"].includes(f.method));
     const sizes=new Set(wanted.map(f=>f.size));
     const folders=[{handle,depth:0,path:""}],matches=[],seenFiles=new Set();
@@ -145,7 +146,7 @@ export function createResultPreview(){
             if(fingerprintCache.size>3000)fingerprintCache.delete(fingerprintCache.keys().next().value);
           }
           hashed++;
-          const matchingOriginals=candidates.filter(f=>f.method===mode&&f.hash===hash);
+          const matchingOriginals=candidates.filter(f=>f.method===mode&&hash.startsWith(f.hash));
           if(!matchingOriginals.length)continue;
           const id=item.path+"/"+entry.name;
           if(seenFiles.has(id))continue;
@@ -204,7 +205,7 @@ export function createResultPreview(){
         status("폴더 접근을 허용하려면 ‘제출물 보관 폴더 연결’을 다시 눌러 주세요.");
         return;
       }
-      const fileManifest=Array.isArray(report.files)?report.files.filter(f=>f&&f.hash&&Number.isFinite(f.size)):[];
+      const fileManifest=(Array.isArray(report.files)&&report.files.length?report.files:unpackFileFingerprints(report.fileName)).filter(f=>f&&f.hash&&Number.isFinite(f.size));
       if(fileManifest.length){
         status("연결된 MEGA 폴더에서 제출 파일의 내용으로 찾는 중…");
         const {matches,partial,cancelled}=await findByFileContent(directoryHandle,fileManifest,token,matchingKey);
@@ -347,13 +348,14 @@ export function createResultPreview(){
     cleanup();clearMatches();
     const key=fileKey(id,report);current={key,report};
     el("grpTitle").textContent=safe(report.name)+" · 제출 결과물";
-    el("grpInfo").textContent=Array.isArray(report.files)&&report.files.length?
-      "제출 파일 "+report.files.length+"개: "+report.files.map(f=>String(f.name||"").slice(0,60)).join(" · ").slice(0,600):
+    const displayFiles=Array.isArray(report.files)&&report.files.length?report.files:unpackFileFingerprints(report.fileName);
+    el("grpInfo").textContent=displayFiles.length?
+      "제출 파일 "+displayFiles.length+"개 · 참석자 계정에 연결된 파일을 내용으로 검색합니다":
       "기존 제출 파일명: "+safe(report.fileName);
     el("grpFile").value="";
     el("grpUrl").value=links[key]||"";
     modal.hidden=false;
-    if(links[key]&&!(Array.isArray(report.files)&&report.files.length))loadLink(links[key]);
+    if(links[key]&&!displayFiles.length)loadLink(links[key]);
     else {
       const p=document.createElement("p");p.textContent="연결된 제출물 폴더에서 파일을 확인하고 있습니다. 폴더가 연결되지 않았다면 위에서 선택해 주세요.";el("grpCanvas").appendChild(p);
       status("연결된 보관 폴더 자동 검색 중…");
