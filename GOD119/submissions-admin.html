@@ -85,7 +85,7 @@
     <thead><tr><th>이름</th><th>교회·소속</th><th>종류</th><th>신고한 파일명</th><th>신고 시각</th><th>확인 상태</th><th>강사 조치</th></tr></thead>
     <tbody id="records"><tr><td colspan="7">실시간 데이터를 기다리고 있습니다.</td></tr></tbody>
    </table></div>
-   <p class="muted">참석자가 입력한 이름과 파일명은 본인 신고 정보이므로 실제 MEGA 파일명과 일치하는지 확인하세요. 같은 사람이 다른 기기에서 신고하면 중복될 수 있습니다.</p>
+   <p class="muted">참석자의 제출 신고는 파일 수신의 자동 증명이 아닙니다. 간편 제출의 실제 파일은 MEGA 보관함에서 확인해 주세요. 같은 사람이 다른 기기에서 신고하면 중복될 수 있습니다.</p>
   </section>
  </section>
  <section class="card notice">
@@ -104,7 +104,7 @@ function hide(){if(unsubscribe){unsubscribe();unsubscribe=null}if(attendanceUnsu
 function fmt(ts){const n=Number(ts);if(!Number.isFinite(n)||n<100000)return "—";return new Date(n).toLocaleString("ko-KR",{timeZone:"Asia/Seoul",hour12:false})}
 function td(tr,value){const el=document.createElement("td");el.textContent=String(value??"");tr.appendChild(el);return el}
 function btn(label,click){const el=document.createElement("button");el.type="button";el.textContent=label;el.onclick=click;return el}
-const humanKind={pdf:"PDF",image:"이미지",text:"텍스트",mp4:"MP4"};
+const humanKind={pdf:"PDF",image:"이미지",text:"텍스트",mp4:"MP4",file:"파일"};
 function registeredRows(){return Object.entries(attendees).filter(([,v])=>v&&v.profile&&v.profile.name&&v.profile.church).map(([uid,v])=>({uid,profile:v.profile,report:records[uid]?.report||null,review:records[uid]?.review||null})).sort((x,y)=>(Number(x.profile.registeredAt)||0)-(Number(y.profile.registeredAt)||0))}
 function renderAttendance(){
  if(!rosterReady)return;
@@ -129,7 +129,7 @@ $("regSearch").oninput=renderAttendance;$("regFilter").onchange=renderAttendance
 $("exportRoster").onclick=()=>{
  if(!rosterReady)return;
  const esc=v=>{const raw=String(v??"");const safe=/^\s*[=+@-]/.test(raw)?"'"+raw:raw;return '"'+safe.replaceAll('"','""')+'"'};
- const lines=[["이름","교회·소속","출석 등록 시각","제출 신고","MEGA 수신 확인","신고 파일명"],...registeredRows().map(v=>[v.profile.name,v.profile.church,fmt(v.profile.registeredAt),v.report?"신고":"미제출",v.review?.checked===true?"확인 완료":"미확인",v.report?.fileName||""])];
+ const lines=[["이름","교회·소속","출석 등록 시각","제출 신고","MEGA 수신 확인","파일 정보"],...registeredRows().map(v=>[v.profile.name,v.profile.church,fmt(v.profile.registeredAt),v.report?"신고":"미제출",v.review?.checked===true?"확인 완료":"미확인",v.report?.fileName||""])];
  const csv="\ufeff"+lines.map(row=>row.map(esc).join(",")).join("\r\n");
  const uri=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
  const link=document.createElement("a");link.href=uri;link.download="GOD119-출석-실습관리.csv";document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(uri),1000)
@@ -163,7 +163,7 @@ function render(){
 $("search").oninput=render;$("filter").onchange=render;
 $("export").onclick=()=>{
  const escapeCSV=v=>{const raw=String(v??"");const safe=/^\s*[=+@-]/.test(raw)?"'"+raw:raw;return '"'+safe.replaceAll('"','""')+'"'};
- const data=[["이름","교회·소속","형식","신고 파일명","신고 시각","수신 확인","확인 시각"],...rows().map(v=>[v.report.name,v.report.church,humanKind[v.report.kind]||v.report.kind,v.report.fileName,fmt(v.report.at),v.review.checked===true?"완료":"미확인",fmt(v.review.at)])];
+ const data=[["이름","교회·소속","형식","파일 정보","신고 시각","수신 확인","확인 시각"],...rows().map(v=>[v.report.name,v.report.church,humanKind[v.report.kind]||v.report.kind,v.report.fileName,fmt(v.report.at),v.review.checked===true?"완료":"미확인",fmt(v.review.at)])];
  const csv="\ufeff"+data.map(line=>line.map(escapeCSV).join(",")).join("\r\n");
  const object=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
  const link=document.createElement("a");link.href=object;link.download="GOD119-실습-제출현황.csv";document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(object),1000);
