@@ -53,6 +53,13 @@ export function createResultPreview(){
     '#godResultPreview.simple-mode .title b{font-size:clamp(18px,2vw,23px)}',
     '#godResultPreview.simple-mode #grpStatus{color:#e3eff8;font-size:14px;line-height:1.65}',
     '#godResultPreview.simple-mode #grpInfo{color:#ffdfaa;font-size:14px;line-height:1.6}',
+    '#godResultPreview #grpVerifiedFiles[hidden]{display:none!important}',
+    '#godResultPreview #grpVerifiedFiles{display:flex;gap:8px;align-items:center;flex-wrap:wrap;border:1px solid #597d93;border-radius:9px;padding:10px;background:#0b2839}',
+    '#godResultPreview #grpVerifiedFiles button{background:#244e60;border-color:#90b6c8;color:#f7fbff;padding:10px 12px;overflow-wrap:anywhere;max-width:100%}',
+    '#godResultPreview #grpVerifiedFiles button[aria-pressed=true]{background:#e8b866;color:#142d3c;border-color:#f9deab}',
+    '#godResultPreview #grpVerifiedFiles .verified-count{color:#fee3b3;font-size:12px;font-weight:750}',
+    '#godResultPreview.simple-mode #grpQuickChoose{min-width:200px}',
+    '#godResultPreview.simple-mode #grpVerifiedFiles{max-height:150px;overflow-y:auto}',
   ].join("\n");
   document.head.appendChild(css);
   const modal=document.createElement("div");modal.id="godResultPreview";modal.hidden=true;
@@ -61,6 +68,7 @@ export function createResultPreview(){
     '<div class="title"><b id="grpTitle">제출 결과물 보기</b><button id="grpClose" type="button">닫기 ✕</button></div>',
     '<div class="meta" id="grpInfo"></div>',
     '<div id="grpQuickActions" hidden><button id="grpQuickChoose" type="button">📂 이 참석자의 파일 선택해서 바로 보기</button></div>',
+    '<div id="grpVerifiedFiles" hidden aria-label="이 참석자에게 확인된 제출 파일"></div>',
     '<div class="meta" id="grpLinkIntro">파일의 MEGA 개별 공유 링크가 있으면 아래에 입력할 수 있습니다.</div>',
     '<div class="actions"><button type="button" class="primary-local" id="grpSecurePick" hidden>↗ MEGA 보관함에서 제출물 찾기</button><button type="button" id="grpLocalPick" hidden>📂 맥북 동기화 폴더에서 파일 선택 · 바로 보기</button><button type="button" id="grpClearPicked" hidden>파일 연결 해제</button><button type="button" class="primary-local" id="grpFolder">📁 제출물 보관 폴더 연결</button><button type="button" id="grpFolderRetry">↻ 연결된 폴더에서 찾기</button></div>',
     '<div class="folder-help" id="grpMegaInstructions" hidden>MEGA 보관함에서 해당 참석자의 파일을 확인하고 <b>개별 파일의 링크 가져오기</b>를 선택하세요. 복사한 링크를 아래에 붙여넣고 “링크 연결 · 미리보기”를 누르면 GOD119에서 열기를 시도합니다. 개별 링크는 가진 사람이 접근할 수 있으니 외부에 공유하지 마세요. MEGA 제출 요청 주소는 파일 미리보기 주소가 아닙니다.</div>',
@@ -160,6 +168,76 @@ export function createResultPreview(){
       }finally{localDb.close()}
     }catch(_){}
   }
+  // The file list is keyed to the authenticated participant UID, not a report
+  // timestamp: a later submission must not hide earlier verified files.
+  const verifiedListKey=uid=>"verified-files-v3:"+uid;
+  async function readVerifiedList(uid){
+    if(!uid)return [];
+    try{
+      const db=await dbConnect();
+      try{
+        const found=await new Promise((resolve,reject)=>{
+          const tx=db.transaction("prefs","readonly");
+          const req=tx.objectStore("prefs").get(verifiedListKey(uid));
+          req.onsuccess=()=>resolve(req.result||[]);
+          req.onerror=()=>reject(req.error);
+        });
+        return Array.isArray(found)?found.filter(x=>x&&x.handle&&x.handle.kind==="file").slice(0,40):[];
+      }finally{db.close()}
+    }catch(_){return []}
+  }
+  async function writeVerifiedList(uid,items){
+    if(!uid)throw Error("MISSING_PARTICIPANT");
+    const db=await dbConnect();
+    try{
+      await new Promise((resolve,reject)=>{
+        const tx=db.transaction("prefs","readwrite");
+        tx.objectStore("prefs").put(items.slice(0,40),verifiedListKey(uid));
+        tx.oncomplete=()=>resolve();
+        tx.onerror=()=>reject(tx.error);
+      });
+    }finally{db.close()}
+  }
+  async function addVerifiedList(uid,picks){
+    const existing=await readVerifiedList(uid);
+    for(const handle of picks){
+      let repeated=false;
+      for(const item of existing){
+        try{if(typeof handle.isSameEntry==="function"&&await handle.isSameEntry(item.handle)){repeated=true;break}}catch(_){}
+      }
+      if(!repeated)existing.push({handle,name:handle.name,addedAt:Date.now()});
+    }
+    await writeVerifiedList(uid,existing);
+    return existing;
+  }
+  function renderVerifiedList(items,token,key){
+    const pane=el("grpVerifiedFiles");pane.replaceChildren();
+    pane.hidden=!items.length;
+    if(!items.length)return;
+    const count=document.createElement("span");count.className="verified-count";
+    count.textContent="확인된 파일 "+items.length+"개";
+    pane.append(count);
+    for(const item of items){
+      const button=document.createElement("button");
+      button.type="button";button.textContent="📄 "+String(item.name||item.handle.name||"이름 없는 파일").slice(0,100);
+      button.title="이 참석자에게 직접 연결한 파일만 열기";
+      button.onclick=async()=>{
+        if(token!==folderLookupToken||!current||current.key!==key)return;
+        try{
+          let permission=typeof item.handle.queryPermission==="function"?
+            await item.handle.queryPermission({mode:"read"}):"granted";
+          if(permission!=="granted"&&typeof item.handle.requestPermission==="function")
+            permission=await item.handle.requestPermission({mode:"read"});
+          if(permission!=="granted"){status("파일 열기 권한을 허용해 주세요. 권한이 없으면 아래 버튼으로 다시 선택할 수 있습니다.");return}
+          await showFolderFile({handle:item.handle,name:item.name||item.handle.name},token,key);
+          if(token!==folderLookupToken||!current||current.key!==key)return;
+          for(const b of pane.querySelectorAll("button"))b.setAttribute("aria-pressed",String(b===button));
+        }catch(_){status("이 파일을 다시 열 수 없습니다. MEGA 동기화 여부와 브라우저의 파일 접근 권한을 확인해 주세요.")}
+      };
+      button.setAttribute("aria-pressed","false");
+      pane.append(button);
+    }
+  }
   // New submissions are linked by file bytes and size, not by user-editable names.
   // MEGA may append an upload-session ID to filenames without changing contents.
   async function findByFileContent(handle,reported,token,key,maxFiles=3000){
@@ -252,26 +330,45 @@ export function createResultPreview(){
       // Fail closed: no content identity means no automatic file search.
       // Names, timestamps and old saved choices do not prove ownership.
       clearMatches();
-      const saved=await getVerifiedFile(matchingKey);
+      let files=await readVerifiedList(current.uid);
+      // Read only explicitly presenter-confirmed previous file selection.
+      // Old unverified search candidates ("chosen:") remain excluded.
+      if(!files.length){
+        const old=await getVerifiedFile(matchingKey);
+        if(old&&old.kind==="file"){
+          files=[{handle:old,name:old.name,addedAt:Date.now()}];
+          try{await writeVerifiedList(current.uid,files)}catch(_){}
+        }
+      }
       if(token!==folderLookupToken||!current||current.key!==matchingKey)return;
-      if(saved){
+      renderVerifiedList(files,token,matchingKey);
+      el("grpQuickChoose").textContent=files.length?"➕ 이 참석자의 새 파일 추가":"📂 "+safe(report.name)+"님의 파일 선택 · 바로 보기";
+      if(files.length){
+        const latest=files[files.length-1];
         try{
-          const granted=typeof saved.queryPermission==="function"?
-            await saved.queryPermission({mode:"read"}):"prompt";
-          if(granted==="granted"){
-            await showFolderFile({handle:saved,name:saved.name},token,matchingKey);
-            el("grpClearPicked").hidden=false;
-            el("grpQuickChoose").textContent="↻ 다른 파일로 변경";
+          const permission=typeof latest.handle.queryPermission==="function"?
+            await latest.handle.queryPermission({mode:"read"}):"granted";
+          if(permission==="granted"){
+            await showFolderFile({handle:latest.handle,name:latest.name},token,matchingKey);
+            if(token!==folderLookupToken||!current||current.key!==matchingKey)return;
+            const buttons=el("grpVerifiedFiles").querySelectorAll("button");
+            if(buttons.length)buttons[buttons.length-1].setAttribute("aria-pressed","true");
+            status("✓ 저장된 제출 파일 "+files.length+"개 · 위 파일 목록에서 다른 결과물도 바로 열 수 있습니다.");
             return;
           }
-          status("연결된 파일의 브라우저 권한이 만료되었습니다. 아래 버튼으로 해당 파일을 다시 선택해 주세요.");
         }catch(_){}
+        cleanup();
+        const note=document.createElement("p");
+        note.textContent="확인된 파일 "+files.length+"개가 위에 있습니다. 파일 이름을 클릭해 브라우저 접근을 허용하면 열립니다.";
+        el("grpCanvas").append(note);
+        status("이 참석자의 연결 파일은 그대로 보관되어 있습니다. 파일 이름을 눌러 보거나 새로운 파일을 추가해 주세요.");
+        return;
       }
       cleanup();
       const p=document.createElement("p");
-      p.textContent="아직 미리볼 파일이 연결되지 않았습니다. 위의 노란 버튼으로 해당 참석자의 파일을 한 번 선택해 주세요. 선택한 이미지는 여기에서 바로 열립니다.";
+      p.textContent="아직 미리볼 파일이 연결되지 않았습니다. 위의 노란 버튼으로 해당 참석자의 파일을 선택하면 이곳에서 바로 확인할 수 있습니다.";
       el("grpCanvas").append(p);
-      status("처음 한 번만 해당 참석자의 결과물 파일을 지정해 주세요. 다음에는 같은 컴퓨터에서 바로 열립니다.");
+      status("수신 확인 여부와 관계없이 파일을 열 수 있습니다. 처음 한 번 파일을 지정해 주세요.");
       return;
     }
     if(!directoryHandle)try{directoryHandle=await getStoredFolder()}catch(_){}
@@ -337,33 +434,39 @@ export function createResultPreview(){
   async function chooseVerifiedFile(){
     const selected=current;
     if(!selected||((Array.isArray(selected.report.files)&&selected.report.files.length?selected.report.files:unpackFileFingerprints(selected.report.fileName)).some(f=>f&&typeof f.hash==="string"&&Number.isFinite(f.size))))return;
-    const token=folderLookupToken,key=selected.key;
+    const token=folderLookupToken,key=selected.key,uid=selected.uid;
     if(typeof window.showOpenFilePicker!=="function"){
-      status("브라우저에서 파일 연결을 지원하지 않아 일반 파일 선택창을 엽니다. 선택한 이미지는 미리보기로 보여 드립니다.");
+      status("브라우저 파일 접근이 제한되어 일반 선택창을 엽니다. 임시 미리보기는 가능하지만 다음에 다시 선택해야 할 수 있습니다.");
       el("grpFile").click();return;
     }
     try{
-      const picks=await window.showOpenFilePicker({id:"god119-verified-file-v2",multiple:false});
+      const picks=await window.showOpenFilePicker({id:"god119-verified-file-v3",multiple:true});
       if(token!==folderLookupToken||!current||current.key!==key)return;
-      const handle=picks?.[0];if(!handle)return;
-      const file=await handle.getFile();
-      if(!allowedExt.test(file.name)||file.size>100*1024*1024){
-        status("지원하는 형식의 100MB 이하 파일을 선택해 주세요.");return
+      const accepted=[];
+      for(const handle of (picks||[]).slice(0,40)){
+        try{
+          const file=await handle.getFile();
+          if(allowedExt.test(file.name)&&file.size<=100*1024*1024)accepted.push({handle,name:file.name});
+        }catch(_){}
       }
-      const who=String(selected.report.name||"이 참석자").slice(0,35);
-      if(!window.confirm("“"+file.name+"” 파일이 “"+who+"”님의 제출물이 맞습니까? 파일 소유자를 직접 확인한 경우에만 연결해 주세요."))return;
-      // Display the selected file even if local browser persistence is unavailable.
-      await showFolderFile({handle,name:file.name},token,key);
+      if(!accepted.length){status("지원되는 이미지·PDF 등 100MB 이하 파일을 선택해 주세요.");return}
+      const who=String(selected.report.name||"참석자").slice(0,35);
+      const fileNames=accepted.map(x=>x.name).join(", ").slice(0,230);
+      if(!window.confirm("“"+who+"”님의 실제 제출 파일 "+accepted.length+"개가 맞습니까?\n"+fileNames+"\n다른 참석자 자료가 섞이지 않았는지 확인해 주세요."))return;
+      await showFolderFile(accepted[accepted.length-1],token,key);
       if(token!==folderLookupToken||!current||current.key!==key)return;
       try{
-        await saveVerifiedFile(key,handle);
-        el("grpClearPicked").hidden=false;
-        el("grpQuickChoose").textContent="↻ 다른 파일로 변경";
-        status("✓ "+who+"님의 파일이 열렸습니다. 같은 컴퓨터와 브라우저에서는 다음에도 바로 미리볼 수 있습니다.");
+        const files=await addVerifiedList(uid,accepted.map(x=>x.handle));
+        if(token!==folderLookupToken||!current||current.key!==key)return;
+        renderVerifiedList(files,token,key);
+        const buttons=el("grpVerifiedFiles").querySelectorAll("button");
+        if(buttons.length)buttons[buttons.length-1].setAttribute("aria-pressed","true");
+        el("grpQuickChoose").textContent="➕ 이 참석자의 새 파일 추가";
+        status("✓ "+who+"님 파일 "+files.length+"개 연결됨 · 위 목록에서 각 파일을 클릭해 미리볼 수 있습니다.");
       }catch(_){
-        status("✓ 파일을 미리보기로 열었습니다. 브라우저 저장이 제한되어 다음에는 한 번 더 선택해야 할 수 있습니다.");
+        status("✓ 선택한 파일은 미리보기로 열었습니다. 브라우저 저장이 제한되어 다음에는 다시 선택해야 할 수 있습니다.");
       }
-    }catch(e){if(e?.name!=="AbortError")status("파일을 열지 못했습니다. MEGA 동기화 폴더에서 실제 파일이 내려받아졌는지 확인해 주세요.")}
+    }catch(e){if(e?.name!=="AbortError")status("선택한 파일을 열지 못했습니다. MEGA 동기화 상태와 파일 접근 권한을 확인해 주세요.")}
   }
   el("grpLocalPick").onclick=chooseVerifiedFile;
   el("grpQuickChoose").onclick=chooseVerifiedFile;
@@ -459,7 +562,7 @@ export function createResultPreview(){
   function open(id,report){
     folderLookupToken++;
     cleanup();clearMatches();
-    const key=fileKey(id,report);current={key,report};
+    const key=fileKey(id,report);current={key,report,uid:id};
     el("grpTitle").textContent=safe(report.name)+" · 제출 결과물";
     const displayFiles=Array.isArray(report.files)&&report.files.length?report.files:unpackFileFingerprints(report.fileName);
     const simple=!displayFiles.some(f=>f&&typeof f.hash==="string"&&Number.isFinite(f.size));
@@ -468,7 +571,9 @@ export function createResultPreview(){
       simple?"제출 신고 접수 · 이 참석자의 결과물을 확인합니다.":"제출 파일 정보: "+safe(report.fileName);
     modal.classList.toggle("simple-mode",simple);
     el("grpQuickActions").hidden=!simple;
-    el("grpQuickChoose").textContent="📂 "+safe(report.name)+"님의 파일 선택해서 바로 보기";
+    el("grpQuickChoose").textContent="📂 "+safe(report.name)+"님의 파일 선택 · 바로 보기";
+    el("grpVerifiedFiles").hidden=true;
+    el("grpVerifiedFiles").replaceChildren();
     el("grpSecurePick").hidden=!simple;
     el("grpLocalPick").hidden=!simple;
     el("grpMegaInstructions").hidden=!simple;
