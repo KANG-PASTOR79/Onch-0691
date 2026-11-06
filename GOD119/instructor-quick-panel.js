@@ -41,7 +41,15 @@ export function createInstructorQuickPanel({getState}){
  '#gqFeedbackBox button{background:#365c77;color:white;border:1px solid #97adbf;padding:10px;border-radius:8px;font-weight:800;cursor:pointer}',
  '#gqFeedbackBox button.send{background:#efc77b;color:#16283a}',
  '#gqFeedbackBox .note{font-size:12px;color:#d6e7ed;line-height:1.5}',
- '#gq [hidden]{display:none!important}'
+ '#gq [hidden]{display:none!important}',
+ '#gqSubmissionToast{position:fixed;left:20px;top:76px;width:min(430px,calc(100vw - 30px));z-index:2147482001;box-sizing:border-box;padding:17px;border:3px solid #ffcf77;border-radius:15px;color:#fff;background:linear-gradient(135deg,#12344a,#175653);box-shadow:0 15px 50px #0009}',
+ '#gqSubmissionToast[hidden]{display:none!important}',
+ '#gqSubmissionToast .gqToastTop{display:flex;justify-content:space-between;align-items:center;gap:9px}',
+ '#gqSubmissionToast strong{font-size:clamp(16px,2vw,21px);color:#ffdf9e}',
+ '#gqSubmissionToast p{font-size:15px;line-height:1.6;margin:12px 0;overflow-wrap:anywhere}',
+ '#gqSubmissionToast button{cursor:pointer;border:1px solid #cde0e8;border-radius:7px;padding:9px 11px;background:#254e60;color:white;font-weight:750}',
+ '#gqSubmissionToast .gqOpen{background:#f3c77a;color:#172a3b}',
+ '@media(max-width:650px){#gqSubmissionToast{left:10px;top:62px}}'
  ].join('\n');
  document.head.appendChild(style);
  const pane=document.createElement("div");pane.id="gq";
@@ -51,9 +59,16 @@ export function createInstructorQuickPanel({getState}){
  '<button type="button" id="gqTabSubmit" class="tab" aria-expanded="false" aria-controls="gqPanelSubmit">📥 결과물 제출 현황 <span id="gqPending">0</span> ▾</button>',
  '</div><div id="gqNewReport" class="new-report" role="status" hidden>📥 새로운 실습 결과물이 제출되었습니다. 제출 탭에서 확인하세요.</div><div id="gqStats" class="stats" role="status">명단 연결 중…</div>',
  '<div id="gqPanelRoster" role="region" aria-label="전체 참석자 명단" hidden><input id="gqFindRoster" type="search" placeholder="이름·소속 검색" aria-label="참석자 검색"><div id="gqRoster" class="list"></div></div>',
- '<div id="gqPanelSubmit" role="region" aria-label="제출 결과물 명단" hidden><input id="gqFindSubmit" type="search" placeholder="제출자·파일명 검색" aria-label="제출 검색"><div id="gqSubmit" class="list"></div><p class="help">신규 제출물은 파일 이름이 달라도 MEGA 동기화 폴더에서 내용 식별값으로 찾습니다. 실제 파일을 열어 확인한 후 수신 확인을 눌러주세요.</p></div>'
+ '<div id="gqPanelSubmit" role="region" aria-label="제출 결과물 명단" hidden><input id="gqFindSubmit" type="search" placeholder="제출자·파일명 검색" aria-label="제출 검색"><div id="gqSubmit" class="list"></div><p class="help">파일 내용 식별값이 있는 제출물은 폴더에서 자동으로 찾을 수 있습니다. 간편 제출한 파일은 MEGA 보관함에서 직접 확인한 뒤 수신 확인을 눌러주세요.</p></div>'
  ].join('');
  parent.appendChild(pane);
+ // Presenter-only popup. In projected fullscreen mode, never reveal personal names.
+ const submissionToast=document.createElement('div');
+ submissionToast.id='gqSubmissionToast';submissionToast.hidden=true;
+ submissionToast.setAttribute('role','status');submissionToast.setAttribute('aria-live','polite');
+ submissionToast.innerHTML='<div class="gqToastTop"><strong>📥 실습 결과물 제출 알림</strong><button id="gqToastClose" type="button">닫기 ✕</button></div><p id="gqToastMessage"></p><button class="gqOpen" id="gqToastOpen" type="button">제출 현황 확인하기</button>';
+ document.body.appendChild(submissionToast);
+ const toastText=submissionToast.querySelector('#gqToastMessage');
  const feedbackModal=document.createElement('div');feedbackModal.id='gqFeedbackBox';feedbackModal.hidden=true;
  feedbackModal.innerHTML='<div class="dialog" role="dialog" aria-modal="true" aria-label="제출자 개별 피드백"><strong id="gqFbTitle">제출자 피드백</strong><div class="note" id="gqFbFilename"></div><label>결과 선택<select id="gqFbKind"><option value="received">✓ 제출 확인 완료</option><option value="revise">✎ 보완 요청</option><option value="praise">★ 잘하셨습니다</option></select></label><label>개인 피드백 메시지<textarea id="gqFbMessage" maxlength="400" placeholder="예: 영상 구성이 좋습니다. 자막을 조금 더 크게 조정해 주세요."></textarea></label><div class="note">실제 제출 파일을 확인한 뒤 보내 주세요. 이 메시지는 해당 제출자의 로그인 계정에만 전달됩니다. 다른 참석자는 볼 수 없습니다.</div><div class="buttons"><button id="gqFbSend" class="send" type="button">피드백 전송</button><button id="gqFbCancel" type="button">취소</button></div><div class="note" role="status" id="gqFbStatus"></div></div>';
  document.body.appendChild(feedbackModal);
@@ -108,6 +123,36 @@ export function createInstructorQuickPanel({getState}){
  };
  const $=id=>pane.querySelector('#'+id);
  let uid=null,unsub=[],roster={},submitted={},rReady=false,sReady=false,known=null,writing=new Set();
+ const isChecked=(r,v)=>!!(r&&v?.checked===true&&Number(v.at)>=Number(r.at));
+ let newReports=[],activeReport=null,reportTimer=null;
+ function positionAlert(){
+  const stageFullscreen=document.fullscreenElement?.id==='stage';
+  const host=stageFullscreen?document.fullscreenElement:document.body;
+  if(submissionToast.parentNode!==host)host.appendChild(submissionToast);
+  if(activeReport)toastText.textContent=stageFullscreen?
+   '새 실습 결과물 제출 신고가 있습니다. 강사 전용 현황판에서 확인해 주세요.':
+   activeReport.name+' 님 · '+activeReport.church+' · 제출 신고 완료';
+ }
+ document.addEventListener('fullscreenchange',positionAlert);
+ function dismissAlert(){
+  if(reportTimer){clearTimeout(reportTimer);reportTimer=null}
+  submissionToast.hidden=true;activeReport=null;
+  if(newReports.length)showAlert();
+ }
+ function showAlert(){
+  if(activeReport||!newReports.length)return;
+  activeReport=newReports.shift();positionAlert();
+  submissionToast.hidden=false;
+  reportTimer=setTimeout(dismissAlert,15000);
+ }
+ function announceReport(item){
+  newReports.push({name:t(item.r.name,35)||'참석자',church:t(item.r.church,45)||'소속 미기재'});
+  $('gqNewReport').hidden=false;
+  if(!activeReport)showAlert();
+ }
+ submissionToast.querySelector('#gqToastClose').onclick=dismissAlert;
+ submissionToast.querySelector('#gqToastOpen').onclick=()=>{select('submit');dismissAlert()};
+
  let viewerPromise=null;
  function showResult(id,report){
   if(!viewerPromise)viewerPromise=import("./submission-result-preview.js?v=compact-fingerprint-20261106")
@@ -130,8 +175,10 @@ export function createInstructorQuickPanel({getState}){
  }
  function empty(node,message){const e=document.createElement('p');e.className='help';e.textContent=message;node.appendChild(e)}
  function render(){
-  const rr=rosters(),ss=reports(),checked=ss.filter(v=>v.v.checked===true).length;
+  const rr=rosters(),ss=reports(),checked=ss.filter(v=>isChecked(v.r,v.v)).length;
   $('gqPending').textContent=String(ss.length-checked);
+  $('gqNewReport').textContent='📥 미확인 제출 신고 '+(ss.length-checked)+'건 · 제출 현황 탭에서 확인하세요.';
+  $('gqNewReport').hidden=!(sReady&&ss.length>checked&&opened!=='submit');
   $('gqStats').textContent='등록 '+rr.length+'명 · 제출 신고 '+ss.length+'건 · 확인 '+checked+'건 · 미확인 '+(ss.length-checked)+'건';
   const rosterList=$('gqRoster'),submitList=$('gqSubmit');
   rosterList.replaceChildren();submitList.replaceChildren();
@@ -140,8 +187,8 @@ export function createInstructorQuickPanel({getState}){
   if(!matching.length)empty(rosterList,rReady?'아직 등록자가 없거나 검색 결과가 없습니다.':'참석자 명단을 불러오는 중…');
   for(const v of matching){
    const item=row(v.p.name,v.p.church);
-   const state=document.createElement('span');state.className='state'+(v.v?.checked===true?' done':'');
-   state.textContent=v.v?.checked===true?'✓ 확인':v.r?'제출 신고':'미제출';
+   const state=document.createElement('span');state.className='state'+(isChecked(v.r,v.v)?' done':'');
+   state.textContent=isChecked(v.r,v.v)?'✓ 확인':v.r?'제출 신고':'미제출';
    item.appendChild(state);rosterList.appendChild(item);
   }
   const search=$('gqFindSubmit').value.trim().toLowerCase();
@@ -159,7 +206,7 @@ export function createInstructorQuickPanel({getState}){
    view.textContent='📄 결과물 보기';view.title='GOD119 참석자 계정과 연결된 결과물을 MEGA 동기화 폴더에서 찾아 미리 봅니다.';
    view.onclick=()=>showResult(v.id,v.r);
    const button=document.createElement('button');button.type='button';button.className='review';
-   const checked=v.v.checked===true;button.textContent=checked?'✓ 확인완료':'수신 확인';
+   const checked=isChecked(v.r,v.v);button.textContent=checked?'✓ 확인완료':'수신 확인';
    button.disabled=writing.has(v.id);
    button.onclick=()=>mark(v.id,v.r,checked,button);
    const sendFeedback=document.createElement('button');sendFeedback.type='button';sendFeedback.className='feedback-action';
@@ -193,7 +240,7 @@ export function createInstructorQuickPanel({getState}){
   // Keep the live count in the button while changing the disclosure label.
   const button=$('gqTabSubmit');
   button.replaceChildren(document.createTextNode(showSubmit?'📥 결과물 닫기 ':'📥 결과물 제출 현황 '));
-  const badge=document.createElement('span');badge.id='gqPending';badge.textContent=String(reports().length-reports().filter(v=>v.v.checked===true).length);
+  const badge=document.createElement('span');badge.id='gqPending';badge.textContent=String(reports().length-reports().filter(v=>isChecked(v.r,v.v)).length);
   button.appendChild(badge);
   button.appendChild(document.createTextNode(showSubmit?' ▴':' ▾'));
   if(showSubmit)$('gqNewReport').hidden=true;
@@ -204,7 +251,9 @@ export function createInstructorQuickPanel({getState}){
  $('gqFindSubmit').oninput=render;
  function stop(){
   for(const f of unsub){try{f()}catch(e){}}
-  unsub=[];uid=null;roster={};submitted={};rReady=false;sReady=false;known=null;writing.clear();$('gqNewReport').hidden=true;render();
+  unsub=[];uid=null;roster={};submitted={};rReady=false;sReady=false;known=null;writing.clear();
+  if(reportTimer){clearTimeout(reportTimer);reportTimer=null}
+  newReports=[];activeReport=null;submissionToast.hidden=true;$('gqNewReport').hidden=true;render();
  }
  function sync(){
   const {teacher,db,F,auth,room}=getState();
@@ -216,12 +265,22 @@ export function createInstructorQuickPanel({getState}){
   unsub.push(F.onValue(F.ref(db,'attendance/'+room),snap=>{roster=snap.val()||{};rReady=true;render()},()=>{$('gqStats').textContent='참석자 명단 권한 확인 필요';}));
   unsub.push(F.onValue(F.ref(db,'submissions/'+room),snap=>{
    submitted=snap.val()||{};sReady=true;
-   const ids=new Set(reports().map(v=>v.id));
-   if(known&&[...ids].some(id=>!known.has(id))){
-    $('gqNewReport').hidden=false;
-   }
-   known=ids;render();
-  },()=>{$('gqStats').textContent='제출 현황 권한 확인 필요';}));
+   const allReports=reports();
+   const next=new Map(allReports.map(v=>[v.id,Number(v.r.at)||0]));
+   const now=Date.now();
+   const changed=allReports.filter(v=>{
+    const at=Number(v.r.at)||0;
+    if(!at)return false;
+    if(!known)return !isChecked(v.r,v.v)&&at>=now-60*60*1000&&at<=now+60*1000;
+    return known.get(v.id)!==at;
+   });
+   known=next;
+   render();
+   // Detect repeat submissions by the same account, not only newly seen UIDs.
+   // Restore a few recent unchecked submissions after a presenter reload.
+   changed.sort((a,b)=>(Number(a.r.at)||0)-(Number(b.r.at)||0));
+   for(const item of changed.slice(-4))announceReport(item);
+  },error=>{$('gqStats').textContent='제출 현황을 읽지 못했습니다. 강사 Google 로그인과 Firebase 보안 규칙을 확인해 주세요. ('+String(error?.code||'권한 오류')+')';}));
  }
  render();
  return {sync};
