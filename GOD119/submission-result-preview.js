@@ -301,7 +301,13 @@ export function createResultPreview(){
     }else if(/\.(txt|md|csv)$/i.test(lower)||blob.type.startsWith("text/")){
       blob.text().then(t=>{if(run===rev){const pre=document.createElement("pre");pre.textContent=t.slice(0,200000);box.replaceChildren(pre)}});status("텍스트 파일 표시 완료");return;
     }else{
-      node=document.createElement("p");node.textContent="이 파일은 브라우저에서 바로 미리보기를 지원하지 않습니다. PDF로 변환해 열어 주세요.";
+      node=document.createElement("p");
+      node.textContent="이 문서 형식은 브라우저 안에서 바로 미리보기를 지원하지 않습니다. ";
+      const download=document.createElement("a");
+      download.href=objectUrl;download.download=name;
+      download.textContent="📥 원본 파일 내려받아 열기";
+      download.style.cssText="display:inline-block;background:#1d5b70;color:#fff;padding:9px 12px;border-radius:8px;margin-left:6px;text-decoration:none;font-weight:800";
+      node.append(download);
     }
     box.appendChild(node);status("파일 표시 완료");
   }
