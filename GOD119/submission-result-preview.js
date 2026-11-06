@@ -210,6 +210,41 @@ export function createResultPreview(){
     await writeVerifiedList(uid,existing);
     return existing;
   }
+  // Preserve earlier *manually confirmed* v2 files even if the participant
+  // submitted another report and its timestamp changed. Never migrate old
+  // name/timestamp guesses or the previously unsafe "chosen:" candidates.
+  async function migrateLegacyVerifiedFiles(uid){
+    if(!uid)return [];
+    let found=[];
+    try{
+      const db=await dbConnect();
+      try{
+        const pairs=await new Promise((resolve,reject)=>{
+          const tx=db.transaction("prefs","readonly"),store=tx.objectStore("prefs");
+          const kr=store.getAllKeys(),vr=store.getAll();
+          let keys,values;
+          kr.onsuccess=()=>{keys=kr.result;if(values)resolve({keys,values})};
+          vr.onsuccess=()=>{values=vr.result;if(keys)resolve({keys,values})};
+          kr.onerror=()=>reject(kr.error);vr.onerror=()=>reject(vr.error);
+        });
+        const prefix="verified-choice-v2:"+uid+"|";
+        found=pairs.keys.map((key,i)=>({key,handle:pairs.values[i]}))
+          .filter(x=>typeof x.key==="string"&&x.key.startsWith(prefix)&&x.handle?.kind==="file")
+          .slice(0,40).map(x=>({handle:x.handle,name:x.handle.name,addedAt:0}));
+      }finally{db.close()}
+    }catch(_){return []}
+    if(!found.length)return [];
+    const unique=[];
+    for(const item of found){
+      let repeat=false;
+      for(const e of unique){
+        try{if(await item.handle.isSameEntry(e.handle)){repeat=true;break}}catch(_){}
+      }
+      if(!repeat)unique.push(item);
+    }
+    try{await writeVerifiedList(uid,unique)}catch(_){}
+    return unique;
+  }
   function renderVerifiedList(items,token,key){
     const pane=el("grpVerifiedFiles");pane.replaceChildren();
     pane.hidden=!items.length;
@@ -331,6 +366,7 @@ export function createResultPreview(){
       // Names, timestamps and old saved choices do not prove ownership.
       clearMatches();
       let files=await readVerifiedList(current.uid);
+      if(!files.length)files=await migrateLegacyVerifiedFiles(current.uid);
       // Read only explicitly presenter-confirmed previous file selection.
       // Old unverified search candidates ("chosen:") remain excluded.
       if(!files.length){
@@ -591,7 +627,7 @@ export function createResultPreview(){
     el("grpFile").value="";
     el("grpUrl").value=links[key]||"";
     modal.hidden=false;
-    if(links[key]&&!displayFiles.length)loadLink(links[key]);
+    if(!simple&&links[key]&&!displayFiles.length)loadLink(links[key]);
     else {
       const p=document.createElement("p");p.textContent=simple?
         "아직 연결된 이미지가 없습니다. 노란색 버튼으로 해당 참석자의 파일을 처음 한 번만 선택하면 여기에서 바로 미리볼 수 있습니다.":
