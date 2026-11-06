@@ -166,7 +166,7 @@ function render(){
 $("search").oninput=render;$("filter").onchange=render;
 $("export").onclick=()=>{
  const escapeCSV=v=>{const raw=String(v??"");const safe=/^\s*[=+@-]/.test(raw)?"'"+raw:raw;return '"'+safe.replaceAll('"','""')+'"'};
- const data=[["이름","교회·소속","형식","파일 정보","신고 시각","수신 확인","확인 시각"],...rows().map(v=>[v.report.name,v.report.church,kindLabel(v.report),v.report.fileName,fmt(v.report.at),v.isConfirmed(report,review)?"완료":"미확인",fmt(v.review.at)])];
+ const data=[["이름","교회·소속","형식","파일 정보","신고 시각","수신 확인","확인 시각"],...rows().map(v=>[v.report.name,v.report.church,kindLabel(v.report),v.report.fileName,fmt(v.report.at),isConfirmed(v.report,v.review)?"완료":"미확인",fmt(v.review.at)])];
  const csv="\ufeff"+data.map(line=>line.map(escapeCSV).join(",")).join("\r\n");
  const object=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
  const link=document.createElement("a");link.href=object;link.download="GOD119-실습-제출현황.csv";document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(object),1000);
