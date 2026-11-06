@@ -74,9 +74,9 @@ input:focus{outline:2px solid #dbbc82;outline-offset:1px}
   <h2>2 · 결과물 파일 선택</h2>
   <p class="upload-highlight">📌 <strong>파일명을 바꿀 필요 없습니다!<br>그냥 파일을 선택하세요.</strong></p>
   <label for="submissionFiles">제출할 결과물 (여러 개 동시 선택 가능)</label>
-  <input type="file" id="submissionFiles" multiple accept=".pdf,.docx,.png,.jpg,.jpeg,.webp,.gif,.txt,.md,.csv,.mp4,.webm" style="width:100%;padding:12px;border:1px solid #7ba2bd;border-radius:9px;background:#0b263b;color:white;box-sizing:border-box">
+  <input type="file" id="submissionFiles" multiple accept=".pdf,.docx,.pptx,.xlsx,.hwp,.hwpx,.zip,.png,.jpg,.jpeg,.webp,.gif,.txt,.md,.csv,.mp4,.webm" style="width:100%;padding:12px;border:1px solid #7ba2bd;border-radius:9px;background:#0b263b;color:white;box-sizing:border-box">
   <div class="filename" id="selectedFileNames" aria-live="polite">아직 파일을 선택하지 않았습니다.</div>
-  <p class="smallNote">GOD119는 파일 내용의 식별값만 계산해 기록합니다. 이 단계에서 파일은 업로드되지 않습니다. 동영상 등 대용량 파일도 선택할 수 있지만 MEGA 저장 공간 한도는 확인해 주세요.</p>
+  <p class="smallNote">GOD119는 파일 내용의 식별값만 계산해 기록합니다. 이 단계에서 파일은 업로드되지 않습니다. 무료 저장 공간을 아끼기 위해 1인당 총 250MB 이내를 권장합니다.</p>
  </section>
  <section class="card">
   <h2>3 · MEGA에 같은 파일 업로드</h2>
@@ -114,6 +114,11 @@ submissionFiles.addEventListener("change",()=>{
  $("uploadConfirmed").checked=false;update();
 });
 $("uploadConfirmed").addEventListener("change",update);
+$("megaLink").addEventListener("click",e=>{
+ if(selectedFiles.length)return;
+ e.preventDefault();msg("먼저 2단계에서 결과물 파일을 선택해 주세요.",true);
+ submissionFiles.focus();
+});
 function ownRecord(user){
  if(watch){watch();watch=null}
  if(!user||!db||!d)return;
