@@ -72,7 +72,7 @@ export function createResultPreview(){
       tx.onerror=()=>{db.close();reject(tx.error)};
     });
   }
-  const normalizeFileName=n=>String(n||"").normalize("NFC").toLowerCase().replace(/\\s+/g," ").trim();
+  const normalizeFileName=n=>String(n||"").normalize("NFC").toLowerCase().replace(/\s+/g," ").trim();
   async function findInFolder(handle,wanted,maxFiles=2500){
     const name=normalizeFileName(wanted);
     let count=0,matching=null;
@@ -85,7 +85,7 @@ export function createResultPreview(){
           const actual=normalizeFileName(entry.name);
           if(actual===name)return entry;
           // A report may say .jpg while the uploaded image is .jpeg/.png.
-          const root=n=>n.replace(/\\.[^.]+$/,"");
+          const root=n=>n.replace(/\.[^.]+$/,"");
           if(!matching&&root(actual)===root(name))matching=entry;
         }else if(entry.kind==="directory"&&item.depth<2&&folders.length<60){
           folders.push({handle:entry,depth:item.depth+1});
