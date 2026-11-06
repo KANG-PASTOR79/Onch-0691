@@ -132,7 +132,7 @@ export function createSharedLinks({getState,resources,notify}){
  }
  function known(data){
   if(!data||!Number.isInteger(data.slide)||!Number.isFinite(data.at)||typeof data.url!=="string")return null;
-  const rec=(resources[data.slide]||[]).find(x=>!x.local&&x.url===data.url);
+  const rec=(resources[data.slide]||[]).find(x=>!x.local&&x.type!=="cafeBlog"&&x.url===data.url);
   return rec?{rec,slide:data.slide,id:data.slide+"-"+data.at+"-"+data.url}:null;
  }
  function target(url){
@@ -288,7 +288,8 @@ export function createSharedLinks({getState,resources,notify}){
  function broadcast(rec,page){
   const {teacher,allowed,F,db,room}=getState();
   if(!teacher||!allowed||!F||!db||rec.local)return;
-  if(!(resources[page]||[]).some(x=>!x.local&&x.url===rec.url))return;
+  if(rec.type==="cafeBlog")return false; // Naver disallows embedded presentation.
+  if(!(resources[page]||[]).some(x=>!x.local&&x.type!=="cafeBlog"&&x.url===rec.url))return;
   F.set(F.ref(db,"rooms/"+room+"/sharedLink"),{slide:page,url:rec.url,at:Date.now()})
    .catch(()=>notify("링크 공유에 실패했습니다. Firebase 연결을 확인하세요."));
   return true;
