@@ -271,6 +271,17 @@ export function createSharedLinks({getState,resources,notify}){
    value=next;render();
   },()=>{value=null;render()});
  }
+ function openLocal(rec,page){
+  // On attendee tap, open an approved MEGA document in the same GOD119
+  // overlay without broadcasting, changing slides or opening a MEGA tab.
+  if(!rec||rec.type!=="document"||!(resources[page]||[]).some(x=>x.url===rec.url))return false;
+  const current=getState();
+  if(current.slide!==page)return false;
+  dismissed=null;
+  value={slide:page,url:rec.url,at:Date.now()};
+  render();
+  return true;
+ }
  function broadcast(rec,page){
   const {teacher,allowed,F,db,room}=getState();
   if(!teacher||!allowed||!F||!db||rec.local)return;
@@ -279,5 +290,5 @@ export function createSharedLinks({getState,resources,notify}){
    .catch(()=>notify("링크 공유에 실패했습니다. Firebase 연결을 확인하세요."));
   return true;
  }
- return {ready,broadcast,onSlide:render,close,isOpen:()=>!el("godSharedLink").hidden};
+ return {ready,broadcast,openLocal,onSlide:render,close,isOpen:()=>!el("godSharedLink").hidden};
 }
