@@ -23,6 +23,9 @@ export function createResultPreview(){
     '#godResultPreview .canvas p{color:#274056;font-size:14px;padding:15px}',
     '#godResultPreview .folder-help{font-size:12px;background:#1c4052;color:#ffe4ad;padding:10px;border-radius:8px;line-height:1.5}',
     '#godResultPreview button.primary-local{background:#ebc27c;color:#162b3b;font-weight:900;border:1px solid #ffe5b0}',
+    '#godResultPreview .matches{display:flex;flex-wrap:wrap;gap:6px;max-height:155px;overflow-y:auto}',
+    '#godResultPreview .matches[hidden]{display:none!important}',
+    '#godResultPreview .matches button{background:#1e5262;border-color:#8fcfbd;color:#fff3cd;overflow-wrap:anywhere;max-width:100%}',
   ].join("\n");
   document.head.appendChild(css);
   const modal=document.createElement("div");modal.id="godResultPreview";modal.hidden=true;
@@ -35,6 +38,7 @@ export function createResultPreview(){
     '<div class="folder-help" id="grpFolderHelp">MEGA 파일 요청함에서 받은 제출물을 컴퓨터의 한 폴더에 모아 주세요. 그 폴더를 한 번 연결하면 이후 파일명에 맞는 결과물을 자동으로 찾아 이 창에서 바로 보여줍니다. 다른 파일은 업로드하거나 공유하지 않습니다.</div>',
     '<div class="actions"><label>개별 파일 직접 선택 <input id="grpFile" type="file" accept=".pdf,.docx,.png,.jpg,.jpeg,.webp,.gif,.txt,.md,.csv,.mp4,.webm"></label><button id="grpMega" type="button">MEGA 파일 보관함 열기 ↗</button><button id="grpDelete" type="button">저장 링크 지우기</button></div>',
     '<div class="meta" id="grpStatus" role="status">선택한 파일이나 개별 공유 링크만 표시합니다.</div>',
+    '<div class="matches" id="grpMatches" hidden aria-label="이름으로 찾은 제출 결과물 목록"></div>',
     '<div class="canvas" id="grpCanvas"><p>해당 제출물 파일을 연결하면 여기에서 볼 수 있습니다.</p></div>',
     '<div class="meta">MEGA 비공개 파일 요청함은 신고된 파일명만으로 접근할 수 없습니다. 연결한 로컬 폴더에 해당 파일이 있으면 자동 표시하며, 없다면 직접 파일 선택 또는 개별 파일 링크 연결을 사용할 수 있습니다. 연결 정보는 이 컴퓨터의 브라우저에만 보관합니다.</div>',
     '</div>'
@@ -73,26 +77,55 @@ export function createResultPreview(){
     });
   }
   const normalizeFileName=n=>String(n||"").normalize("NFC").toLowerCase().replace(/\s+/g," ").trim();
-  async function findInFolder(handle,wanted,maxFiles=2500){
-    const name=normalizeFileName(wanted);
-    let count=0,matching=null;
-    const folders=[{handle,depth:0}];
+  const fileStem=n=>normalizeFileName(n).replace(/\.[^.]+$/,"");
+  const allowedExt=/\.(pdf|docx|png|jpe?g|webp|gif|txt|md|csv|mp4|webm)$/i;
+  function belongsToName(filename,person){
+    const stem=fileStem(filename),name=normalizeFileName(person).replace(/\s+/g,"");
+    if(!name||name.length<2||!allowedExt.test(filename)||!stem.startsWith(name))return false;
+    const suffix=stem.slice(name.length);
+    // Prevent matching a different person whose name merely starts similarly.
+    return suffix===""||/^[0-9_-]/.test(suffix)||/^\s*\(/.test(suffix);
+  }
+  async function findInFolder(handle,wanted,person,maxFiles=2500){
+    const wantedName=normalizeFileName(wanted),wantedStem=fileStem(wanted);
+    const matches=[],folders=[{handle,depth:0}];
+    let count=0,exact=null;
     while(folders.length){
       const item=folders.shift();
       for await(const entry of item.handle.values()){
-        if(++count>maxFiles)return null;
+        if(++count>maxFiles)break;
         if(entry.kind==="file"){
           const actual=normalizeFileName(entry.name);
-          if(actual===name)return entry;
-          // A report may say .jpg while the uploaded image is .jpeg/.png.
-          const root=n=>n.replace(/\.[^.]+$/,"");
-          if(!matching&&root(actual)===root(name))matching=entry;
-        }else if(entry.kind==="directory"&&item.depth<2&&folders.length<60){
+          if(actual===wantedName)exact={handle:entry,name:entry.name};
+          if(actual===wantedName||fileStem(actual)===wantedStem||belongsToName(entry.name,person))
+            matches.push({handle:entry,name:entry.name,exact:actual===wantedName,stem:fileStem(actual)===wantedStem});
+        }else if(entry.kind==="directory"&&item.depth<3&&folders.length<80){
           folders.push({handle:entry,depth:item.depth+1});
         }
       }
+      if(count>maxFiles)break;
     }
-    return matching;
+    matches.sort((a,b)=>Number(b.exact)-Number(a.exact)||Number(b.stem)-Number(a.stem)||a.name.localeCompare(b.name,"ko",{numeric:true}));
+    return {matches:matches.slice(0,80),exact,partial:count>maxFiles};
+  }
+  function clearMatches(){const pane=el("grpMatches");pane.replaceChildren();pane.hidden=true}
+  async function showFolderFile(entry,token,key){
+    if(token!==folderLookupToken||!current||current.key!==key)return;
+    try{
+      const file=await entry.handle.getFile();
+      if(token!==folderLookupToken||!current||current.key!==key)return;
+      if(file.size>100*1024*1024){status("파일 크기가 100MB를 초과합니다. 원본 MEGA 폴더에서 확인해 주세요.");return}
+      cleanup();renderBlob(file,file.name,rev);
+      status("✓ "+entry.name+" · 연결된 MEGA 폴더에서 열었습니다.");
+    }catch(e){status("파일을 열 수 없습니다. 동기화 상태와 브라우저 폴더 권한을 확인해 주세요.")}
+  }
+  function showMatches(entries,token,key){
+    const pane=el("grpMatches");pane.replaceChildren();pane.hidden=!entries.length;
+    for(const entry of entries){
+      const button=document.createElement("button");button.type="button";
+      button.textContent="📄 "+entry.name;button.title="이 제출물을 GOD119에서 열기";
+      button.onclick=()=>showFolderFile(entry,token,key);pane.append(button);
+    }
   }
   async function previewFromFolder(token,requestPermission=false){
     if(!current)return;
@@ -112,18 +145,25 @@ export function createResultPreview(){
         return;
       }
       status("연결된 폴더에서 "+safe(report.fileName)+" 찾는 중…");
-      const fileHandle=await findInFolder(directoryHandle,report.fileName);
+      const {matches,exact,partial}=await findInFolder(directoryHandle,report.fileName,report.name);
       if(token!==folderLookupToken||!current||current.key!==matchingKey)return;
-      if(!fileHandle){
-        status("연결된 폴더에서 일치하는 파일을 찾지 못했습니다. MEGA 제출물을 해당 폴더에 내려받거나 개별 파일을 선택해 주세요.");
+      showMatches(matches,token,matchingKey);
+      if(!matches.length){
+        status("신고 파일명 또는 제출자 이름으로 일치하는 파일을 찾지 못했습니다."+
+          (partial?" 검색 파일이 2500개를 넘었습니다.":"")+" 실제 파일명을 확인해 주세요.");
         return;
       }
-      const file=await fileHandle.getFile();
-      if(!current||token!==folderLookupToken||current.key!==matchingKey)return;
-      if(file.size>100*1024*1024){status("파일이 100MB보다 큽니다. 영상 등 큰 파일은 별도 재생 또는 다운로드 후 확인해 주세요.");return}
-      cleanup();
-      renderBlob(file,file.name,rev);
-      status("✓ 제출물 자동 확인: "+file.name+" · 연결된 보관 폴더에서 표시했습니다.");
+      if(exact){
+        await showFolderFile(exact,token,matchingKey);
+        if(matches.length>1)status("정확히 일치하는 파일을 열었습니다. 이름으로 찾은 나머지 결과물도 위에서 선택할 수 있습니다.");
+      }else if(matches.length===1){
+        await showFolderFile(matches[0],token,matchingKey);
+      }else{
+        cleanup();const p=document.createElement("p");
+        p.textContent="제출자 이름으로 "+matches.length+"개 파일을 찾았습니다. 위의 파일명 중 올바른 결과물을 선택해 주세요.";
+        el("grpCanvas").append(p);
+        status("이름으로 결과물 "+matches.length+"개 발견 · 다른 파일을 잘못 열지 않도록 직접 선택해 주세요.");
+      }
     }catch(e){
       if(token!==folderLookupToken)return;
       status("제출물 폴더를 읽지 못했습니다. 폴더 접근 권한과 파일명을 확인해 주세요.");
@@ -155,7 +195,7 @@ export function createResultPreview(){
     if(objectUrl){URL.revokeObjectURL(objectUrl);objectUrl=null}
     el("grpCanvas").replaceChildren();
   }
-  function close(){folderLookupToken++;cleanup();current=null;modal.hidden=true}
+  function close(){folderLookupToken++;cleanup();clearMatches();current=null;modal.hidden=true}
   el("grpClose").onclick=close;
   modal.addEventListener("click",e=>{if(e.target===modal)close()});
   function status(message){el("grpStatus").textContent=message}
@@ -212,7 +252,7 @@ export function createResultPreview(){
   }
   function open(id,report){
     folderLookupToken++;
-    cleanup();
+    cleanup();clearMatches();
     const key=fileKey(id,report);current={key,report};
     el("grpTitle").textContent=safe(report.name)+" · 제출 결과물";
     el("grpInfo").textContent="제출 파일: "+safe(report.fileName);
