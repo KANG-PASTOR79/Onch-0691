@@ -33,7 +33,7 @@ input:focus{outline:2px solid #dbbc82;outline-offset:1px}
  </section>
  <section class="card">
   <h2>1 · 제출자 정보 확인</h2>
-  <p class="muted">제출자 이름만 입력하세요. 이름과 실제 제출 파일명은 강사 확인을 위해 비공개로 저장됩니다.</p>
+  <p class="muted">제출자 이름을 입력하고 파일 종류를 선택해 주세요. 실제 업로드할 파일 이름을 아래 권장 파일명과 똑같이 변경해 주셔야 강사가 결과물을 확인할 수 있습니다.</p>
   <div class="formgrid">
    <div><label for="submitName">이름</label><input id="submitName" type="text" maxlength="35" placeholder="예: 홍길동" autocomplete="name"></div>
   </div>
@@ -56,23 +56,13 @@ input:focus{outline:2px solid #dbbc82;outline-offset:1px}
   <div class="step"><b>③</b><p>아래 버튼으로 MEGA 파일 요청 페이지를 엽니다. 업로드 과정에서 이름을 묻는 경우 실제 제출자 이름을 적습니다.</p></div>
   <a class="cta" id="megaLink" href="https://mega.nz/filerequest/MwN2xydC7XQ" target="_blank" rel="noopener noreferrer">↗ MEGA에 실습 결과물 제출하기</a>
   <p class="smallNote">새 탭에서 MEGA 사이트가 열립니다. 파일을 실제로 업로드하고 MEGA의 완료 안내를 확인해야 제출이 끝납니다.</p>
-  <p class="smallNote">GOD119는 업로드 파일을 보관하거나 MEGA의 실제 파일 수신을 자동 확인하지 않습니다. 업로드 후 아래에서 신고하면 강사 현황판에 ‘미확인 신고’로 표시되고, 강사가 MEGA에서 확인한 뒤 ‘수신 확인 완료’로 변경합니다.</p>
- </section>
- <section class="card" id="reportSection">
-  <h2>3 · MEGA 업로드 완료 신고</h2>
-  <p>MEGA에서 파일 업로드를 마치고 완료 안내를 확인한 경우에만 아래 체크 후 신고해 주세요.</p>
-  <label for="actualUploadName"><strong>실제로 MEGA에 업로드한 파일명</strong> (확장자 포함)</label>
-  <input id="actualUploadName" type="text" maxlength="140" placeholder="예: 홍길동_실습결과.jpg" autocomplete="off" style="width:100%;box-sizing:border-box;padding:12px;margin:7px 0 12px;border-radius:8px">
-  <p class="smallNote">실제 업로드한 파일명을 정확히 적어 주세요. 업로드 파일명이 다르면 강사가 제출자를 확인하기 어렵습니다. MEGA가 추가한 업로드 ID가 보이면 파일명과 함께 알려주세요.</p>
-  <label class="flex" style="align-items:flex-start"><input id="uploadConfirmed" type="checkbox" style="width:19px;min-width:19px;min-height:19px;margin-top:4px"> <span><strong>MEGA 업로드 완료 화면을 직접 확인했습니다.</strong><br><span class="smallNote">이름·실제 파일명·파일 종류가 강사에게 전달됩니다. 실제 파일 수신은 강사가 별도로 확인합니다.</span></span></label>
-  <div class="actions"><button id="reportButton" type="button" class="primary" disabled>강사에게 제출 완료 알리기</button></div>
-  <p class="smallNote" id="reportStatus" role="status" aria-live="polite">이름과 실제 파일명을 입력하고 업로드 완료를 체크하세요. 신고에는 Firebase 익명 인증이 사용됩니다.</p>
-  <p class="smallNote">신고하기 버튼을 누르면 MEGA의 실제 업로드가 자동 확인되는 것은 아닙니다. 이름을 바꾸거나 다른 기기로 신고하면 중복될 수 있습니다.</p>
- </section>
- <section class="card">
-  <h2>4 · 제출 전 확인</h2>
-  <p>파일명에 <strong>이름·교회명·실습결과</strong>가 있는지, 파일 크기가 권장 용량 이내인지 확인해 주세요. 파일 업로드에 문제가 있으면 강사에게 알려주세요.</p>
-  <a href="./">강의 화면으로 돌아가기</a>
+  <div id="reportSection" style="margin-top:20px;padding-top:17px;border-top:1px solid #4b6981">
+    <label class="flex" style="align-items:flex-start;gap:12px"><input id="uploadConfirmed" type="checkbox" style="width:21px;min-width:21px;min-height:21px;margin-top:3px"> <span><strong>MEGA 업로드를 완료했습니다.</strong><span class="smallNote" style="display:block;margin-top:5px">내 이름으로 파일명을 변경해 업로드했고, MEGA에서 완료 화면을 확인했습니다.</span></span></label>
+    <div class="actions" style="margin-top:13px"><button id="reportButton" type="button" class="primary" disabled>✓ 제출 완료 알리기</button></div>
+    <p class="smallNote" id="reportStatus" role="status" aria-live="polite">MEGA 업로드를 완료한 뒤 체크하고 제출 완료 알리기를 눌러주세요.</p>
+    <p class="smallNote">실제 업로드 여부는 강사가 MEGA에서 확인합니다. GOD119에는 이름과 권장 파일명이 신고되며 파일 자체는 전송되지 않습니다.</p>
+  </div>
+  <p style="margin-top:16px"><a href="./">← 강의 화면으로 돌아가기</a></p>
  </section>
  <footer>GOD119 · AI 목회자 세미나 | 외부 클라우드 MEGA 파일 요청 사용</footer>
 </main>
@@ -86,9 +76,9 @@ function filename(){return(clean(name.value)||"이름")+"_실습결과"+kind.val
 function reportKind(){return kind.value===".mp4"?"mp4":kind.value===".pdf"?"pdf":kind.value===".txt"?"text":"image"}
 function update(){
  display.textContent=filename();
- $("reportButton").disabled=!ready||!name.value.trim()||!$("actualUploadName").value.trim()||!$("uploadConfirmed").checked;
+ $("reportButton").disabled=!ready||!name.value.trim()||!$("uploadConfirmed").checked;
 }
-[name,kind,$("uploadConfirmed"),$("actualUploadName")].forEach(el=>el.addEventListener("input",update));
+[name,kind,$("uploadConfirmed")].forEach(el=>el.addEventListener("input",update));
 $("copyFilename").onclick=async()=>{
  const feedback=$("copyFeedback");
  if(!clean(name.value)){feedback.textContent="먼저 제출자 이름을 입력해 주세요.";return}
@@ -116,13 +106,13 @@ async function connect(){
   const [app,authentication,database]=await Promise.all([import(host+"firebase-app.js"),import(host+"firebase-auth.js"),import(host+"firebase-database.js")]);
   a=authentication;d=database;auth=a.getAuth(app.initializeApp(conf));db=d.getDatabase();
   ready=true;update();
-  msg("MEGA 업로드 후 정보를 입력하고 '제출 완료 알리기'를 눌러주세요.");
+  msg("MEGA 업로드를 마친 후 체크하고 제출 완료 알리기를 눌러주세요.");
   a.onAuthStateChanged(auth,user=>{ownRecord(user)});
  }catch(e){msg("Firebase 연결에 실패했습니다. 인터넷 연결 후 새로고침하세요.",true)}
 }
 $("reportButton").onclick=async()=>{
- if(!ready||!name.value.trim()||!$("actualUploadName").value.trim()||!$("uploadConfirmed").checked)return;
- const report={name:name.value.trim().slice(0,35),church:"미기재",kind:reportKind(),fileName:$("actualUploadName").value.trim().slice(0,140),at:d.serverTimestamp()};
+ if(!ready||!name.value.trim()||!$("uploadConfirmed").checked)return;
+ const report={name:name.value.trim().slice(0,35),church:"미기재",kind:reportKind(),fileName:filename().slice(0,140),at:d.serverTimestamp()};
  const button=$("reportButton");button.disabled=true;
  msg("제출 신고를 전송하고 있습니다…");
  try{
@@ -131,7 +121,8 @@ $("reportButton").onclick=async()=>{
   let user=auth.currentUser;
   if(!user)user=(await a.signInAnonymously(auth)).user;
   await d.set(d.ref(db,"submissions/god119-seminar/"+user.uid+"/report"),report);
-  msg("제출 신고가 강사에게 전달되었습니다. 실제 파일 확인은 강사님이 MEGA에서 진행합니다.");
+  $("uploadConfirmed").checked=false;
+  msg("✓ 제출 완료 알림이 강사에게 전달되었습니다. 실제 파일은 강사가 MEGA에서 확인합니다.");
  }catch(e){
   const errorCode=String(e?.code||"");
   msg(errorCode.includes("operation-not-allowed")?
