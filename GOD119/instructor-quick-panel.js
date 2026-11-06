@@ -93,7 +93,7 @@ export function createInstructorQuickPanel({getState}){
  let uid=null,unsub=[],roster={},submitted={},rReady=false,sReady=false,known=null,writing=new Set();
  let viewerPromise=null;
  function showResult(id,report){
-  if(!viewerPromise)viewerPromise=import("./submission-result-preview.js?v=local-folder-autoview-20261106")
+  if(!viewerPromise)viewerPromise=import("./submission-result-preview.js?v=name-only-preview-20261106")
    .then(mod=>mod.createResultPreview())
    .catch(error=>{viewerPromise=null;throw error});
   viewerPromise.then(v=>v.open(id,report))
