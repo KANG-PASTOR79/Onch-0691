@@ -18,6 +18,13 @@
 .file-types-note strong{color:#ffdfa1;font-weight:900;margin-right:12px}
 input:focus{outline:2px solid #dbbc82;outline-offset:1px}
 .cta[aria-disabled="true"]{opacity:.48;cursor:not-allowed}
+.submission-complete{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-top:18px}
+.complete-check{display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:700;font-size:clamp(15px,1.7vw,19px);line-height:1.5}
+.complete-check input{width:22px;height:22px;min-width:22px;margin:0;accent-color:#f0ae56}
+.submission-complete .primary{font-size:clamp(15px,1.7vw,18px);white-space:normal}
+#reportStatus{margin:13px 0 0;line-height:1.65}
+.back-link{margin:18px 0 0}
+@media(max-width:600px){.submission-complete{align-items:stretch}.submission-complete .primary{width:100%}}
 </style>
 </head>
 <body>
@@ -35,15 +42,15 @@ input:focus{outline:2px solid #dbbc82;outline-offset:1px}
  <section class="card">
   <h2>2 · 결과물 제출</h2>
   <a class="cta" id="megaLink" href="https://mega.nz/filerequest/MwN2xydC7XQ" target="_blank" rel="noopener noreferrer" aria-disabled="true">📤 파일 제출하기</a>
- </section>
- <section class="card">
-  <h2>3 · 업로드 완료 확인</h2>
-  <div id="reportSection" style="margin-top:20px;padding-top:17px;border-top:1px solid #4b6981">
-    <label class="flex" style="align-items:flex-start;gap:12px"><input id="uploadConfirmed" type="checkbox" style="width:21px;min-width:21px;min-height:21px;margin-top:3px"> <span><strong>MEGA에서 파일 업로드를 완료했습니다.</strong><span class="smallNote" style="display:block;margin-top:5px">MEGA의 업로드 완료 화면을 확인하셨을 때만 체크해 주세요.</span></span></label>
-    <div class="actions" style="margin-top:13px"><button id="reportButton" type="button" class="primary" disabled>✓ 결과물 제출 완료 알리기</button></div>
-    <p class="smallNote" id="reportStatus" role="status" aria-live="polite">「파일 제출하기」로 MEGA에 업로드한 뒤 완료를 알려주세요.</p>
+  <div id="reportSection" class="submission-complete">
+   <label class="complete-check" for="uploadConfirmed">
+    <input id="uploadConfirmed" type="checkbox">
+    <span>MEGA에서 업로드를 완료했습니다.</span>
+   </label>
+   <button id="reportButton" type="button" class="primary" disabled>✓ 제출 완료 알리기</button>
   </div>
-  <p style="margin-top:16px"><a href="./">← 강의 화면으로 돌아가기</a></p>
+  <p class="smallNote" id="reportStatus" role="status" aria-live="polite">MEGA에서 파일을 올린 다음 체크하고 완료를 알려주세요.</p>
+  <p class="back-link"><a href="./">← 강의 화면으로 돌아가기</a></p>
  </section>
  <footer>GOD119 · AI 목회자 세미나 | 외부 클라우드 MEGA 파일 요청 사용</footer>
 </main>
@@ -95,7 +102,7 @@ async function identify(user){
   participant={uid:user.uid,name:safe(p.name).slice(0,35),church:safe(p.church).slice(0,60)};
   $("submitIdentity").textContent="✓ "+participant.name+" · "+(participant.church||"교회 미기재")+" · 계정 연결 완료";
   ready=true;update();
-  msg("「파일 제출하기」로 MEGA에 업로드한 후 이 페이지에서 완료를 알려주세요.");
+  msg("MEGA 업로드 후 체크하고 「제출 완료 알리기」를 눌러주세요.");
   ownRecord(user);
  }catch(e){$("submitIdentity").textContent="출석 등록 확인에 실패했습니다.";msg("출석 등록을 읽을 권한이 없습니다. 기존 강의실에서 다시 접속해 주세요.",true)}
 }
