@@ -15,38 +15,8 @@
 .cta{display:block;text-align:center;background:linear-gradient(110deg,#f7d48f,#f0ae56);color:#18283a!important;text-decoration:none;font-weight:800;padding:15px 16px;border-radius:12px;margin:17px 0 6px}
 .smallNote{font-size:12px;color:#bbcbdb}
 input:focus{outline:2px solid #dbbc82;outline-offset:1px}
-/* Highlight the free and no-rename workflow. */
-.upload-highlight{
-  position:relative;isolation:isolate;overflow:hidden;
-  margin:18px 0 21px;padding:22px 24px;
-  border:3px solid #ffe08a;border-radius:16px;
-  background:linear-gradient(105deg,#153b5b,#286188 48%,#153b5b);
-  color:#ffe5a1;text-align:center;
-  font-size:clamp(22px,2.4vw,35px);font-weight:900;line-height:1.65;
-  letter-spacing:-.035em;
-  text-shadow:0 0 8px #ffd47e9c,0 2px 5px #000b;
-  box-shadow:0 0 14px #ffcd6d88,0 0 36px #ffcd6d55,inset 0 0 15px #fff2bb2c;
-  animation:god119UploadFlash .85s ease-in-out infinite alternate;
-}
-.upload-highlight strong{position:relative;z-index:2;font-weight:900}
-.upload-highlight::after{
-  content:"";position:absolute;inset:-80% auto -80% -60%;width:35%;
-  transform:skewX(-20deg);pointer-events:none;
-  background:linear-gradient(90deg,transparent,#fff6c700 20%,#fffbe2ba 50%,#fff6c700 80%,transparent);
-  animation:god119UploadShine 1.55s ease-in-out infinite;
-}
-@keyframes god119UploadFlash{
-  from{filter:brightness(1);box-shadow:0 0 8px #ffc76866,0 0 22px #ffc76844,inset 0 0 8px #fff2bb1c}
-  to{filter:brightness(1.38);box-shadow:0 0 22px #ffcf83e6,0 0 50px #ffd880a6,inset 0 0 22px #fff2bb66}
-}
-@keyframes god119UploadShine{
-  from{left:-60%}to{left:135%}
-}
-@media(prefers-reduced-motion:reduce){
-  .upload-highlight,.upload-highlight::after{animation:none}
-  .upload-highlight{filter:none}
-  .upload-highlight::after{display:none}
-}
+.cta[aria-disabled="true"]{opacity:.48;cursor:not-allowed}
+.submit-hint{font-size:13px;color:#deebf3;line-height:1.7;background:#102f46;border:1px solid #466e86;border-radius:9px;padding:12px;margin:10px 0 16px}
 </style>
 </head>
 <body>
@@ -72,20 +42,19 @@ input:focus{outline:2px solid #dbbc82;outline-offset:1px}
  </section>
  <section class="card">
   <h2>2 · 결과물 파일 선택</h2>
-  <p class="upload-highlight">📌 <strong>파일명을 바꿀 필요 없습니다!<br>그냥 파일을 선택하세요.</strong></p>
   <label for="submissionFiles">제출할 결과물 (여러 개 동시 선택 가능)</label>
   <input type="file" id="submissionFiles" multiple accept=".pdf,.docx,.pptx,.xlsx,.hwp,.hwpx,.zip,.png,.jpg,.jpeg,.webp,.gif,.txt,.md,.csv,.mp4,.webm" style="width:100%;padding:12px;border:1px solid #7ba2bd;border-radius:9px;background:#0b263b;color:white;box-sizing:border-box">
   <div class="filename" id="selectedFileNames" aria-live="polite">아직 파일을 선택하지 않았습니다.</div>
-  <p class="smallNote">GOD119는 파일 내용의 식별값만 계산해 기록합니다. 이 단계에서 파일은 업로드되지 않습니다. 무료 저장 공간을 아끼기 위해 1인당 총 250MB 이내를 권장합니다.</p>
+  <p class="smallNote">선택한 파일은 강사 화면의 참석자 이름과 연결할 식별값을 만드는 데 사용합니다. 여기서 아직 업로드되지 않습니다.</p>
+  <a class="cta" id="megaLink" href="https://mega.nz/filerequest/MwN2xydC7XQ" target="_blank" rel="noopener noreferrer" aria-disabled="true">📤 파일 제출하기 · MEGA 업로드 화면 열기</a>
+  <p class="submit-hint"><b>선택한 파일의 전송은 MEGA에서 이루어집니다.</b> 노란 버튼을 누른 후 열리는 MEGA 화면에서 같은 파일을 다시 선택해 업로드해 주세요. <b>파일명은 변경하지 마세요.</b> 현재 무료 MEGA 방식에서는 첫 번째 파일 선택을 다른 사이트에 자동 전달할 수 없습니다.</p>
  </section>
  <section class="card">
-  <h2>3 · MEGA에 같은 파일 업로드</h2>
-  <a class="cta" id="megaLink" href="https://mega.nz/filerequest/MwN2xydC7XQ" target="_blank" rel="noopener noreferrer">↗ MEGA 무료 제출함 열기 · 같은 파일 선택</a>
-  <p class="smallNote">새 창의 MEGA에서 <b>2단계에서 선택한 동일한 파일</b>을 다시 선택하고 업로드 완료까지 진행하세요. 파일 이름을 바꾸거나 제출자 이름을 파일명에 붙일 필요는 없습니다.</p>
+  <h2>3 · 업로드 완료 확인</h2>
   <div id="reportSection" style="margin-top:20px;padding-top:17px;border-top:1px solid #4b6981">
     <label class="flex" style="align-items:flex-start;gap:12px"><input id="uploadConfirmed" type="checkbox" style="width:21px;min-width:21px;min-height:21px;margin-top:3px"> <span><strong>MEGA에서 같은 파일을 모두 업로드했습니다.</strong><span class="smallNote" style="display:block;margin-top:5px">MEGA의 업로드 완료 화면을 확인하셨을 때만 체크해 주세요.</span></span></label>
     <div class="actions" style="margin-top:13px"><button id="reportButton" type="button" class="primary" disabled>✓ 결과물 제출 완료 알리기</button></div>
-    <p class="smallNote" id="reportStatus" role="status" aria-live="polite">1단계 출석 등록 · 2단계 파일 선택 · 3단계 MEGA 업로드 후 제출 버튼을 누르세요.</p>
+    <p class="smallNote" id="reportStatus" role="status" aria-live="polite">파일 선택 → 노란 제출 버튼으로 MEGA 업로드 → 여기에서 제출 완료 알리기 순서입니다.</p>
     <p class="smallNote">선택한 파일의 크기와 내용 식별값을 해당 참석자의 계정에 기록합니다. 파일 자체는 MEGA에 보관되며, 강사 화면은 동기화 폴더에서 내용이 같은 파일을 찾습니다. 완전히 동일한 파일이 여러 개 있으면 강사가 선택해야 할 수 있습니다.</p>
   </div>
   <p style="margin-top:16px"><a href="./">← 강의 화면으로 돌아가기</a></p>
@@ -101,7 +70,9 @@ let auth=null,db=null,a=null,d=null,ready=false,watch=null,participant=null,sele
 const safe=t=>String(t??"").trim().slice(0,140);
 function msg(message,isError=false){$("reportStatus").textContent=message;$("reportStatus").className=isError?"error":"smallNote"}
 function update(){
- $("reportButton").disabled=!ready||!participant||!selectedFiles.length||!$("uploadConfirmed").checked;
+ const canUpload=!!(ready&&participant&&selectedFiles.length);
+ $("megaLink").setAttribute("aria-disabled",String(!canUpload));
+ $("reportButton").disabled=!canUpload||!$("uploadConfirmed").checked;
 }
 function formatSize(n){return n<1024*1024?Math.ceil(n/1024)+"KB":(n/(1024*1024)).toFixed(1)+"MB"}
 submissionFiles.addEventListener("change",()=>{
@@ -115,8 +86,8 @@ submissionFiles.addEventListener("change",()=>{
 });
 $("uploadConfirmed").addEventListener("change",update);
 $("megaLink").addEventListener("click",e=>{
- if(selectedFiles.length)return;
- e.preventDefault();msg("먼저 2단계에서 결과물 파일을 선택해 주세요.",true);
+ if(ready&&participant&&selectedFiles.length)return;
+ e.preventDefault();msg("먼저 출석 등록을 확인하고 2단계에서 결과물 파일을 선택해 주세요.",true);
  submissionFiles.focus();
 });
 function ownRecord(user){
