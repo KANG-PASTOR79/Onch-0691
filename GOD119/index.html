@@ -1477,7 +1477,7 @@ d.onValue(d.ref(db,remote("resourceLinks/newTestamentPdf")),snapshot=>{
  if(slide===31)showResources(31);
 },error=>{if(slide===31)notify("신약주석 공유 링크를 읽지 못했습니다.")});
 d.onValue(d.ref(db,remote("pointer")),s=>{if(teacher&&allowed&&tool==="laser")return;const p=s.val();$("laser").hidden=!(p&&p.active&&Date.now()-(p.at||0)<2500);if(!$("laser").hidden){$("laser").style.left=p.x*100+"%";$("laser").style.top=p.y*100+"%";clearTimeout(laserTimeout);laserTimeout=setTimeout(()=>$("laser").hidden=true,750)}});
-binding();b.onAuthStateChanged(auth,u=>{user=u;allowed=teacher&&!!u;permission();if(teacher){installPrivateNotebook56FromLink();attendanceAlerts?.sync();instructorQuickPanel?.sync()}else loadAttendeeProfile(u)});
+binding();b.onAuthStateChanged(auth,u=>{user=u;allowed=teacher&&!!u;permission();if(teacher){installPrivateNotebook56FromLink();attendanceAlerts?.sync();instructorQuickPanel?.sync();if(allowed)sharedLinks?.cleanupRemovedSlide7Link?.()}else loadAttendeeProfile(u)});
 $("login").onclick=async()=>{try{await b.signInWithPopup(auth,new b.GoogleAuthProvider())}catch(e){notify("Google 로그인 설정을 확인하세요.")}};
 $("logout").onclick=()=>b.signOut(auth);
 }catch(e){allowed=false;permission();status("Firebase 설정 오류",false)}}
@@ -1573,7 +1573,7 @@ permission();show();fit();if(teacher&&allowed)installPrivateNotebook56FromLink()
  }catch(_){}
 })();
 // Isolated optional module: a link-sharing problem must never stop the lecture.
-import("./shared-links.js?v=seminar-folder-fast-20261105").then(({createSharedLinks})=>{
+import("./shared-links.js?v=cafe07-reverted-cleanup-20261106").then(({createSharedLinks})=>{
  sharedLinks=createSharedLinks({
   getState:()=>({teacher,allowed,slide,F,db,room}),
   resources:slideResources,notify
