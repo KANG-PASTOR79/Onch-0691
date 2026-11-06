@@ -12,7 +12,14 @@ export function createInstructorQuickPanel({getState}){
  '#gq input[type=search]{display:block;width:100%;box-sizing:border-box;background:#0c2b3d;color:#fff;border:1px solid #7195a9;border-radius:8px;padding:9px;margin-bottom:8px;font-size:12px}',
  '#gq .list{max-height:300px;overflow-y:auto;overscroll-behavior:contain;display:grid;gap:6px;padding-right:2px}',
  '#gq .item{display:flex;gap:7px;justify-content:space-between;align-items:center;border:1px solid #55798e;border-radius:8px;background:#0c293c;padding:9px}',
- '#gq .person{min-width:0;flex:1;overflow-wrap:anywhere}',
+ '#gq .person{min-width:0;flex:1;overflow-wrap:break-word}',
+ '#gq .item.submission-item{flex-direction:column;align-items:stretch;justify-content:flex-start;gap:10px}',
+ '#gq .submission-item .person{width:100%;min-width:0;flex:none;overflow-wrap:break-word;word-break:normal}',
+ '#gq .submission-item .person b{font-size:13px;line-height:1.5;white-space:normal}',
+ '#gq .submission-item .person small{font-size:12px;line-height:1.6;overflow-wrap:anywhere;word-break:break-word}',
+ '#gq .submission-item .submission-buttons{width:100%;flex:none;justify-content:flex-start;gap:6px}',
+ '#gq .submission-item .submission-buttons button{flex:1 1 95px;min-width:0;white-space:normal;line-height:1.4;padding:9px 5px}',
+
  '#gq .person b{display:block;font-size:12px;color:#fff}',
  '#gq .person small{display:block;font-size:11px;color:#cbdeeb;line-height:1.5;margin-top:2px}',
  '#gq .state{flex-shrink:0;color:#f7d398;font-size:11px}',
@@ -125,6 +132,7 @@ export function createInstructorQuickPanel({getState}){
   if(!selection.length)empty(submitList,sReady?'아직 제출 신고가 없거나 검색 결과가 없습니다.':'제출 현황을 불러오는 중…');
   for(const v of selection){
    const item=row(v.r.name,v.r.church,v.r.fileName);
+   item.classList.add('submission-item');
    const actions=document.createElement('div');actions.className='submission-buttons';
    const view=document.createElement('button');view.type='button';view.className='result-view';
    view.textContent='📄 결과물 보기';view.title='파일을 선택하거나 개별 MEGA 파일 링크를 연결하여 미리 봅니다.';
