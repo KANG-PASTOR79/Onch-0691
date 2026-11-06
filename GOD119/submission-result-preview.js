@@ -31,7 +31,13 @@ export function createResultPreview(){
     '#godResultPreview .matchesTitle{font-weight:800;color:#ffe1a8;margin:5px 0 0}',
     '#godResultPreview .folder-help b{color:#fff2c4}',
     '#godResultPreview [hidden]{display:none!important}',
-    '#godResultPreview.simple-mode .actions:has(#grpUrl),#godResultPreview.simple-mode .actions #grpFolder,#godResultPreview.simple-mode .actions #grpFolderRetry,#godResultPreview.simple-mode .actions label:has(#grpFile),#godResultPreview.simple-mode .actions #grpDelete,#godResultPreview.simple-mode #grpFolderHelp{display:none!important}',
+    '#godResultPreview.simple-mode .actions #grpFolder,#godResultPreview.simple-mode .actions #grpFolderRetry,#godResultPreview.simple-mode .actions label:has(#grpFile),#godResultPreview.simple-mode .actions #grpMega,#godResultPreview.simple-mode #grpFolderHelp{display:none!important}',
+    '#godResultPreview.simple-mode #grpLinkRow{display:flex;align-items:stretch;gap:8px}',
+    '#godResultPreview.simple-mode #grpLinkRow input{font-size:14px;min-height:45px}',
+    '#godResultPreview.simple-mode #grpLinkRow button{min-height:45px;font-size:13px}',
+    '#godResultPreview.simple-mode #grpLocalPick{padding:14px 16px;border-color:#aed0e1;font-size:15px}',
+    '#godResultPreview.simple-mode #grpMegaInstructions{font-size:14px;line-height:1.7}',
+    '@media(max-width:700px){#godResultPreview.simple-mode #grpLinkRow input{flex-basis:100%}#godResultPreview.simple-mode #grpLinkRow{flex-wrap:wrap}}',
     '#godResultPreview.simple-mode #grpSecurePick{font-size:clamp(18px,2.5vw,24px);padding:20px 15px;flex:1;line-height:1.6;min-width:260px}',
     '#godResultPreview.simple-mode #grpInfo{color:#ffe0a2;font-weight:750;font-size:15px;line-height:1.7}',
     '#godResultPreview.simple-mode #grpStatus{font-weight:700;color:#ffdfa2;font-size:14px;line-height:1.6}',
@@ -45,10 +51,12 @@ export function createResultPreview(){
     '<div class="sheet" role="dialog" aria-modal="true" aria-label="강사 전용 제출 결과물 보기">',
     '<div class="title"><b id="grpTitle">제출 결과물 보기</b><button id="grpClose" type="button">닫기 ✕</button></div>',
     '<div class="meta" id="grpInfo"></div>',
-    '<div class="actions"><input type="url" id="grpUrl" autocomplete="off" placeholder="https://mega.nz/file/...#..."><button id="grpSave" type="button">링크 저장 · 열기</button></div>',
-    '<div class="actions"><button type="button" class="primary-local" id="grpSecurePick" hidden>🔒 이 참석자의 파일 직접 연결</button><button type="button" id="grpClearPicked" hidden>연결 해제</button><button type="button" class="primary-local" id="grpFolder">📁 제출물 보관 폴더 연결</button><button type="button" id="grpFolderRetry">↻ 연결된 폴더에서 찾기</button></div>',
+    '<div class="meta" id="grpLinkIntro">파일의 MEGA 개별 공유 링크가 있으면 아래에 입력할 수 있습니다.</div>',
+    '<div class="actions"><button type="button" class="primary-local" id="grpSecurePick" hidden>↗ MEGA 보관함에서 제출물 찾기</button><button type="button" id="grpLocalPick" hidden>📂 맥북 동기화 폴더에서 파일 선택 · 바로 보기</button><button type="button" id="grpClearPicked" hidden>파일 연결 해제</button><button type="button" class="primary-local" id="grpFolder">📁 제출물 보관 폴더 연결</button><button type="button" id="grpFolderRetry">↻ 연결된 폴더에서 찾기</button></div>',
+    '<div class="folder-help" id="grpMegaInstructions" hidden>MEGA 보관함에서 해당 참석자의 파일을 확인하고 <b>개별 파일의 링크 가져오기</b>를 선택하세요. 복사한 링크를 아래에 붙여넣고 “링크 연결 · 미리보기”를 누르면 GOD119에서 열기를 시도합니다. 개별 링크는 가진 사람이 접근할 수 있으니 외부에 공유하지 마세요. MEGA 제출 요청 주소는 파일 미리보기 주소가 아닙니다.</div>',
+    '<div class="actions" id="grpLinkRow"><input type="url" id="grpUrl" autocomplete="off" aria-label="MEGA 개별 파일 링크" placeholder="https://mega.nz/file/...#..."><button id="grpSave" type="button">링크 연결 · 미리보기</button><button id="grpDelete" type="button">저장 링크 해제</button></div>',
     '<div class="folder-help" id="grpFolderHelp">간편 제출은 파일 식별값이 없으므로 자동 검색할 수 없습니다. 해당 참석자의 파일을 강사가 직접 확인한 뒤에만 연결합니다. 다른 참석자의 파일 목록은 보여 주지 않습니다.</div>',
-    '<div class="actions"><label>개별 파일 직접 선택 <input id="grpFile" type="file" accept=".pdf,.docx,.png,.jpg,.jpeg,.webp,.gif,.txt,.md,.csv,.mp4,.webm"></label><button id="grpMega" type="button">MEGA 파일 보관함 열기 ↗</button><button id="grpDelete" type="button">저장 링크 지우기</button></div>',
+    '<div class="actions"><label>개별 파일 직접 선택 <input id="grpFile" type="file" accept=".pdf,.docx,.png,.jpg,.jpeg,.webp,.gif,.txt,.md,.csv,.mp4,.webm"></label><button id="grpMega" type="button">MEGA 파일 보관함 열기 ↗</button></div>',
     '<div class="meta" id="grpStatus" role="status">선택한 파일이나 개별 공유 링크만 표시합니다.</div>',
     '<div class="matchesTitle" id="grpMatchesTitle" hidden>찾은 파일을 선택해 주세요</div>',
     '<div class="matches" id="grpMatches" hidden aria-label="제출 결과물 후보 목록"></div>',
@@ -309,12 +317,17 @@ export function createResultPreview(){
     }catch(e){if(e?.name!=="AbortError")status("폴더 연결에 실패했습니다. 브라우저 권한을 확인해 주세요.")}
   };
   el("grpFolderRetry").onclick=()=>previewFromFolder(++folderLookupToken,true);
-  el("grpSecurePick").onclick=async()=>{
+  el("grpSecurePick").onclick=()=>{
+    if(!current)return;
+    window.open("https://mega.nz/fm","_blank","noopener,noreferrer");
+    status("MEGA 보관함에서 이 참석자의 파일을 찾은 뒤, 개별 파일 공유 링크를 복사해 아래 입력창에 붙여넣으세요. 제출 요청 링크는 사용하지 않습니다.");
+  };
+  el("grpLocalPick").onclick=async()=>{
     const selected=current;
     if(!selected||((Array.isArray(selected.report.files)&&selected.report.files.length?selected.report.files:unpackFileFingerprints(selected.report.fileName)).some(f=>f&&typeof f.hash==="string"&&Number.isFinite(f.size))))return;
     const token=folderLookupToken,key=selected.key;
     if(typeof window.showOpenFilePicker!=="function"){
-      status("파일 연결 저장을 지원하지 않는 브라우저입니다. 아래 ‘개별 파일 직접 선택’을 사용하세요.");
+      status("이 브라우저에서는 맥북 파일 연결 기능이 제한됩니다. MEGA 개별 파일 링크를 붙여넣거나 파일 직접 선택을 이용하세요.");
       el("grpFile").click();return;
     }
     try{
@@ -337,7 +350,7 @@ export function createResultPreview(){
       }catch(_){
         status("✓ 파일 미리보기를 열었습니다. 브라우저 저장이 제한되어 다음에 다시 선택해야 할 수 있습니다.");
       }
-    }catch(e){if(e?.name!=="AbortError")status("파일 선택 또는 저장에 실패했습니다. 아래에서 개별 파일을 직접 선택해 주세요.")}
+    }catch(e){if(e?.name!=="AbortError")status("맥북 파일 선택 또는 저장에 실패했습니다. MEGA에서 개별 파일 링크를 복사해 붙여넣는 방법을 이용해 주세요.")}
   };
   el("grpClearPicked").onclick=async()=>{
     if(!current)return;
@@ -436,12 +449,18 @@ export function createResultPreview(){
     const simple=!displayFiles.some(f=>f&&typeof f.hash==="string"&&Number.isFinite(f.size));
     el("grpInfo").textContent=displayFiles.length&&!simple?
       "제출 파일 "+displayFiles.length+"개 · 파일 내용 식별값으로 일치하는 자료를 확인합니다":
-      simple?"이 참석자의 파일이 아직 연결되지 않았습니다. 아래 노란 버튼으로 MEGA 동기화 폴더의 실제 파일을 선택하세요.":
+      simple?"아직 제출 파일이 연결되지 않았습니다. 노란 버튼으로 MEGA 보관함을 열어 해당 파일의 링크를 복사하거나, 맥북 동기화 폴더에서 직접 선택해 주세요.":
       "기존 제출 파일명: "+safe(report.fileName);
     modal.classList.toggle("simple-mode",simple);
     el("grpSecurePick").hidden=!simple;
+    el("grpLocalPick").hidden=!simple;
+    el("grpMegaInstructions").hidden=!simple;
+    el("grpLinkIntro").hidden=simple;
     el("grpClearPicked").hidden=true;
-    if(simple)el("grpSecurePick").textContent="📂 "+safe(report.name)+"님의 파일 선택 → 바로 보기";
+    if(simple){
+      el("grpSecurePick").textContent="↗ MEGA 보관함에서 "+safe(report.name)+"님의 파일 찾기";
+      el("grpLocalPick").textContent="📂 맥북 동기화 폴더에서 파일 선택 · 바로 보기";
+    }
     el("grpFolder").hidden=simple;
     el("grpFolderRetry").hidden=simple;
     el("grpFolderHelp").textContent=simple?
@@ -453,7 +472,7 @@ export function createResultPreview(){
     if(links[key]&&!displayFiles.length)loadLink(links[key]);
     else {
       const p=document.createElement("p");p.textContent=simple?
-        "① MEGA에서 참석자의 실제 파일을 확인합니다. ② 노란색 '파일 선택 → 바로 보기' 버튼을 눌러 해당 파일을 선택합니다. ③ 확인을 누르면 여기에서 이미지가 열립니다. 다른 참석자의 파일은 검색하거나 표시하지 않습니다.":
+        "MEGA에서는 이 참석자의 제출 파일을 확인하고 개별 파일 공유 링크를 복사해 위에 붙여넣으세요. 맥북 동기화 폴더에 이미 내려받은 파일이라면 '맥북 동기화 폴더에서 파일 선택'을 누르면 곧바로 미리보기를 할 수 있습니다. 다른 참석자의 파일은 자동으로 표시하지 않습니다.":
         "연결된 보관 폴더에서 파일 식별값을 확인 중입니다.";el("grpCanvas").appendChild(p);
       status(simple?"해당 참석자 파일 확인이 필요합니다.":"연결된 보관 폴더 검색 중…");
       previewFromFolder(folderLookupToken);
@@ -462,9 +481,10 @@ export function createResultPreview(){
   el("grpSave").onclick=()=>{
     if(!current)return;
     const url=validate(el("grpUrl").value);
-    if(!url){status("MEGA 개별 파일 공유 링크(mega.nz/file/...#...)를 입력해 주세요. 계정/폴더 주소는 허용하지 않습니다.");return}
+    if(!url){status("MEGA에서 복사한 개별 파일 링크(https://mega.nz/file/...#...)를 입력해 주세요. 파일 제출 요청이나 보관함 주소는 미리보기에 사용할 수 없습니다.");return}
+    if(!window.confirm("이 링크가 “"+String(current.report.name||"해당 참석자").slice(0,35)+"”님의 실제 제출 파일이 맞습니까? 다른 참석자 자료가 섞이지 않도록 확인해 주세요."))return;
     links[current.key]=url;
-    try{localStorage.setItem(storeKey,JSON.stringify(links))}catch(_){status("링크 저장은 차단되었지만 지금 파일은 열 수 있습니다.")}
+    try{localStorage.setItem(storeKey,JSON.stringify(links))}catch(_){status("연결 링크를 이 브라우저에 저장하지 못했습니다. 현재는 미리보기를 시도합니다.")}
     loadLink(url);
   };
   el("grpFile").onchange=()=>{
