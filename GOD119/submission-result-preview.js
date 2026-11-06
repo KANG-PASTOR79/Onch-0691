@@ -1,6 +1,6 @@
 import {unpackFileFingerprints} from "./submission-file-fingerprint.js?v=2";
-// Instructor-only submission preview. File-request reports only contain filenames,
-// so an individual file share URL or locally selected file is needed once.
+// Instructor-only submission preview. Simple MEGA reports do not contain file hashes;
+// instructors can verify MEGA uploads or attach a private individual share URL.
 export function createResultPreview(){
   const storeKey="god119-private-submission-links-v1";
   let links={};
@@ -36,12 +36,12 @@ export function createResultPreview(){
     '<div class="meta" id="grpInfo"></div>',
     '<div class="actions"><input type="url" id="grpUrl" autocomplete="off" placeholder="https://mega.nz/file/...#..."><button id="grpSave" type="button">링크 저장 · 열기</button></div>',
     '<div class="actions"><button type="button" class="primary-local" id="grpFolder">📁 제출물 보관 폴더 연결</button><button type="button" id="grpFolderRetry">↻ 연결된 폴더에서 찾기</button></div>',
-    '<div class="folder-help" id="grpFolderHelp">MEGA 데스크톱에서 동기화한 결과물 폴더를 한 번 연결해 주세요. 새 제출물은 파일 이름이 달라도 내용 식별값으로 찾아냅니다. 기존 제출물은 파일명으로 검색합니다. 폴더 내용은 다른 서버로 전송되지 않습니다.</div>',
+    '<div class="folder-help" id="grpFolderHelp">MEGA 데스크톱에서 동기화한 결과물 폴더를 한 번 연결해 주세요. 내용 식별값이 있는 제출물은 자동으로 찾아냅니다. 간편 제출은 MEGA에서 직접 확인해야 할 수 있습니다. 폴더 내용은 다른 서버로 전송되지 않습니다.</div>',
     '<div class="actions"><label>개별 파일 직접 선택 <input id="grpFile" type="file" accept=".pdf,.docx,.png,.jpg,.jpeg,.webp,.gif,.txt,.md,.csv,.mp4,.webm"></label><button id="grpMega" type="button">MEGA 파일 보관함 열기 ↗</button><button id="grpDelete" type="button">저장 링크 지우기</button></div>',
     '<div class="meta" id="grpStatus" role="status">선택한 파일이나 개별 공유 링크만 표시합니다.</div>',
     '<div class="matches" id="grpMatches" hidden aria-label="이름으로 찾은 제출 결과물 목록"></div>',
     '<div class="canvas" id="grpCanvas"><p>해당 제출물 파일을 연결하면 여기에서 볼 수 있습니다.</p></div>',
-    '<div class="meta">파일은 기존 MEGA 무료 보관함에 저장됩니다. 새 제출 기록은 파일 내용의 식별값으로 참석자 계정과 연결하며, 검색과 미리보기는 이 컴퓨터 안에서만 진행됩니다. 파일 내용이 완전히 같은 중복 제출은 구분이 필요할 수 있습니다.</div>',
+    '<div class="meta">파일은 기존 MEGA 무료 보관함에 저장됩니다. 내용 식별값이 있는 제출물은 참석자 계정과 자동 연결됩니다. 간편 제출은 MEGA에서 직접 확인해 주세요. 검색과 미리보기는 이 컴퓨터 안에서만 진행됩니다. 파일 내용이 완전히 같은 중복 제출은 구분이 필요할 수 있습니다.</div>',
     '</div>'
   ].join("");
   document.body.appendChild(modal);
@@ -231,12 +231,13 @@ export function createResultPreview(){
         }
         return;
       }
-      status("기존 제출 기록의 파일명으로 "+safe(report.fileName)+" 찾는 중…");
+      const isSimple=report.fileName==="MEGA 업로드 완료 (간편 제출)";
+      status(isSimple?"간편 제출: 참석자 이름으로 MEGA 파일을 찾는 중…":"기존 제출 기록의 파일명으로 "+safe(report.fileName)+" 찾는 중…");
       const {matches,exact,partial}=await findInFolder(directoryHandle,report.fileName,report.name);
       if(token!==folderLookupToken||!current||current.key!==matchingKey)return;
       showMatches(matches,token,matchingKey);
       if(!matches.length){
-        status("신고 파일명 또는 제출자 이름으로 일치하는 파일을 찾지 못했습니다."+
+        status((isSimple?"간편 제출은 파일 내용 식별값이 없습니다. MEGA에서 제출자 이름과 제출 시간을 직접 확인해 주세요. ":"신고 파일명 또는 제출자 이름으로 일치하는 파일을 찾지 못했습니다. ")+
           (partial?" 검색 파일이 2500개를 넘었습니다.":"")+" 실제 파일명을 확인해 주세요.");
         return;
       }
