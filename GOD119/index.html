@@ -1612,7 +1612,7 @@ import("./slide53-plan.js?v=slide53-mega-docx-v1").then(({createSlide53Plan})=>{
 if(teacher)import("./attendance-alerts.js").then(({createAttendanceAlerts})=>{
  attendanceAlerts=createAttendanceAlerts({getState:()=>({teacher,db,F,auth,room})});
  attendanceAlerts.sync();
- return import("./instructor-quick-panel.js?v=feedback-dialog-fix-20261106");
+ return import("./instructor-quick-panel.js?v=submission-layout-fix-20261106");
 }).then(mod=>{
  instructorQuickPanel=mod.createInstructorQuickPanel({getState:()=>({teacher,db,F,auth,room})});
  instructorQuickPanel.sync();
