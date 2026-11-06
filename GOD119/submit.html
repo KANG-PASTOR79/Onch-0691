@@ -33,10 +33,9 @@ input:focus{outline:2px solid #dbbc82;outline-offset:1px}
  </section>
  <section class="card">
   <h2>1 · 제출자 정보 확인</h2>
-  <p class="muted">이름과 소속은 파일 이름을 만드는 데 사용됩니다. 아래에서 ‘제출 완료 신고’를 누르면 이 정보와 신고한 파일명이 Firebase에 비공개 저장되며 강사 화면에만 표시됩니다.</p>
+  <p class="muted">제출자 이름만 입력하세요. 이름과 실제 제출 파일명은 강사 확인을 위해 비공개로 저장됩니다.</p>
   <div class="formgrid">
    <div><label for="submitName">이름</label><input id="submitName" type="text" maxlength="35" placeholder="예: 홍길동" autocomplete="name"></div>
-   <div><label for="submitChurch">교회 · 소속</label><input id="submitChurch" type="text" maxlength="45" placeholder="예: 창원온천교회" autocomplete="organization"></div>
   </div>
   <label for="submitKind">파일 종류</label>
   <select id="submitKind">
@@ -46,7 +45,7 @@ input:focus{outline:2px solid #dbbc82;outline-offset:1px}
    <option value=".mp4">동영상 (.mp4)</option>
   </select>
   <p style="margin-top:15px;font-weight:750">권장 파일 이름</p>
-  <div class="filename" id="suggestedName" aria-live="polite">이름_교회명_실습결과.pdf</div>
+  <div class="filename" id="suggestedName" aria-live="polite">홍길동_실습결과.pdf</div>
   <div class="actions"><button id="copyFilename" type="button">권장 파일명 복사</button></div>
   <p class="smallNote" id="copyFeedback" aria-live="polite">실제 파일의 확장자는 원본 형식에 맞게 유지하세요. 예: PNG 사진은 .png, 마크다운은 .md</p>
  </section>
@@ -63,11 +62,11 @@ input:focus{outline:2px solid #dbbc82;outline-offset:1px}
   <h2>3 · MEGA 업로드 완료 신고</h2>
   <p>MEGA에서 파일 업로드를 마치고 완료 안내를 확인한 경우에만 아래 체크 후 신고해 주세요.</p>
   <label for="actualUploadName"><strong>실제로 MEGA에 업로드한 파일명</strong> (확장자 포함)</label>
-  <input id="actualUploadName" type="text" maxlength="140" placeholder="예: 홍길동_행복교회_실습결과.jpg" autocomplete="off" style="width:100%;box-sizing:border-box;padding:12px;margin:7px 0 12px;border-radius:8px">
+  <input id="actualUploadName" type="text" maxlength="140" placeholder="예: 홍길동_실습결과.jpg" autocomplete="off" style="width:100%;box-sizing:border-box;padding:12px;margin:7px 0 12px;border-radius:8px">
   <p class="smallNote">실제 업로드한 파일명을 정확히 적어 주세요. 업로드 파일명이 다르면 강사가 제출자를 확인하기 어렵습니다. MEGA가 추가한 업로드 ID가 보이면 파일명과 함께 알려주세요.</p>
-  <label class="flex" style="align-items:flex-start"><input id="uploadConfirmed" type="checkbox" style="width:19px;min-width:19px;min-height:19px;margin-top:4px"> <span><strong>MEGA 업로드 완료 화면을 직접 확인했습니다.</strong><br><span class="smallNote">이름·교회·파일 종류·신고 파일명이 강사에게 전달됩니다. 실제 업로드 여부는 강사가 별도로 확인합니다.</span></span></label>
+  <label class="flex" style="align-items:flex-start"><input id="uploadConfirmed" type="checkbox" style="width:19px;min-width:19px;min-height:19px;margin-top:4px"> <span><strong>MEGA 업로드 완료 화면을 직접 확인했습니다.</strong><br><span class="smallNote">이름·실제 파일명·파일 종류가 강사에게 전달됩니다. 실제 파일 수신은 강사가 별도로 확인합니다.</span></span></label>
   <div class="actions"><button id="reportButton" type="button" class="primary" disabled>강사에게 제출 완료 알리기</button></div>
-  <p class="smallNote" id="reportStatus" role="status" aria-live="polite">이름과 교회·소속을 입력하고 업로드 완료를 체크하세요. 신고에는 Firebase 익명 인증이 사용됩니다.</p>
+  <p class="smallNote" id="reportStatus" role="status" aria-live="polite">이름과 실제 파일명을 입력하고 업로드 완료를 체크하세요. 신고에는 Firebase 익명 인증이 사용됩니다.</p>
   <p class="smallNote">신고하기 버튼을 누르면 MEGA의 실제 업로드가 자동 확인되는 것은 아닙니다. 이름을 바꾸거나 다른 기기로 신고하면 중복될 수 있습니다.</p>
  </section>
  <section class="card">
@@ -79,20 +78,20 @@ input:focus{outline:2px solid #dbbc82;outline-offset:1px}
 </main>
 <script src="./config.js"></script>
 <script type="module">
-const $=id=>document.getElementById(id),name=$("submitName"),church=$("submitChurch"),kind=$("submitKind"),display=$("suggestedName");
+const $=id=>document.getElementById(id),name=$("submitName"),kind=$("submitKind"),display=$("suggestedName");
 const conf=window.GOD119_CONFIG?.firebase||{},configured=!!(conf.apiKey&&conf.projectId&&conf.authDomain&&conf.databaseURL&&conf.appId);
 let auth=null,db=null,a=null,d=null,ready=false,watch=null;
 function clean(t){return String(t).trim().replace(/[\\/:*?"<>|\u0000-\u001F]/g,"").replace(/\s+/g,"_").slice(0,50)}
-function filename(){return(clean(name.value)||"이름")+"_"+(clean(church.value)||"교회명")+"_실습결과"+kind.value}
+function filename(){return(clean(name.value)||"이름")+"_실습결과"+kind.value}
 function reportKind(){return kind.value===".mp4"?"mp4":kind.value===".pdf"?"pdf":kind.value===".txt"?"text":"image"}
 function update(){
  display.textContent=filename();
- $("reportButton").disabled=!ready||!name.value.trim()||!church.value.trim()||!$("actualUploadName").value.trim()||!$("uploadConfirmed").checked;
+ $("reportButton").disabled=!ready||!name.value.trim()||!$("actualUploadName").value.trim()||!$("uploadConfirmed").checked;
 }
-[name,church,kind,$("uploadConfirmed"),$("actualUploadName")].forEach(el=>el.addEventListener("input",update));
+[name,kind,$("uploadConfirmed"),$("actualUploadName")].forEach(el=>el.addEventListener("input",update));
 $("copyFilename").onclick=async()=>{
  const feedback=$("copyFeedback");
- if(!clean(name.value)||!clean(church.value)){feedback.textContent="먼저 이름과 교회·소속을 입력해 주세요.";return}
+ if(!clean(name.value)){feedback.textContent="먼저 제출자 이름을 입력해 주세요.";return}
  try{await navigator.clipboard.writeText(filename());feedback.textContent="복사했습니다. 실제 파일명을 변경하고 확장자는 원본 형식에 맞춰 유지하세요."}
  catch(e){feedback.textContent="복사가 안 되면 위 파일명을 직접 선택하여 복사하세요."}
 };
@@ -107,7 +106,7 @@ function ownRecord(user){
   const feedback=data.feedback;
   const fb=feedback&&feedback.fileName===data.report.fileName&&["received","revise","praise"].includes(feedback.kind)&&typeof feedback.message==="string"?
    "\n\n💬 강사 개인 피드백 ["+({received:"제출 확인",revise:"보완 요청",praise:"칭찬"}[feedback.kind])+"]: "+feedback.message.slice(0,400):"";
-  msg(text+" (신고: "+String(data.report.name||"")+" / "+String(data.report.church||"")+")"+fb);
+  msg(text+" (제출자: "+String(data.report.name||"")+")"+fb);
  },error=>msg("제출 신고 확인 권한이 없습니다. Firebase 데이터베이스 보안 규칙 게시 여부를 확인해 주세요.",true));
 }
 async function connect(){
@@ -122,8 +121,8 @@ async function connect(){
  }catch(e){msg("Firebase 연결에 실패했습니다. 인터넷 연결 후 새로고침하세요.",true)}
 }
 $("reportButton").onclick=async()=>{
- if(!ready||!name.value.trim()||!church.value.trim()||!$("actualUploadName").value.trim()||!$("uploadConfirmed").checked)return;
- const report={name:name.value.trim().slice(0,35),church:church.value.trim().slice(0,45),kind:reportKind(),fileName:$("actualUploadName").value.trim().slice(0,140),at:d.serverTimestamp()};
+ if(!ready||!name.value.trim()||!$("actualUploadName").value.trim()||!$("uploadConfirmed").checked)return;
+ const report={name:name.value.trim().slice(0,35),church:"미기재",kind:reportKind(),fileName:$("actualUploadName").value.trim().slice(0,140),at:d.serverTimestamp()};
  const button=$("reportButton");button.disabled=true;
  msg("제출 신고를 전송하고 있습니다…");
  try{
