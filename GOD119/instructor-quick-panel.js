@@ -63,10 +63,10 @@ export function createInstructorQuickPanel({getState}){
  function composeFeedback(id,report,feedback){
    feedbackTarget={id,report};
    fb('gqFbTitle').textContent=String(report.name||'참석자').slice(0,35)+'님께 피드백 보내기';
-   fb('gqFbFilename').textContent='교회: '+String(report.church||'').slice(0,45)+' · 신고된 파일: '+String(report.fileName||'').slice(0,140);
+   fb('gqFbFilename').textContent='제출 파일: '+String(report.fileName||'').slice(0,140);
    fb('gqFbKind').value=['received','revise','praise'].includes(feedback?.kind)?feedback.kind:'received';
    fb('gqFbMessage').value=String(feedback?.message||'').slice(0,400);
-   fb('gqFbStatus').textContent='이름·교회와 실제 파일을 대조한 후 전송해 주세요.';
+   fb('gqFbStatus').textContent='제출자 이름과 실제 파일을 확인한 후 전송해 주세요.';
    feedbackModal.hidden=false;
  }
  fb('gqFbSend').onclick=async()=>{
@@ -74,7 +74,7 @@ export function createInstructorQuickPanel({getState}){
    if(!target||!db||!F||!auth?.currentUser){fb('gqFbStatus').textContent='강사 로그인 또는 Firebase 연결이 필요합니다.';return}
    const message=fb('gqFbMessage').value.trim(),kind=fb('gqFbKind').value;
    if(!message||message.length>400){fb('gqFbStatus').textContent='피드백 메시지를 1~400자로 작성해 주세요.';return}
-   if(!window.confirm(target.report.name+' / '+target.report.church+'\n실제 제출 파일과 제출자 이름을 확인하고 이 사람에게 피드백을 보내시겠습니까?'))return;
+   if(!window.confirm(target.report.name+'님의 실제 제출 파일을 확인하고 피드백을 보내시겠습니까?'))return;
    const sendButton=fb('gqFbSend');sendButton.disabled=true;
    fb('gqFbStatus').textContent='피드백 전송 중…';
    try{
@@ -108,7 +108,7 @@ export function createInstructorQuickPanel({getState}){
   const el=document.createElement('div');el.className='item';
   const p=document.createElement('div');p.className='person';
   const b=document.createElement('b');b.textContent=t(name,35)||'이름 없음';
-  const small=document.createElement('small');small.textContent=(t(church,45)||'소속 없음')+(detail?' · '+t(detail,100):'');
+  const small=document.createElement('small');small.textContent=(church?t(church,45):'')+(detail?(church?' · ':'')+t(detail,100):'');
   p.append(b,small);el.appendChild(p);return el;
  }
  function empty(node,message){const e=document.createElement('p');e.className='help';e.textContent=message;node.appendChild(e)}
@@ -131,7 +131,7 @@ export function createInstructorQuickPanel({getState}){
   const selection=ss.filter(v=>!search||[v.r.name,v.r.church,v.r.fileName].some(x=>String(x||'').toLowerCase().includes(search)));
   if(!selection.length)empty(submitList,sReady?'아직 제출 신고가 없거나 검색 결과가 없습니다.':'제출 현황을 불러오는 중…');
   for(const v of selection){
-   const item=row(v.r.name,v.r.church,v.r.fileName);
+   const item=row(v.r.name,'',v.r.fileName);
    item.classList.add('submission-item');
    const actions=document.createElement('div');actions.className='submission-buttons';
    const view=document.createElement('button');view.type='button';view.className='result-view';
@@ -149,7 +149,7 @@ export function createInstructorQuickPanel({getState}){
  }
  async function mark(id,report,checked,button){
   if(writing.has(id))return;
-  if(!checked&&!window.confirm(t(report.name,35)+' / '+t(report.church,45)+'\nMEGA에서 해당 파일을 실제 확인하셨습니까?'))return;
+  if(!checked&&!window.confirm(t(report.name,35)+'님의 실제 제출 파일을 확인하셨습니까?'))return;
   const {db,F,auth,room}=getState();
   if(!db||!F||!auth?.currentUser)return;
   writing.add(id);button.disabled=true;
