@@ -155,7 +155,7 @@ export function createInstructorQuickPanel({getState}){
 
  let viewerPromise=null;
  function showResult(id,report){
-  if(!viewerPromise)viewerPromise=import("./submission-result-preview.js?v=isolated-results-20261106-2115")
+  if(!viewerPromise)viewerPromise=import("./submission-result-preview.js?v=oneclick-view-20261106-2129")
    .then(mod=>mod.createResultPreview())
    .catch(error=>{viewerPromise=null;throw error});
   viewerPromise.then(v=>v.open(id,report))
