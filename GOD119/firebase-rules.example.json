@@ -48,6 +48,25 @@
               ".validate": false
             }
           },
+          "feedback": {
+            ".write": "auth != null && auth.uid === 'REPLACE_WITH_PRESENTER_UID' && newData.exists() && data.parent().child('report').exists()",
+            ".validate": "newData.hasChildren(['kind','message','fileName','at'])",
+            "kind": {
+              ".validate": "newData.isString() && (newData.val() === 'received' || newData.val() === 'revise' || newData.val() === 'praise')"
+            },
+            "message": {
+              ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 400"
+            },
+            "fileName": {
+              ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 140 && newData.val() === data.parent().child('report/fileName').val()"
+            },
+            "at": {
+              ".validate": "newData.isNumber() && newData.val() >= now - 300000 && newData.val() <= now + 10000"
+            },
+            "$other": {
+              ".validate": false
+            }
+          },
           "review": {
             ".write": "auth != null && auth.uid === 'REPLACE_WITH_PRESENTER_UID' && newData.exists() && data.parent().child('report').exists()",
             ".validate": "newData.hasChildren(['checked','at'])",
