@@ -48,6 +48,9 @@
    Give only the cafe photo a clickable zone and a clear OPEN label. */
 /* Slide 7: cyan caption placed under the existing church-view subtitle. */
 #hotspots .god-slide07-cafe-ministry{position:absolute;left:55.9%;top:70.9%;width:36%;height:6.2%;display:flex;align-items:center;white-space:nowrap;pointer-events:none;color:#57c9e4;font-family:system-ui,"Malgun Gothic","Apple SD Gothic Neo",sans-serif;font-weight:800;font-size:clamp(14px,2.35vw,41px);letter-spacing:-.035em;text-shadow:0 1px 2px #11233c44;z-index:2}
+#hotspots .god-certificate-open-hotspot{z-index:5;cursor:pointer;border-radius:11px}
+#hotspots .god-certificate-open-hotspot:hover,#hotspots .god-certificate-open-hotspot:focus-visible{border-color:#ffecb7;background:#f9c35920}
+#hotspots .god-open-badge.god-certificate-open-badge{left:50%;top:0;transform:translateX(-50%);min-width:clamp(56px,6.1vw,105px)}
 #hotspots .god-cafe-open-hotspot{border-radius:8px;cursor:pointer;z-index:3}
 #hotspots .god-cafe-open-hotspot:hover,#hotspots .god-cafe-open-hotspot:focus-visible{border-color:#ffdf97;background:#ffe7aa1b}
 #hotspots .god-open-badge.god-cafe-open-badge{left:76%;top:-22%;min-width:clamp(53px,5.5vw,95px);z-index:4}
@@ -316,7 +319,8 @@ function regionForSlideLink(n,rec){
  return rec.rect;
 }
 const slideResources={
-7:[{label:"CAFE 0691 카페 블로그",url:"https://naver.me/Gzd4TJVw",rect:[12.8,64.6,18.0,15.3],type:"cafeBlog"}],
+7:[{label:"CAFE 0691 카페 블로그",url:"https://naver.me/Gzd4TJVw",rect:[12.8,64.6,18.0,15.3],type:"cafeBlog"},
+   {label:"카페0691 사역 자격증",url:"https://mega.nz/file/S3ZkRTZZ#cLAp0yTDi-nGj9uNrDwuxQhKFxeX61cuL8lglA6hZxk",rect:[78.1,71.5,11.4,5.6],type:"document",certificate:true}],
 3:[{label:"경남일보 기사",url:"https://www.gnnews.co.kr/news/articleView.html?idxno=177660",rect:[6.875,38.333,28.594,24.514]},{label:"교회 자료 사이트",url:"https://www.mgchurch.or.kr/bbs/board.php?bo_table=church65&wr_id=567&page=25&frame=2",rect:[7.289,20.472,26.531,6.722]}],
 10:[{label:"삼손중창단 행사 홍보영상 · MEGA 영상",url:"https://mega.nz/file/6qxwCIRZ#hjUnv-AjIvEGEq7yZuuf0zLcM4d4SVJgqVyycZsmdrg",rect:[6.2,26.8,42.6,63.8]},{label:"주일설교요약영상 · MEGA 영상",url:"https://mega.nz/file/uqZRHLgA#8AXm5RoZ_QK0uy2VNp1MiKHr5iJt371ERC2n6JV3gGU",rect:[50.8,26.8,42.6,63.8]}],
 11:[{label:"설교 쇼츠 영상",url:"https://www.youtube.com/shorts/ywMLfSwuM5g",rect:[5.938,29.167,21.562,56.167]}],
@@ -333,6 +337,15 @@ function openSlideResource(event,rec,page){
  // Cafe 0691 blog may disallow iframe embedding. Open its actual webpage
  // through a regular click; also announce the link to connected attendees.
  if(rec.type==="cafeBlog"){if(allowed)sharedLinks?.broadcast(rec,page);return}
+ if(page===7&&rec.certificate){
+  // Never navigate to the MEGA website: show the certificate in GOD119.
+  event.preventDefault();
+  if(teacher){
+   if(allowed)sharedLinks?.broadcast(rec,page);
+   else notify("강사 Google 로그인 후 자격증을 공유할 수 있습니다.");
+  }else sharedLinks?.openLocal(rec,page);
+  return;
+ }
  const accepted=sharedLinks?.broadcast(rec,page);
  // All registered slide links, including the ministry plan on slide 12,
  // open inside GOD119. Only the explicit MEGA fallback button uses a new tab.
@@ -664,6 +677,16 @@ function showResources(n){
    hot.title=rec.label+" 열기 (새 창)";hot.setAttribute("aria-label",rec.label+" 열기");
    const [x,y,w,h]=regionForSlideLink(n,rec);
    hot.style.left=x+"%";hot.style.top=y+"%";hot.style.width=w+"%";hot.style.height=h+"%";
+   if(rec.certificate){
+    hot.classList.add("god-open-hotspot","god-certificate-open-hotspot");
+    const badge=document.createElement("span");
+    badge.className="god-open-badge god-certificate-open-badge";
+    badge.textContent="OPEN";
+    badge.setAttribute("aria-hidden","true");
+    hot.appendChild(badge);
+    hot.title="카페0691 사역 자격증을 GOD119 화면에서 열기";
+    hot.setAttribute("aria-label",hot.title);
+   }
    if(rec.type==="cafeBlog"){
     hot.classList.add("god-open-hotspot","god-cafe-open-hotspot");
     const badge=document.createElement("span");
