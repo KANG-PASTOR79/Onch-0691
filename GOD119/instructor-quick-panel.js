@@ -155,7 +155,7 @@ export function createInstructorQuickPanel({getState}){
 
  let viewerPromise=null;
  function showResult(id,report){
-  if(!viewerPromise)viewerPromise=import("./submission-result-preview.js?v=compact-fingerprint-20261106")
+  if(!viewerPromise)viewerPromise=import("./submission-result-preview.js?v=local-image-find-20261106-2104")
    .then(mod=>mod.createResultPreview())
    .catch(error=>{viewerPromise=null;throw error});
   viewerPromise.then(v=>v.open(id,report))
