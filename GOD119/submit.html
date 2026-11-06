@@ -15,6 +15,7 @@
 .cta{display:block;text-align:center;background:linear-gradient(110deg,#f7d48f,#f0ae56);color:#18283a!important;text-decoration:none;font-weight:800;padding:15px 16px;border-radius:12px;margin:17px 0 6px}
 .smallNote{font-size:12px;color:#bbcbdb}
 input:focus{outline:2px solid #dbbc82;outline-offset:1px}
+.upload-highlight{margin:15px 0 17px;padding:19px 21px;background:#234969;border:2px solid #f5ca78;border-radius:13px;color:#ffe3a6;font-size:clamp(17px,1.65vw,24px);font-weight:800;line-height:1.65;box-shadow:0 4px 18px #06182877}
 </style>
 </head>
 <body>
@@ -51,12 +52,9 @@ input:focus{outline:2px solid #dbbc82;outline-offset:1px}
  </section>
  <section class="card">
   <h2>2 · MEGA 제출 페이지로 이동</h2>
-  <div class="step"><b>①</b><p>컴퓨터 또는 태블릿에 저장된 실습 결과물 파일을 준비합니다.</p></div>
-  <div class="step"><b>②</b><p>결과물이 여러 개라면 <strong>본인 이름 뒤에 번호를 붙여</strong> 저장합니다. 예: 홍길동1.jpg · 홍길동2.pdf · 홍길동3.mp4 (확장자는 실제 파일 형식에 맞게 유지).</p></div>
-  <div class="step"><b>③</b><p>아래 버튼으로 MEGA 파일 요청 페이지를 엽니다. 업로드 과정에서 이름을 묻는 경우 실제 제출자 이름을 적습니다.</p></div>
+  <p class="upload-highlight">📌 <strong>실습 결과물은 본인 이름에 번호를 붙여(예: 홍길동1.jpg, 홍길동2.pdf, 홍길동3.mp4) 아래 MEGA에 업로드해 주세요.</strong></p>
   <a class="cta" id="megaLink" href="https://mega.nz/filerequest/MwN2xydC7XQ" target="_blank" rel="noopener noreferrer">↗ MEGA에 실습 결과물 제출하기</a>
   <p class="smallNote">새 탭에서 MEGA 사이트가 열립니다. 모든 결과물 업로드를 마친 후 완료 안내를 확인해 주세요.</p>
-  <p class="smallNote" style="color:#ffe2a3;font-weight:750">📌 제출 전 확인: 파일은 본인 이름+번호 순서로 저장해 주세요. 예: 홍길동1.jpg, 홍길동2.pdf, 홍길동3.mp4. 다른 사람의 결과물과 구분하기 위한 안내입니다.</p>
   <div id="reportSection" style="margin-top:20px;padding-top:17px;border-top:1px solid #4b6981">
     <label class="flex" style="align-items:flex-start;gap:12px"><input id="uploadConfirmed" type="checkbox" style="width:21px;min-width:21px;min-height:21px;margin-top:3px"> <span><strong>MEGA 업로드를 완료했습니다.</strong><span class="smallNote" style="display:block;margin-top:5px">제출할 파일에 내 이름과 번호를 붙여 모두 업로드했고, MEGA 완료 화면을 확인했습니다.</span></span></label>
     <div class="actions" style="margin-top:13px"><button id="reportButton" type="button" class="primary" disabled>✓ 제출 완료 알리기</button></div>
