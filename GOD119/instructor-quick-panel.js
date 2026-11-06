@@ -25,6 +25,7 @@ export function createInstructorQuickPanel({getState}){
  '#gq .new-report{background:#fde0a0;color:#13283b;font-size:12px;font-weight:850;border-radius:8px;padding:9px;margin:9px 0}',
  '#gq .feedback-action{background:#255c57;color:#f4fff8;border:1px solid #7ed0b1;border-radius:7px;padding:7px;font-size:11px;font-weight:800;cursor:pointer}',
  '#gqFeedbackBox{position:fixed;inset:0;background:#061525e8;z-index:2147480500;display:grid;place-items:center;padding:12px}',
+ '#gqFeedbackBox[hidden]{display:none!important}',
  '#gqFeedbackBox .dialog{width:min(650px,96vw);background:#15334a;color:#f4f8fb;border:2px solid #efc67c;border-radius:15px;padding:20px;display:grid;gap:11px;box-shadow:0 12px 60px #0009}',
  '#gqFeedbackBox textarea{width:100%;min-height:110px;resize:vertical;border-radius:8px;background:#081e30;border:1px solid #9cb1c4;color:#fff;font:14px system-ui;padding:10px}',
  '#gqFeedbackBox select{width:100%;background:#081e30;color:white;border:1px solid #9cb1c4;padding:10px;border-radius:8px}',
@@ -63,18 +64,23 @@ export function createInstructorQuickPanel({getState}){
  }
  fb('gqFbSend').onclick=async()=>{
    const target=feedbackTarget,{db,F,auth,room}=getState();
-   if(!target||!db||!F||!auth?.currentUser)return;
+   if(!target||!db||!F||!auth?.currentUser){fb('gqFbStatus').textContent='강사 로그인 또는 Firebase 연결이 필요합니다.';return}
    const message=fb('gqFbMessage').value.trim(),kind=fb('gqFbKind').value;
    if(!message||message.length>400){fb('gqFbStatus').textContent='피드백 메시지를 1~400자로 작성해 주세요.';return}
    if(!window.confirm(target.report.name+' / '+target.report.church+'\n실제 제출 파일과 제출자 이름을 확인하고 이 사람에게 피드백을 보내시겠습니까?'))return;
    const sendButton=fb('gqFbSend');sendButton.disabled=true;
+   fb('gqFbStatus').textContent='피드백 전송 중…';
    try{
      const path='submissions/'+room+'/'+target.id+'/feedback';
      await F.set(F.ref(db,path),{kind,message,at:F.serverTimestamp(),fileName:String(target.report.fileName||'').slice(0,140)});
      fb('gqFbStatus').textContent='피드백을 전송했습니다. 해당 참석자가 GOD119에 접속하면 개인 알림으로 표시됩니다.';
      closeFeedback();
-   }catch(e){fb('gqFbStatus').textContent='전송이 거부되었습니다. Firebase 데이터베이스의 feedback 보안 규칙을 확인해 주세요.'}
-   finally{sendButton.disabled=false}
+   }catch(e){
+     const code=String(e?.code||'');
+     fb('gqFbStatus').textContent=code.includes('permission-denied')?
+       '전송이 거부되었습니다 (permission-denied). Firebase Realtime Database의 feedback 쓰기 규칙을 실제 서버에 게시해야 합니다.':
+       '피드백 전송 실패 ('+(code||'네트워크/설정 오류')+'). 강사 로그인과 Firebase 연결을 확인해 주세요.';
+   }finally{sendButton.disabled=false}
  };
  const $=id=>pane.querySelector('#'+id);
  let uid=null,unsub=[],roster={},submitted={},rReady=false,sReady=false,known=null,writing=new Set();
