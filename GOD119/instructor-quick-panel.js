@@ -147,7 +147,8 @@ export function createInstructorQuickPanel({getState}){
   const selection=ss.filter(v=>!search||[v.r.name,v.r.church,v.r.fileName].some(x=>String(x||'').toLowerCase().includes(search)));
   if(!selection.length)empty(submitList,sReady?'아직 제출 신고가 없거나 검색 결과가 없습니다.':'제출 현황을 불러오는 중…');
   for(const v of selection){
-   const item=row(v.r.name,'',v.r.fileName);
+   const fileSummary=Array.isArray(v.r.files)&&v.r.files.length?('파일 '+v.r.files.length+'개 · '+v.r.files.map(f=>String(f.name||'')).join(', ')):v.r.fileName;
+   const item=row(v.r.name,'',fileSummary);
    item.classList.add('submission-item');
    const actions=document.createElement('div');actions.className='submission-buttons';
    const view=document.createElement('button');view.type='button';view.className='result-view';
