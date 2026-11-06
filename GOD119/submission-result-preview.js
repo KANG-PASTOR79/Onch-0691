@@ -26,7 +26,10 @@ export function createResultPreview(){
     '#godResultPreview button.primary-local{background:#ebc27c;color:#162b3b;font-weight:900;border:1px solid #ffe5b0}',
     '#godResultPreview .matches{display:flex;flex-wrap:wrap;gap:6px;max-height:155px;overflow-y:auto}',
     '#godResultPreview .matches[hidden]{display:none!important}',
-    '#godResultPreview .matches button{background:#1e5262;border-color:#8fcfbd;color:#fff3cd;overflow-wrap:anywhere;max-width:100%}',
+    '#godResultPreview .matches button{background:#1e5262;border-color:#8fcfbd;color:#fff3cd;overflow-wrap:anywhere;max-width:100%;text-align:left;line-height:1.45}',
+    '#godResultPreview .matches button[data-namematch=true]{border-color:#f6d489;background:#285c59}',
+    '#godResultPreview .matchesTitle{font-weight:800;color:#ffe1a8;margin:5px 0 0}',
+    '#godResultPreview .folder-help b{color:#fff2c4}',
   ].join("\n");
   document.head.appendChild(css);
   const modal=document.createElement("div");modal.id="godResultPreview";modal.hidden=true;
@@ -36,10 +39,11 @@ export function createResultPreview(){
     '<div class="meta" id="grpInfo"></div>',
     '<div class="actions"><input type="url" id="grpUrl" autocomplete="off" placeholder="https://mega.nz/file/...#..."><button id="grpSave" type="button">링크 저장 · 열기</button></div>',
     '<div class="actions"><button type="button" class="primary-local" id="grpFolder">📁 제출물 보관 폴더 연결</button><button type="button" id="grpFolderRetry">↻ 연결된 폴더에서 찾기</button></div>',
-    '<div class="folder-help" id="grpFolderHelp">MEGA 데스크톱에서 동기화한 결과물 폴더를 한 번 연결해 주세요. 내용 식별값이 있는 제출물은 자동으로 찾아냅니다. 간편 제출은 MEGA에서 직접 확인해야 할 수 있습니다. 폴더 내용은 다른 서버로 전송되지 않습니다.</div>',
+    '<div class="folder-help" id="grpFolderHelp">MEGA 데스크톱 동기화 폴더를 연결하세요. 간편 제출은 <b>이름이 포함된 파일 또는 최근 업로드한 이미지 후보</b>를 찾아 보여 줍니다. 올바른 파일을 클릭하면 이 브라우저에서 다음에도 열 수 있습니다. 폴더 파일은 외부로 전송되지 않습니다.</div>',
     '<div class="actions"><label>개별 파일 직접 선택 <input id="grpFile" type="file" accept=".pdf,.docx,.png,.jpg,.jpeg,.webp,.gif,.txt,.md,.csv,.mp4,.webm"></label><button id="grpMega" type="button">MEGA 파일 보관함 열기 ↗</button><button id="grpDelete" type="button">저장 링크 지우기</button></div>',
     '<div class="meta" id="grpStatus" role="status">선택한 파일이나 개별 공유 링크만 표시합니다.</div>',
-    '<div class="matches" id="grpMatches" hidden aria-label="이름으로 찾은 제출 결과물 목록"></div>',
+    '<div class="matchesTitle" id="grpMatchesTitle" hidden>찾은 파일을 선택해 주세요</div>',
+    '<div class="matches" id="grpMatches" hidden aria-label="제출 결과물 후보 목록"></div>',
     '<div class="canvas" id="grpCanvas"><p>해당 제출물 파일을 연결하면 여기에서 볼 수 있습니다.</p></div>',
     '<div class="meta">파일은 기존 MEGA 무료 보관함에 저장됩니다. 내용 식별값이 있는 제출물은 참석자 계정과 자동 연결됩니다. 간편 제출은 MEGA에서 직접 확인해 주세요. 검색과 미리보기는 이 컴퓨터 안에서만 진행됩니다. 파일 내용이 완전히 같은 중복 제출은 구분이 필요할 수 있습니다.</div>',
     '</div>'
@@ -78,6 +82,7 @@ export function createResultPreview(){
       tx.onerror=()=>{db.close();reject(tx.error)};
     });
   }
+  // Compare original MEGA filenames and parent folder names without sending them anywhere.
   const normalizeFileName=n=>String(n||"").normalize("NFC").toLowerCase().replace(/\s+/g," ").trim();
   const fileStem=n=>normalizeFileName(n).replace(/\.[^.]+$/,"");
   const allowedExt=/\.(pdf|docx|png|jpe?g|webp|gif|txt|md|csv|mp4|webm)$/i;
@@ -109,6 +114,69 @@ export function createResultPreview(){
     }
     matches.sort((a,b)=>Number(b.exact)-Number(a.exact)||Number(b.stem)-Number(a.stem)||a.name.localeCompare(b.name,"ko",{numeric:true}));
     return {matches:matches.slice(0,80),exact,partial:count>maxFiles};
+  }
+  // When filenames were not sent with a simple MEGA report, use local folder
+  // name/path and file timestamps as *suggestions*, not proof of ownership.
+  async function findSimpleCandidates(handle,person,at,token,key,maxFiles=2500){
+    const name=normalizeFileName(person).replace(/\s+/g,"");
+    const directories=[{handle,depth:0,path:""}],items=[];
+    let scanned=0,partial=false,dirs=0;
+    while(directories.length){
+      const parent=directories.shift();
+      for await(const entry of parent.handle.values()){
+        if(token!==folderLookupToken||!current||current.key!==key)
+          return {cancelled:true,items:[],named:[],partial:false,scanned};
+        if(++scanned>maxFiles){partial=true;break}
+        const relative=parent.path?parent.path+"/"+entry.name:entry.name;
+        if(entry.kind==="directory"){
+          if(parent.depth<5&&dirs<100){directories.push({handle:entry,depth:parent.depth+1,path:relative});dirs++}
+          continue;
+        }
+        if(entry.kind!=="file"||!allowedExt.test(entry.name))continue;
+        try{
+          const file=await entry.getFile();
+          const inName=name.length>=2&&normalizeFileName(relative).replace(/\s+/g,"").includes(name);
+          items.push({handle:entry,name:entry.name,relative,modified:Number(file.lastModified)||0,
+            nameMatch:inName,exact:false});
+        }catch(_){}
+        if(scanned%100===0)status("연결된 MEGA 폴더에서 파일 찾는 중… "+scanned+"개 확인");
+      }
+      if(partial)break;
+    }
+    const target=Number(at)||Date.now(),now=Date.now();
+    const byTime=(a,b)=>Math.abs(a.modified-target)-Math.abs(b.modified-target);
+    const named=items.filter(f=>f.nameMatch).sort(byTime);
+    const recent=items.filter(f=>!f.nameMatch)
+      .sort((a,b)=>b.modified-a.modified);
+    // Show named items first. Offer recent filenames if MEGA omitted participant names.
+    const selected=named.slice(0,30);
+    const available=recent.filter(f=>f.modified>=now-14*24*60*60*1000);
+    const fallbacks=(available.length?available:recent).slice(0,named.length?8:25);
+    selected.push(...fallbacks);
+    return {items:selected,named,partial,scanned,cancelled:false};
+  }
+  async function saveChosenFile(key,handle){
+    try{
+      const db=await dbConnect();
+      await new Promise((resolve,reject)=>{
+        const tx=db.transaction("prefs","readwrite");
+        tx.objectStore("prefs").put(handle,"chosen:"+key);
+        tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);
+      });
+      db.close();
+    }catch(_){} // Local preference only: preview still works without persistent storage.
+  }
+  async function getChosenFile(key){
+    try{
+      const db=await dbConnect();
+      const h=await new Promise((resolve,reject)=>{
+        const tx=db.transaction("prefs","readonly");
+        const req=tx.objectStore("prefs").get("chosen:"+key);
+        req.onsuccess=()=>resolve(req.result||null);
+        req.onerror=()=>reject(req.error);
+      });
+      db.close();return h;
+    }catch(_){return null}
   }
   // New submissions are linked by file bytes and size, not by user-editable names.
   // MEGA may append an upload-session ID to filenames without changing contents.
@@ -166,8 +234,11 @@ export function createResultPreview(){
       a.name.localeCompare(b.name,"ko",{numeric:true}));
     return {matches:matches.slice(0,80),partial,hashed};
   }
-  function clearMatches(){const pane=el("grpMatches");pane.replaceChildren();pane.hidden=true}
-  async function showFolderFile(entry,token,key){
+  function clearMatches(){
+    const pane=el("grpMatches");pane.replaceChildren();pane.hidden=true;
+    el("grpMatchesTitle").hidden=true;
+  }
+  async function showFolderFile(entry,token,key,remember=false){
     if(token!==folderLookupToken||!current||current.key!==key)return;
     try{
       const file=await entry.handle.getFile();
@@ -176,16 +247,27 @@ export function createResultPreview(){
         status("100MB를 넘는 문서는 MEGA 폴더에서 직접 열어 주세요.");return
       }
       cleanup();renderBlob(file,file.name,rev);
-      status("✓ "+entry.name+" · 연결된 MEGA 폴더에서 열었습니다.");
+      if(remember)saveChosenFile(key,entry.handle);
+      status("✓ "+entry.name+" · 이 컴퓨터에서 이미지/문서를 열었습니다."+
+        (remember?" 다음부터 이 제출 기록에 연결된 파일로 열립니다.":""));
     }catch(e){status("파일을 열 수 없습니다. 동기화 상태와 브라우저 폴더 권한을 확인해 주세요.")}
   }
-  function showMatches(entries,token,key){
+  function showMatches(entries,token,key,simple=false){
     const pane=el("grpMatches");pane.replaceChildren();pane.hidden=!entries.length;
+    el("grpMatchesTitle").hidden=!entries.length;
+    el("grpMatchesTitle").textContent=simple?
+      "아래에서 실제 제출된 파일을 선택하세요 (파일명·날짜는 후보 기준입니다)":
+      "찾은 제출 결과물";
     for(const entry of entries){
       const button=document.createElement("button");button.type="button";
-      button.textContent="📄 "+(entry.original?entry.original+" · MEGA 저장: ":"")+entry.name;
-      button.title="이 제출물을 GOD119에서 열기";
-      button.onclick=()=>showFolderFile(entry,token,key);pane.append(button);
+      button.dataset.namematch=String(!!entry.nameMatch);
+      const prefix=/\.(png|jpe?g|webp|gif)$/i.test(entry.name)?"🖼 ":"📄 ";
+      const label=simple?(entry.relative||entry.name):(
+        entry.original?entry.original+" · MEGA 저장: "+entry.name:entry.name);
+      button.textContent=prefix+label+(simple&&entry.nameMatch?" · 이름 일치":"");
+      button.title="선택한 파일을 이 제출자에게 연결하고 미리보기";
+      button.onclick=()=>showFolderFile(entry,token,key,simple);
+      pane.append(button);
     }
   }
   async function previewFromFolder(token,requestPermission=false){
@@ -232,7 +314,41 @@ export function createResultPreview(){
         return;
       }
       const isSimple=report.fileName==="MEGA 업로드 완료 (간편 제출)";
-      status(isSimple?"간편 제출: 참석자 이름으로 MEGA 파일을 찾는 중…":"기존 제출 기록의 파일명으로 "+safe(report.fileName)+" 찾는 중…");
+      if(isSimple){
+        // An explicitly picked file is tied only to this participant/report in IndexedDB.
+        const saved=await getChosenFile(matchingKey);
+        if(token!==folderLookupToken||!current||current.key!==matchingKey)return;
+        if(saved){
+          try{
+            await saved.getFile();
+            await showFolderFile({handle:saved,name:saved.name},token,matchingKey);
+            return;
+          }catch(_){}
+        }
+        status("간편 제출: MEGA 동기화 폴더에서 이름과 최근 파일을 찾는 중…");
+        const result=await findSimpleCandidates(directoryHandle,report.name,report.at,token,matchingKey);
+        if(result.cancelled||token!==folderLookupToken||!current||current.key!==matchingKey)return;
+        showMatches(result.items,token,matchingKey,true);
+        if(!result.items.length){
+          status("폴더에서 미리보기 가능한 파일을 찾지 못했습니다. MEGA 데스크톱 동기화 상태와 선택한 폴더를 확인해 주세요.");
+          return;
+        }
+        if(result.named.length===1){
+          await showFolderFile(result.named[0],token,matchingKey);
+          status("제출자 이름과 일치하는 파일 1개를 표시했습니다. 실제 제출 파일인지 확인해 주세요.");
+        }else{
+          cleanup();
+          const p=document.createElement("p");
+          p.textContent=result.named.length?
+            "이름이 포함된 파일 "+result.named.length+"개와 최근 파일을 찾았습니다. 위에서 해당 이미지를 선택해 주세요.":
+            "제출자 이름이 포함된 파일을 찾지 못했습니다. 위에 표시된 최근 이미지/파일 후보에서 실제 제출물을 선택해 주세요.";
+          el("grpCanvas").append(p);
+          status("✓ 파일 후보 "+result.items.length+"개 발견 · 파일을 클릭하면 여기에서 미리보기로 표시됩니다."+
+            (result.partial?" 폴더 일부만 검색했습니다.":""));
+        }
+        return;
+      }
+      status("기존 제출 기록의 파일명으로 "+safe(report.fileName)+" 찾는 중…");
       const {matches,exact,partial}=await findInFolder(directoryHandle,report.fileName,report.name);
       if(token!==folderLookupToken||!current||current.key!==matchingKey)return;
       showMatches(matches,token,matchingKey);
@@ -352,7 +468,9 @@ export function createResultPreview(){
     const displayFiles=Array.isArray(report.files)&&report.files.length?report.files:unpackFileFingerprints(report.fileName);
     el("grpInfo").textContent=displayFiles.length?
       "제출 파일 "+displayFiles.length+"개 · 참석자 계정에 연결된 파일을 내용으로 검색합니다":
-      "기존 제출 파일명: "+safe(report.fileName);
+      report.fileName==="MEGA 업로드 완료 (간편 제출)"?
+       "간편 제출 · 파일 내용 식별값 없음 · 연결된 MEGA 폴더에서 이미지 후보를 찾습니다":
+       "기존 제출 파일명: "+safe(report.fileName);
     el("grpFile").value="";
     el("grpUrl").value=links[key]||"";
     modal.hidden=false;
