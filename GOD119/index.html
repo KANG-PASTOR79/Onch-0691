@@ -330,9 +330,10 @@ function openSlideResource(event,rec,page){
  // Only an authorized lecturer opens shared resources inside the current
  // GOD119 stage. Attendee links still follow the browser's normal behavior.
  if(!teacher)return;
- // Cafe 0691 blog may disallow iframe embedding. Open its actual webpage
- // through a regular click; also announce the link to connected attendees.
- if(rec.type==="cafeBlog"){if(allowed)sharedLinks?.broadcast(rec,page);return}
+ // Naver forbids being shown inside an iframe. Never broadcast this
+ // link into the synchronized in-room preview. The original anchor opens
+ // Naver directly in its own tab for teacher AND attendees.
+ if(rec.type==="cafeBlog")return;
  const accepted=sharedLinks?.broadcast(rec,page);
  // All registered slide links, including the ministry plan on slide 12,
  // open inside GOD119. Only the explicit MEGA fallback button uses a new tab.
@@ -1573,7 +1574,7 @@ permission();show();fit();if(teacher&&allowed)installPrivateNotebook56FromLink()
  }catch(_){}
 })();
 // Isolated optional module: a link-sharing problem must never stop the lecture.
-import("./shared-links.js?v=cafe07-reverted-cleanup-20261106").then(({createSharedLinks})=>{
+import("./shared-links.js?v=cafe07-naver-no-iframe-20261106").then(({createSharedLinks})=>{
  sharedLinks=createSharedLinks({
   getState:()=>({teacher,allowed,slide,F,db,room}),
   resources:slideResources,notify
