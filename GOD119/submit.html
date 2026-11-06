@@ -15,7 +15,38 @@
 .cta{display:block;text-align:center;background:linear-gradient(110deg,#f7d48f,#f0ae56);color:#18283a!important;text-decoration:none;font-weight:800;padding:15px 16px;border-radius:12px;margin:17px 0 6px}
 .smallNote{font-size:12px;color:#bbcbdb}
 input:focus{outline:2px solid #dbbc82;outline-offset:1px}
-.upload-highlight{margin:15px 0 17px;padding:19px 21px;background:#234969;border:2px solid #f5ca78;border-radius:13px;color:#ffe3a6;font-size:clamp(17px,1.65vw,24px);font-weight:800;line-height:1.65;box-shadow:0 4px 18px #06182877}
+/* High-visibility submission filename instruction, without changing upload behavior. */
+.upload-highlight{
+  position:relative;isolation:isolate;overflow:hidden;
+  margin:18px 0 21px;padding:22px 24px;
+  border:3px solid #ffe08a;border-radius:16px;
+  background:linear-gradient(105deg,#153b5b,#286188 48%,#153b5b);
+  color:#ffe5a1;text-align:center;
+  font-size:clamp(22px,2.4vw,35px);font-weight:900;line-height:1.65;
+  letter-spacing:-.035em;
+  text-shadow:0 0 8px #ffd47e9c,0 2px 5px #000b;
+  box-shadow:0 0 14px #ffcd6d88,0 0 36px #ffcd6d55,inset 0 0 15px #fff2bb2c;
+  animation:god119UploadFlash .85s ease-in-out infinite alternate;
+}
+.upload-highlight strong{position:relative;z-index:2;font-weight:900}
+.upload-highlight::after{
+  content:"";position:absolute;inset:-80% auto -80% -60%;width:35%;
+  transform:skewX(-20deg);pointer-events:none;
+  background:linear-gradient(90deg,transparent,#fff6c700 20%,#fffbe2ba 50%,#fff6c700 80%,transparent);
+  animation:god119UploadShine 1.55s ease-in-out infinite;
+}
+@keyframes god119UploadFlash{
+  from{filter:brightness(1);box-shadow:0 0 8px #ffc76866,0 0 22px #ffc76844,inset 0 0 8px #fff2bb1c}
+  to{filter:brightness(1.38);box-shadow:0 0 22px #ffcf83e6,0 0 50px #ffd880a6,inset 0 0 22px #fff2bb66}
+}
+@keyframes god119UploadShine{
+  from{left:-60%}to{left:135%}
+}
+@media(prefers-reduced-motion:reduce){
+  .upload-highlight,.upload-highlight::after{animation:none}
+  .upload-highlight{filter:none}
+  .upload-highlight::after{display:none}
+}
 </style>
 </head>
 <body>
