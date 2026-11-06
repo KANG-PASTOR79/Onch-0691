@@ -1621,7 +1621,7 @@ if(!teacher)import("./attendee-feedback-notification.js?v=feedback-live-20261106
 if(teacher)import("./attendance-alerts.js").then(({createAttendanceAlerts})=>{
  attendanceAlerts=createAttendanceAlerts({getState:()=>({teacher,db,F,auth,room})});
  attendanceAlerts.sync();
- return import("./instructor-quick-panel.js?v=local-image-find-20261106-2104");
+ return import("./instructor-quick-panel.js?v=isolated-results-20261106-2115");
 }).then(mod=>{
  instructorQuickPanel=mod.createInstructorQuickPanel({getState:()=>({teacher,db,F,auth,room})});
  instructorQuickPanel.sync();
