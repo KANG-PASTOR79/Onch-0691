@@ -83,10 +83,26 @@ export function createInstructorQuickPanel({getState}){
      fb('gqFbStatus').textContent='피드백을 전송했습니다. 해당 참석자가 GOD119에 접속하면 개인 알림으로 표시됩니다.';
      closeFeedback();
    }catch(e){
-     const code=String(e?.code||'');
-     fb('gqFbStatus').textContent=code.includes('permission-denied')?
-       '전송이 거부되었습니다 (permission-denied). Firebase Realtime Database의 feedback 쓰기 규칙을 실제 서버에 게시해야 합니다.':
-       '피드백 전송 실패 ('+(code||'네트워크/설정 오류')+'). 강사 로그인과 Firebase 연결을 확인해 주세요.';
+     const code=String(e?.code||e?.message||'');
+     fb('gqFbStatus').textContent='전송 실패 ('+(code||'알 수 없는 오류')+'). 저장된 제출 기록과 강사 로그인 권한을 확인하고 있습니다…';
+     try{
+       const reportSnapshot=await F.get(F.ref(db,'submissions/'+room+'/'+target.id+'/report'));
+       const remote=reportSnapshot.val();
+       const expected=String(remote?.fileName??'');
+       const sent=String(target.report.fileName??'').slice(0,140);
+       const uid=auth.currentUser?.uid||'로그인 없음';
+       const referenceInfo=' · 강사 UID: '+uid+' · 제출기록: '+(remote?'있음':'없음')+
+         ' · 파일명: '+(expected===sent?'일치':'불일치');
+       fb('gqFbStatus').textContent=code.includes('permission')?
+         'Firebase 저장 거부 (PERMISSION_DENIED)'+referenceInfo+
+         '. 규칙의 강사 UID와 로그인 UID가 같고, feedback 읽기/쓰기 규칙이 게시되어 있는지 확인하세요.':
+         '전송 실패 ('+(code||'알 수 없는 오류')+')'+referenceInfo;
+     }catch(readError){
+       fb('gqFbStatus').textContent='Firebase 저장 거부 ('+(code||'오류')+
+         ') · 강사 UID: '+(auth.currentUser?.uid||'로그인 없음')+
+         ' · 제출기록 읽기 실패: '+String(readError?.code||'권한 또는 연결 오류')+
+         '. Firebase의 실제 보안 규칙과 로그인 계정을 확인하세요.';
+     }
    }finally{sendButton.disabled=false}
  };
  const $=id=>pane.querySelector('#'+id);
