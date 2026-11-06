@@ -30,6 +30,14 @@ export function createResultPreview(){
     '#godResultPreview .matches button[data-namematch=true]{border-color:#f6d489;background:#285c59}',
     '#godResultPreview .matchesTitle{font-weight:800;color:#ffe1a8;margin:5px 0 0}',
     '#godResultPreview .folder-help b{color:#fff2c4}',
+    '#godResultPreview [hidden]{display:none!important}',
+    '#godResultPreview.simple-mode .actions:has(#grpUrl),#godResultPreview.simple-mode .actions #grpFolder,#godResultPreview.simple-mode .actions #grpFolderRetry,#godResultPreview.simple-mode .actions label:has(#grpFile),#godResultPreview.simple-mode .actions #grpDelete,#godResultPreview.simple-mode #grpFolderHelp{display:none!important}',
+    '#godResultPreview.simple-mode #grpSecurePick{font-size:clamp(18px,2.5vw,24px);padding:20px 15px;flex:1;line-height:1.6;min-width:260px}',
+    '#godResultPreview.simple-mode #grpInfo{color:#ffe0a2;font-weight:750;font-size:15px;line-height:1.7}',
+    '#godResultPreview.simple-mode #grpStatus{font-weight:700;color:#ffdfa2;font-size:14px;line-height:1.6}',
+    '#godResultPreview.simple-mode .sheet{gap:15px}',
+    '#godResultPreview.simple-mode .canvas{min-height:260px}',
+    '#godResultPreview.simple-mode .canvas img{max-height:55vh;object-fit:contain}',
   ].join("\n");
   document.head.appendChild(css);
   const modal=document.createElement("div");modal.id="godResultPreview";modal.hidden=true;
@@ -233,8 +241,10 @@ export function createResultPreview(){
           const granted=await saved.queryPermission({mode:"read"});
           if(granted==="granted"){
             await showFolderFile({handle:saved,name:saved.name},token,matchingKey);
+            el("grpClearPicked").hidden=false;
             return;
           }
+          status("기존 연결 파일을 다시 열려면 '파일 선택 → 바로 보기'로 파일 접근을 허용해 주세요.");
         }catch(_){}
       }
       cleanup();
@@ -317,11 +327,16 @@ export function createResultPreview(){
       }
       const who=String(selected.report.name||"이 참석자").slice(0,35);
       if(!window.confirm("“"+file.name+"” 파일이 “"+who+"”님의 제출물이 맞습니까? 파일 소유자를 직접 확인한 경우에만 연결해 주세요."))return;
-      await saveVerifiedFile(key,handle);
-      if(token!==folderLookupToken||!current||current.key!==key)return;
+      // Display the selected file even if local browser persistence is unavailable.
       await showFolderFile({handle,name:file.name},token,key);
-      el("grpClearPicked").hidden=false;
-      status("✓ "+who+"님의 파일로 직접 확인해 연결했습니다. 다른 참석자의 자료는 표시하지 않습니다.");
+      if(token!==folderLookupToken||!current||current.key!==key)return;
+      try{
+        await saveVerifiedFile(key,handle);
+        el("grpClearPicked").hidden=false;
+        status("✓ "+who+"님의 제출 파일을 열었습니다. 이 브라우저에 연결이 저장되었습니다.");
+      }catch(_){
+        status("✓ 파일 미리보기를 열었습니다. 브라우저 저장이 제한되어 다음에 다시 선택해야 할 수 있습니다.");
+      }
     }catch(e){if(e?.name!=="AbortError")status("파일 선택 또는 저장에 실패했습니다. 아래에서 개별 파일을 직접 선택해 주세요.")}
   };
   el("grpClearPicked").onclick=async()=>{
@@ -421,10 +436,12 @@ export function createResultPreview(){
     const simple=!displayFiles.some(f=>f&&typeof f.hash==="string"&&Number.isFinite(f.size));
     el("grpInfo").textContent=displayFiles.length&&!simple?
       "제출 파일 "+displayFiles.length+"개 · 파일 내용 식별값으로 일치하는 자료를 확인합니다":
-      simple?"파일 식별값 없음 · 제출자 파일을 자동으로 구분할 수 없어 강사가 직접 확인하고 연결합니다.":
+      simple?"이 참석자의 파일이 아직 연결되지 않았습니다. 아래 노란 버튼으로 MEGA 동기화 폴더의 실제 파일을 선택하세요.":
       "기존 제출 파일명: "+safe(report.fileName);
+    modal.classList.toggle("simple-mode",simple);
     el("grpSecurePick").hidden=!simple;
-    el("grpClearPicked").hidden=!simple;
+    el("grpClearPicked").hidden=true;
+    if(simple)el("grpSecurePick").textContent="📂 "+safe(report.name)+"님의 파일 선택 → 바로 보기";
     el("grpFolder").hidden=simple;
     el("grpFolderRetry").hidden=simple;
     el("grpFolderHelp").textContent=simple?
@@ -436,7 +453,8 @@ export function createResultPreview(){
     if(links[key]&&!displayFiles.length)loadLink(links[key]);
     else {
       const p=document.createElement("p");p.textContent=simple?
-        "강사가 이 참석자의 파일을 직접 지정한 경우에만 표시됩니다.":"연결된 보관 폴더에서 파일 식별값을 확인 중입니다.";el("grpCanvas").appendChild(p);
+        "① MEGA에서 참석자의 실제 파일을 확인합니다. ② 노란색 '파일 선택 → 바로 보기' 버튼을 눌러 해당 파일을 선택합니다. ③ 확인을 누르면 여기에서 이미지가 열립니다. 다른 참석자의 파일은 검색하거나 표시하지 않습니다.":
+        "연결된 보관 폴더에서 파일 식별값을 확인 중입니다.";el("grpCanvas").appendChild(p);
       status(simple?"해당 참석자 파일 확인이 필요합니다.":"연결된 보관 폴더 검색 중…");
       previewFromFolder(folderLookupToken);
     }
