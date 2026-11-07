@@ -42,6 +42,12 @@ export function createInstructorQuickPanel({getState}){
  '#gq #gqResetAttendance:disabled{opacity:.5;cursor:not-allowed}',
  '#gq #gqResetStatus{font-size:12px;line-height:1.6;white-space:pre-line;color:#f3dba9;margin:10px 0 0}',
  '#gq .attendance-reset a{color:#ffdf9f}',
+ '#gq .submission-reset{border-color:#956774;background:#152a3b}',
+ '#gq .submission-reset summary{color:#ffe0a0}',
+ '#gq #gqSubmitResetPhrase{box-sizing:border-box;width:100%;background:#0b2131;border:1px solid #8fa7b9;border-radius:8px;padding:10px;color:#fff;font-size:13px}',
+ '#gq #gqResetSubmissions{margin-top:8px;width:100%;background:#6c3034;color:#fff5eb;border:1px solid #efacaa;border-radius:8px;padding:11px 9px;font-weight:800;cursor:pointer}',
+ '#gq #gqResetSubmissions:disabled{opacity:.5;cursor:not-allowed}',
+ '#gq #gqSubmitResetStatus{font-size:12px;line-height:1.7;white-space:pre-line;color:#f3dba9;margin:10px 0 0}',
  '#gqFeedbackBox{position:fixed;inset:0;background:#061525e8;z-index:2147480500;display:grid;place-items:center;padding:12px}',
  '#gqFeedbackBox[hidden]{display:none!important}',
  '#gqFeedbackBox .dialog{width:min(650px,96vw);background:#15334a;color:#f4f8fb;border:2px solid #efc67c;border-radius:15px;padding:20px;display:grid;gap:11px;box-shadow:0 12px 60px #0009}',
@@ -78,7 +84,16 @@ export function createInstructorQuickPanel({getState}){
  '<p id="gqResetStatus" role="status" aria-live="polite">월요일 실제 강의 시작 전, 연습 출석 명단만 비울 때 사용하세요. 삭제 전 최종 확인 창이 한 번 더 뜹니다.</p>',
  '<p class="reset-notice">권한 오류가 나오면 <a href="./submissions-setup.html" target="_blank" rel="noopener noreferrer">Firebase 규칙 생성·설정 안내</a>에서 강사 전용 출석 초기화 권한을 적용해야 합니다.</p>',
  '</details></div>',
- '<div id="gqPanelSubmit" role="region" aria-label="제출 결과물 명단" hidden><input id="gqFindSubmit" type="search" placeholder="제출자 검색" aria-label="제출 검색"><div id="gqSubmit" class="list"></div><p class="help">👁 미리보기를 누르면 제출물을 볼 수 있습니다. 처음에는 해당 참석자의 파일을 한 번 선택해야 하며, 다른 사람의 파일은 자동으로 표시하지 않습니다.</p></div>'
+ '<div id="gqPanelSubmit" role="region" aria-label="제출 결과물 명단" hidden><input id="gqFindSubmit" type="search" placeholder="제출자 검색" aria-label="제출 검색"><div id="gqSubmit" class="list"></div><p class="help">👁 미리보기를 누르면 제출물을 볼 수 있습니다. 처음에는 해당 참석자의 파일을 한 번 선택해야 하며, 다른 사람의 파일은 자동으로 표시하지 않습니다.</p>',
+ '<details class="attendance-reset submission-reset" id="gqSubmitResetDetails"><summary>⚙ 연습 제출·수신 확인 기록 일괄 지우기</summary>',
+ '<p class="reset-notice"><strong>삭제 대상:</strong> 연습 제출 신고 <b id="gqResetSubmitCount">0건</b>, 수신 확인 <b id="gqResetReviewCount">0건</b>, 저장된 피드백 <b id="gqResetFeedbackCount">0건</b>. 해당 강의실의 Firebase 제출 기록을 모두 초기화합니다. 되돌릴 수 없습니다.</p>',
+ '<p class="reset-notice"><strong>보존 대상:</strong> 엑셀 참가자 초대 명단, MEGA 원본 파일, 참석자 출석 명단, 슬라이드·판서. 이 컴퓨터의 연습 제출 미리보기 연결 정보만 추가로 정리합니다.</p>',
+ '<label class="reset-label" for="gqSubmitResetPhrase">삭제를 실행하려면 <b>제출초기화</b>를 입력하세요.</label>',
+ '<input id="gqSubmitResetPhrase" type="text" placeholder="제출초기화" autocomplete="off" spellcheck="false">',
+ '<button id="gqResetSubmissions" type="button" disabled>🗑 연습 제출·수신 확인 모두 삭제</button>',
+ '<p id="gqSubmitResetStatus" role="status" aria-live="polite">월요일 강의 시작 전 연습 제출 기록만 비울 때 사용하세요. 삭제 전 최종 확인 창이 나타납니다.</p>',
+ '<p class="reset-notice">Firebase 권한 오류가 발생하면 <a href="./submissions-setup.html" target="_blank" rel="noopener noreferrer">설정 안내</a>에서 강사 전용 제출 초기화 규칙을 적용해야 합니다.</p>',
+ '</details></div>'
  ].join('');
  parent.appendChild(pane);
  // Presenter-only popup. In projected fullscreen mode, never reveal personal names.
@@ -142,7 +157,103 @@ export function createInstructorQuickPanel({getState}){
  };
  const $=id=>pane.querySelector('#'+id);
  let uid=null,unsub=[],roster={},submitted={},rReady=false,sReady=false,known=null,writing=new Set();
- let resetBusy=false;
+ let resetBusy=false,submitResetBusy=false;
+ const submitResetPhrase="제출초기화";
+ const submitResetStatus=message=>{$('gqSubmitResetStatus').textContent=message};
+ function refreshSubmissionReset(){
+  const state=getState(),checkedCount=Object.values(submitted).filter(x=>x?.review?.checked===true).length;
+  const feedbackCount=Object.values(submitted).filter(x=>x?.feedback&&typeof x.feedback==='object').length;
+  $('gqResetSubmitCount').textContent=reports().length+'건';
+  $('gqResetReviewCount').textContent=checkedCount+'건';
+  $('gqResetFeedbackCount').textContent=feedbackCount+'건';
+  $('gqResetSubmissions').disabled=submitResetBusy||!state.teacher||!state.auth?.currentUser||!sReady||
+    !Object.keys(submitted).length||$('gqSubmitResetPhrase').value.trim()!==submitResetPhrase;
+ }
+ $('gqSubmitResetPhrase').addEventListener('input',refreshSubmissionReset);
+ // Remove only the local verified-file links for the UIDs that are being cleared.
+ // Neither the MEGA synced folder nor unrelated invitation/local data is touched.
+ async function clearPracticePreviewLinks(uids){
+  const ids=new Set(uids.filter(id=>/^[a-zA-Z0-9_-]{1,128}$/.test(id)));
+  let ok=true;
+  if(!ids.size)return true;
+  try{
+   const storageKey='god119-private-submission-links-v2';
+   const links=JSON.parse(localStorage.getItem(storageKey)||'{}');
+   if(links&&typeof links==='object'&&!Array.isArray(links)){
+    for(const id of ids)for(const key of Object.keys(links))if(key.startsWith(id+'|'))delete links[key];
+    localStorage.setItem(storageKey,JSON.stringify(links));
+   }
+  }catch(_){ok=false}
+  if(!('indexedDB' in window))return false;
+  try{
+   await new Promise((resolve,reject)=>{
+    const req=indexedDB.open('god119-private-result-folder-v1',1);
+    req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains('prefs'))req.result.createObjectStore('prefs')};
+    req.onerror=()=>reject(req.error);
+    req.onsuccess=()=>{
+     const db=req.result;
+     if(!db.objectStoreNames.contains('prefs')){db.close();resolve();return}
+     const tx=db.transaction('prefs','readwrite'),store=tx.objectStore('prefs'),get=store.getAllKeys();
+     get.onsuccess=()=>{
+      for(const key of get.result){
+       if(typeof key!=='string')continue;
+       if([...ids].some(id=>key==='verified-files-v3:'+id||key.startsWith('verified-choice-v2:'+id+'|'))){
+        store.delete(key);
+       }
+      }
+     };
+     get.onerror=()=>reject(get.error);
+     tx.oncomplete=()=>{db.close();resolve()};
+     tx.onerror=()=>{db.close();reject(tx.error)};
+     tx.onabort=()=>{db.close();reject(tx.error||Error('DB_ABORT'))};
+    };
+   });
+  }catch(_){ok=false}
+  return ok;
+ }
+ $('gqResetSubmissions').onclick=async()=>{
+  if(submitResetBusy)return;
+  const {teacher,db,F,auth,room}=getState();
+  if(!teacher||!db||!F||!auth?.currentUser||!sReady||$('gqSubmitResetPhrase').value.trim()!==submitResetPhrase){
+   submitResetStatus('강사 Google 로그인과 ‘제출초기화’ 입력을 확인해 주세요.');return;
+  }
+  submitResetBusy=true;refreshSubmissionReset();
+  try{
+   const target=F.ref(db,'submissions/'+room);
+   const snapshot=await F.get(target);
+   const all=snapshot.val()||{};
+   const uids=Object.keys(all),reportCount=Object.values(all).filter(v=>v?.report&&typeof v.report==='object').length;
+   const reviewCount=Object.values(all).filter(v=>v?.review?.checked===true).length;
+   const feedbackCount=Object.values(all).filter(v=>v?.feedback&&typeof v.feedback==='object').length;
+   if(!uids.length){submitResetStatus('초기화할 제출 기록이 없습니다. 신고·확인 모두 0건입니다.');return}
+   const approved=window.confirm(
+    '⚠ 연습 제출 기록을 모두 삭제하시겠습니까?\n\n'+
+    '제출 신고 '+reportCount+'건 / 수신 확인 '+reviewCount+'건 / 피드백 '+feedbackCount+'건\n\n'+
+    '삭제: Firebase 제출 신고·확인·피드백 및 이 브라우저의 해당 연습 미리보기 연결\n'+
+    '유지: 엑셀 초대 명단, MEGA 원본 파일, 출석 명단, 슬라이드·판서\n\n'+
+    '실제 강의용 제출자가 있다면 취소하세요. 삭제 후 복원할 수 없습니다.'
+   );
+   if(!approved){submitResetStatus('취소했습니다. 연습 제출 기록은 변경하지 않았습니다.');return}
+   submitResetStatus('연습 제출 신고 '+reportCount+'건과 수신 확인 '+reviewCount+'건을 초기화하는 중…');
+   // Only this Firebase subtree may be deleted; attendee invitations are stored separately.
+   await F.remove(target);
+   const after=await F.get(target);
+   if(after.exists())throw Error('VERIFY_FAILED');
+   const localCleared=await clearPracticePreviewLinks(uids);
+   $('gqSubmitResetPhrase').value='';
+   newReports=[];activeReport=null;submissionToast.hidden=true;
+   if(reportTimer){clearTimeout(reportTimer);reportTimer=null}
+   submitResetStatus('✓ 제출 신고 '+reportCount+'건 · 수신 확인 '+reviewCount+'건 · 피드백 '+feedbackCount+'건 삭제 완료.\n'+
+    '엑셀 초대 명단·MEGA 원본 파일은 그대로 유지됩니다.'+
+    (localCleared?'':'\n⚠ 일부 이 컴퓨터의 미리보기 연결 정보를 정리하지 못했습니다. Firebase 제출·확인 기록은 삭제됐습니다.'));
+  }catch(e){
+   const code=String(e?.code||e?.message||'');
+   submitResetStatus(/permission.denied|permission_denied/i.test(code)?
+    'Firebase 삭제 권한이 아직 적용되지 않았습니다(PERMISSION_DENIED). 강사 전용 제출 초기화 규칙을 게시한 후 다시 눌러 주세요. 현재 제출 기록은 변경되지 않았습니다.':
+    '제출 기록 초기화 또는 삭제 결과 확인에 실패했습니다 ('+code.slice(0,110)+'). 화면의 제출 신고·확인 건수를 확인해 주세요.');
+  }finally{submitResetBusy=false;refreshSubmissionReset()}
+ };
+
  const resetPhrase="출석초기화";
  const setResetStatus=message=>{$('gqResetStatus').textContent=message};
  function refreshResetControl(){
@@ -258,6 +369,7 @@ export function createInstructorQuickPanel({getState}){
    item.appendChild(state);rosterList.appendChild(item);
   }
   refreshResetControl();
+  refreshSubmissionReset();
   const search=$('gqFindSubmit').value.trim().toLowerCase();
   const selection=ss.filter(v=>!search||[v.r.name,v.r.church,v.r.fileName].some(x=>String(x||'').toLowerCase().includes(search)));
   if(!selection.length)empty(submitList,sReady?'아직 제출 신고가 없거나 검색 결과가 없습니다.':'제출 현황을 불러오는 중…');
@@ -320,6 +432,7 @@ export function createInstructorQuickPanel({getState}){
   for(const f of unsub){try{f()}catch(e){}}
   unsub=[];uid=null;roster={};submitted={};rReady=false;sReady=false;known=null;writing.clear();
   $('gqResetPhrase').value='';resetBusy=false;
+  $('gqSubmitResetPhrase').value='';submitResetBusy=false;
   if(reportTimer){clearTimeout(reportTimer);reportTimer=null}
   newReports=[];activeReport=null;submissionToast.hidden=true;$('gqNewReport').hidden=true;render();
  }
