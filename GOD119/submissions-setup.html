@@ -10,6 +10,18 @@ code{font-size:12px}.warn{color:#ffdfa3}.help{padding:11px 13px;border:1px solid
 <header><div><span class="logo">GOD119</span><span class="sublogo">실습 제출 신고 · Firebase 보안 설정</span></div><a href="./submissions-admin.html">현황판으로 돌아가기</a></header>
 <main>
  <h1>출석 등록·실습 제출 개인정보 보호 설정</h1>
+ <section class="card notice">
+  <h2>연습 참석자 명단을 일괄 삭제하려는 경우</h2>
+  <p>강사 화면의 <strong>전체 참석자 열람 → 연습 참석자 명단 일괄 지우기</strong>를 사용하려면, 강사 계정에 <strong>출석 명단 전체 삭제만 허용</strong>하는 Firebase 규칙을 한 번 게시해야 합니다. 엑셀 초대 명단은 이 Firebase 데이터베이스가 아닌, 강사 브라우저의 암호화 저장소에 보관되어 있으므로 영향을 받지 않습니다.</p>
+  <p><strong>기존 Firebase 규칙에 다른 설정을 추가해 두셨다면 전체 규칙을 덮어쓰지 마세요.</strong> 아래 2단계에서 강사 UID로 규칙을 생성한 후, 기존 규칙의 <code>attendance → god119-seminar</code>에 생성된 <code>".write"</code> 조건만 추가하셔도 됩니다.</p>
+  <pre><code>"attendance": {
+  "god119-seminar": {
+    ".read": "auth != null && auth.uid === '강사_UID'",
+    ".write": "auth != null && auth.uid === '강사_UID' && data.exists() && !newData.exists()"
+  }
+}</code></pre>
+  <p class="muted">위 코드는 변경 위치를 보여 주는 예시입니다. 기존 <code>$uid</code> 및 <code>profile</code> 규칙을 삭제하지 말고 그대로 유지하세요. 실제 규칙은 아래에서 UID를 넣어 생성해 확인할 수 있습니다.</p>
+ </section>
  <p class="muted">이 페이지는 초기 설정 안내입니다. GitHub 사이트에 UID나 개인정보를 저장하지 않으며, 보안 규칙은 목사님이 Firebase 콘솔에서 직접 게시해야 적용됩니다.</p>
  <section class="card notice">
   <strong>현재 데이터베이스 규칙을 반드시 보존하세요.</strong>
@@ -41,7 +53,7 @@ code{font-size:12px}.warn{color:#ffdfa3}.help{padding:11px 13px;border:1px solid
    <li>현재 규칙을 백업한 뒤, 위에서 복사한 전체 규칙으로 바꿉니다.</li>
    <li><strong>게시(Publish)</strong>를 눌러 저장합니다.</li>
   </ol>
-  <p class="warn">이 단계를 끝내지 않으면 참석자 신고와 강사 현황판은 작동하지 않습니다. Google 로그인 제공업체는 그대로 유지하세요.</p>
+  <p class="warn">이번 ‘연습 참석자 일괄 지우기’ 기능은 강사 전용 출석 삭제 권한을 게시해야 작동합니다. 기존 출석·제출 기능은 종전 규칙이 유지되는 한 계속 동작합니다. Google 로그인 제공업체는 그대로 유지하세요.</p>
  </section>
  <section class="card">
   <h2>4 · 참석자 출석·실습 신고를 두 기기로 테스트</h2>
@@ -67,7 +79,7 @@ code{font-size:12px}.warn{color:#ffdfa3}.help{padding:11px 13px;border:1px solid
    if(!response.ok)throw Error("규칙 파일을 읽지 못했습니다.");
    const source=await response.text();
    const rules=JSON.parse(source);
-   if(!rules.rules?.submissions||!rules.rules?.rooms||!rules.rules?.attendance)throw Error("기존 강의실·실습 신고·출석 등록 규칙이 모두 필요합니다.");
+   if(!rules.rules?.submissions||!rules.rules?.rooms||!rules.rules?.attendance?.["god119-seminar"]?.[".write"])throw Error("강사 전용 출석 일괄 삭제 규칙까지 포함된 최신 규칙이 필요합니다.");
    const value=source.replaceAll("REPLACE_WITH_PRESENTER_UID",uid);
    JSON.parse(value);
    generated=value;$("rules").textContent=value;
