@@ -168,9 +168,9 @@ export function createInstructorQuickPanel({getState}){
    const count=Object.values(all).filter(x=>x&&x.profile&&typeof x.profile.name==='string').length;
    if(!count){setResetStatus("삭제할 출석 등록자가 없습니다. 엑셀 초대 명단은 그대로 유지됩니다.");return}
    const yes=window.confirm(
-    "⚠ 연습 참석자 "+count+"명의 Firebase 출석 기록을 모두 삭제하시겠습니까?\\n\\n"+
-    "삭제: 전체 참석자 열람의 출석 등록 기록 (복원 불가)\\n"+
-    "유지: 엑셀 초대 명단, MEGA 파일, 실습 제출·확인, 슬라이드·판서\\n\\n"+
+    "⚠ 연습 참석자 "+count+"명의 Firebase 출석 기록을 모두 삭제하시겠습니까?\n\n"+
+    "삭제: 전체 참석자 열람의 출석 등록 기록 (복원 불가)\n"+
+    "유지: 엑셀 초대 명단, MEGA 파일, 실습 제출·확인, 슬라이드·판서\n\n"+
     "실제 강의 참석자가 등록 중이라면 취소하세요."
    );
    if(!yes){setResetStatus("취소했습니다. 출석 명단과 엑셀 초대 명단은 변경되지 않았습니다.");return}
