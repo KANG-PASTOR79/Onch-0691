@@ -21,6 +21,11 @@ code{font-size:12px}.warn{color:#ffdfa3}.help{padding:11px 13px;border:1px solid
   }
 }</code></pre>
   <p class="muted">위 코드는 변경 위치를 보여 주는 예시입니다. 기존 <code>$uid</code> 및 <code>profile</code> 규칙을 삭제하지 말고 그대로 유지하세요. 실제 규칙은 아래에서 UID를 넣어 생성해 확인할 수 있습니다.</p>
+  <h2>연습 제출 신고·수신 확인도 0건으로 초기화하려는 경우</h2>
+  <p>강사 화면 <strong>결과물 제출 현황 → 연습 제출·수신 확인 기록 일괄 지우기</strong>를 사용하려면, Firebase 규칙에서 <code>submissions → god119-seminar</code>의 <code>".read"</code> 바로 아래에 아래 <code>".write"</code> 조건을 추가하세요. 이 권한은 로그인한 강사가 <strong>해당 제출 자료 전체를 삭제하는 경우에만</strong> 허용됩니다.</p>
+  <pre><code>".write": "auth != null &amp;&amp; auth.uid === '기존_강사_UID' &amp;&amp; data.exists() &amp;&amp; !newData.exists()",</code></pre>
+  <p class="warn"><strong>강사_UID는 예시입니다.</strong> 바로 위 <code>".read"</code>에서 사용하는 실제 강사 UID를 동일하게 넣으세요. <code>"$uid"</code>, <code>report</code>, <code>review</code>, <code>feedback</code> 등 기존 하위 규칙은 절대 지우지 마세요.</p>
+  <p class="muted">이 작업은 Firebase에서 연습 제출 기록과 확인 상태만 삭제합니다. MEGA에 업로드한 실제 파일과 별도 암호화 초대 명단은 변경하지 않습니다. 현재 규칙을 먼저 백업하고 이번 한 줄만 병합하시면 됩니다.</p>
  </section>
  <p class="muted">이 페이지는 초기 설정 안내입니다. GitHub 사이트에 UID나 개인정보를 저장하지 않으며, 보안 규칙은 목사님이 Firebase 콘솔에서 직접 게시해야 적용됩니다.</p>
  <section class="card notice">
@@ -53,7 +58,7 @@ code{font-size:12px}.warn{color:#ffdfa3}.help{padding:11px 13px;border:1px solid
    <li>현재 규칙을 백업한 뒤, 위에서 복사한 전체 규칙으로 바꿉니다.</li>
    <li><strong>게시(Publish)</strong>를 눌러 저장합니다.</li>
   </ol>
-  <p class="warn">이번 ‘연습 참석자 일괄 지우기’ 기능은 강사 전용 출석 삭제 권한을 게시해야 작동합니다. 기존 출석·제출 기능은 종전 규칙이 유지되는 한 계속 동작합니다. Google 로그인 제공업체는 그대로 유지하세요.</p>
+  <p class="warn">연습 참석자 초기화와 연습 제출·수신 확인 초기화는 서로 다른 경로에 적용됩니다. 기존 출석·실습 제출 기능은 그대로 두고, 강사 전용 삭제 조건만 추가해 게시하세요. Google 로그인 제공업체는 그대로 유지하세요.</p>
  </section>
  <section class="card">
   <h2>4 · 참석자 출석·실습 신고를 두 기기로 테스트</h2>
@@ -79,7 +84,7 @@ code{font-size:12px}.warn{color:#ffdfa3}.help{padding:11px 13px;border:1px solid
    if(!response.ok)throw Error("규칙 파일을 읽지 못했습니다.");
    const source=await response.text();
    const rules=JSON.parse(source);
-   if(!rules.rules?.submissions||!rules.rules?.rooms||!rules.rules?.attendance?.["god119-seminar"]?.[".write"])throw Error("강사 전용 출석 일괄 삭제 규칙까지 포함된 최신 규칙이 필요합니다.");
+   if(!rules.rules?.submissions?.["god119-seminar"]?.[".write"]||!rules.rules?.rooms||!rules.rules?.attendance?.["god119-seminar"]?.[".write"])throw Error("강사 전용 출석·제출 일괄 삭제 규칙까지 포함된 최신 규칙이 필요합니다.");
    const value=source.replaceAll("REPLACE_WITH_PRESENTER_UID",uid);
    JSON.parse(value);
    generated=value;$("rules").textContent=value;
