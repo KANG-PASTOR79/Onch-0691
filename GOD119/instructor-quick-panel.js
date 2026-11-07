@@ -42,6 +42,16 @@ export function createInstructorQuickPanel({getState}){
  '#gq #gqResetAttendance:disabled{opacity:.5;cursor:not-allowed}',
  '#gq #gqResetStatus{font-size:12px;line-height:1.6;white-space:pre-line;color:#f3dba9;margin:10px 0 0}',
  '#gq .attendance-reset a{color:#ffdf9f}',
+ '#gq .roster-select{display:flex;align-items:center;gap:7px;min-width:0;flex:1}',
+ '#gq .roster-select input{width:17px;height:17px;flex:0 0 17px;accent-color:#f0c57f;cursor:pointer}',
+ '#gq .roster-select .person{min-width:0}',
+ '#gq .roster-item.selected{border-color:#f0c57f;background:#23475b}',
+ '#gq .individual-delete{background:#142f43;border:1px solid #8daaba;border-radius:9px;padding:10px;margin:8px 0 11px;display:grid;gap:7px}',
+ '#gq .individual-delete .delete-intro{color:#dcecf5;font-size:11px;line-height:1.6}',
+ '#gq #gqDeleteSelected{background:#783f42;color:#fff4ee;border:1px solid #d69b96;border-radius:8px;padding:10px;font-weight:800;cursor:pointer;width:100%}',
+ '#gq #gqDeleteSelected:disabled{opacity:.48;cursor:not-allowed}',
+ '#gq #gqDeleteSelectedStatus{font-size:12px;color:#f3dba9;line-height:1.55;white-space:pre-line;overflow-wrap:anywhere}',
+ '#gq .roster-select .state{white-space:nowrap}',
  '#gq .submission-reset{border-color:#956774;background:#152a3b}',
  '#gq .submission-reset summary{color:#ffe0a0}',
  '#gq #gqSubmitResetPhrase{box-sizing:border-box;width:100%;background:#0b2131;border:1px solid #8fa7b9;border-radius:8px;padding:10px;color:#fff;font-size:13px}',
@@ -74,7 +84,11 @@ export function createInstructorQuickPanel({getState}){
  '<button type="button" id="gqTabRoster" class="tab" aria-expanded="false" aria-controls="gqPanelRoster">👥 전체 참석자 열람 ▾</button>',
  '<button type="button" id="gqTabSubmit" class="tab" aria-expanded="false" aria-controls="gqPanelSubmit">📥 결과물 제출 현황 <span id="gqPending">0</span> ▾</button>',
  '</div><div id="gqNewReport" class="new-report" role="status" hidden>📥 새로운 실습 결과물이 제출되었습니다. 제출 탭에서 확인하세요.</div><div id="gqStats" class="stats" role="status">명단 연결 중…</div>',
- '<div id="gqPanelRoster" role="region" aria-label="전체 참석자 명단" hidden><input id="gqFindRoster" type="search" placeholder="이름·소속 검색" aria-label="참석자 검색"><div id="gqRoster" class="list"></div>',
+ '<div id="gqPanelRoster" role="region" aria-label="전체 참석자 명단" hidden><input id="gqFindRoster" type="search" placeholder="이름·소속 검색" aria-label="참석자 검색">',
+ '<div class="individual-delete"><div class="delete-intro">삭제할 참석자 이름 옆 체크박스를 선택하세요. <strong>선택한 사람만 삭제</strong>하며 출석 전체 지우기 기능은 아래에 그대로 있습니다. 엑셀 초대 명단과 제출 기록은 유지됩니다.</div>',
+ '<button id="gqDeleteSelected" type="button" disabled>🗑 선택한 참석자 삭제 (0명)</button>',
+ '<div id="gqDeleteSelectedStatus" role="status" aria-live="polite">삭제할 참석자를 선택해 주세요.</div></div>',
+ '<div id="gqRoster" class="list"></div>',
  '<details class="attendance-reset" id="gqResetDetails"><summary>⚙ 연습 참석자 명단 일괄 지우기</summary>',
  '<p class="reset-notice"><strong>삭제 대상:</strong> 이 강의실에 출석 등록된 참석자 <b id="gqResetCount">0명</b>의 Firebase 출석 기록만 삭제합니다. 되돌릴 수 없습니다.</p>',
  '<p class="reset-notice"><strong>보존 대상:</strong> 엑셀 참가자 초대 명단(암호화된 개인 브라우저 보관함), MEGA 원본 파일, 실습 제출 신고·수신 확인·피드백, 슬라이드·판서</p>',
@@ -82,7 +96,7 @@ export function createInstructorQuickPanel({getState}){
  '<input id="gqResetPhrase" type="text" placeholder="출석초기화" autocomplete="off" spellcheck="false">',
  '<button id="gqResetAttendance" type="button" disabled>🗑 출석 등록 명단 전체 삭제</button>',
  '<p id="gqResetStatus" role="status" aria-live="polite">월요일 실제 강의 시작 전, 연습 출석 명단만 비울 때 사용하세요. 삭제 전 최종 확인 창이 한 번 더 뜹니다.</p>',
- '<p class="reset-notice">권한 오류가 나오면 <a href="./submissions-setup.html" target="_blank" rel="noopener noreferrer">Firebase 규칙 생성·설정 안내</a>에서 강사 전용 출석 초기화 권한을 적용해야 합니다.</p>',
+ '<p class="reset-notice">권한 오류가 나오면 <a href="./submissions-setup.html" target="_blank" rel="noopener noreferrer">Firebase 규칙 생성·설정 안내</a>에서 강사 전용 출석 초기화 또는 개별 삭제 권한을 적용해야 합니다.</p>',
  '</details></div>',
  '<div id="gqPanelSubmit" role="region" aria-label="제출 결과물 명단" hidden><input id="gqFindSubmit" type="search" placeholder="제출자 검색" aria-label="제출 검색"><div id="gqSubmit" class="list"></div><p class="help">👁 미리보기를 누르면 제출물을 볼 수 있습니다. 처음에는 해당 참석자의 파일을 한 번 선택해야 하며, 다른 사람의 파일은 자동으로 표시하지 않습니다.</p>',
  '<details class="attendance-reset submission-reset" id="gqSubmitResetDetails"><summary>⚙ 연습 제출·수신 확인 기록 일괄 지우기</summary>',
@@ -157,7 +171,68 @@ export function createInstructorQuickPanel({getState}){
  };
  const $=id=>pane.querySelector('#'+id);
  let uid=null,unsub=[],roster={},submitted={},rReady=false,sReady=false,known=null,writing=new Set();
- let resetBusy=false,submitResetBusy=false;
+ let resetBusy=false,submitResetBusy=false,individualDeleteBusy=false;
+ const selectedAttendees=new Set();
+ const selectedStatus=message=>{$('gqDeleteSelectedStatus').textContent=message};
+ function refreshSelectedDelete(){
+  const registered=new Set(rosters().map(x=>x.id));
+  for(const id of selectedAttendees)if(!registered.has(id))selectedAttendees.delete(id);
+  const count=selectedAttendees.size;
+  const connected=!!getState().teacher&&!!getState().db&&!!getState().auth?.currentUser;
+  const btn=$('gqDeleteSelected');
+  btn.textContent='🗑 선택한 참석자 삭제 ('+count+'명)';
+  btn.disabled=individualDeleteBusy||resetBusy||!connected||!rReady||!count;
+ }
+ async function deleteSelectedAttendees(){
+  if(individualDeleteBusy||resetBusy||!selectedAttendees.size)return;
+  const {teacher,db,F,auth,room}=getState();
+  if(!teacher||!db||!F||!auth?.currentUser||!rReady){
+   selectedStatus('강사 계정 로그인과 실시간 출석 연결을 확인해 주세요.');return;
+  }
+  const people=rosters().filter(v=>selectedAttendees.has(v.id));
+  if(!people.length){selectedStatus('현재 선택된 참석자가 없습니다.');refreshSelectedDelete();return}
+  // Recheck identity against live Firebase data before offering destructive action.
+  individualDeleteBusy=true;refreshSelectedDelete();
+  try{
+   const approved=[];
+   for(const p of people){
+    const node=await F.get(F.ref(db,'attendance/'+room+'/'+p.id));
+    const profile=node.val()?.profile;
+    if(!profile||String(profile.name)!==String(p.p.name)||String(profile.church)!==String(p.p.church)){
+     selectedStatus('참석자 정보가 변경되었습니다. 명단을 새로 확인하고 다시 선택해 주세요.');
+     selectedAttendees.clear();return;
+    }
+    approved.push(p);
+   }
+   const preview=approved.slice(0,12).map(p=>'• '+String(p.p.name).slice(0,35)+' / '+String(p.p.church).slice(0,45)).join('\n');
+   const message='선택한 참석자 '+approved.length+'명의 출석 등록만 삭제하시겠습니까?\n\n'+preview+
+    (approved.length>12?'\n… 외 '+(approved.length-12)+'명':'')+
+    '\n\n유지: 다른 참석자의 출석 등록, 엑셀 초대 명단, MEGA 파일, 실습 제출·수신 확인, 강의자료\n삭제한 출석 정보는 복구할 수 없습니다.';
+   if(!window.confirm(message)){selectedStatus('취소했습니다. 모든 참석자 출석 정보가 유지됩니다.');return}
+   let completed=0,failed=0,permissionDenied=false;
+   for(const p of approved){
+    try{
+     const path=F.ref(db,'attendance/'+room+'/'+p.id);
+     await F.remove(path);
+     const verification=await F.get(path);
+     if(verification.exists())throw Error('VERIFY_FAILED');
+     completed++;selectedAttendees.delete(p.id);
+    }catch(e){
+     failed++;
+     if(/permission.denied|permission_denied/i.test(String(e?.code||e?.message||''))){
+      permissionDenied=true;
+      break;
+     }
+    }
+   }
+   selectedStatus('✓ 선택 출석 삭제 '+completed+'명 완료.'+(failed?' · 삭제 실패 '+failed+'명.':'')+
+    '\n다른 참석자·엑셀 초대 명단·MEGA·실습 제출 기록은 그대로 유지됩니다.'+
+    (permissionDenied?'\nFirebase에서 참석자 개별 삭제 권한(PERMISSION_DENIED)을 거부했습니다. 아래 안내의 $uid 규칙을 추가해야 합니다.':''));
+  }catch(e){
+   selectedStatus('삭제 전 출석 정보를 확인하지 못했습니다 ('+String(e?.code||e?.message||'연결 오류').slice(0,80)+'). 다시 시도해 주세요.');
+  }finally{individualDeleteBusy=false;refreshSelectedDelete();render()}
+ }
+ $('gqDeleteSelected').onclick=deleteSelectedAttendees;
  const submitResetPhrase="제출초기화";
  const submitResetStatus=message=>{$('gqSubmitResetStatus').textContent=message};
  function refreshSubmissionReset(){
@@ -260,12 +335,12 @@ export function createInstructorQuickPanel({getState}){
   const state=getState(),currentUid=state.auth?.currentUser?.uid;
   const count=rosters().length;
   $('gqResetCount').textContent=count+"명";
-  $('gqResetAttendance').disabled=resetBusy||!state.teacher||!currentUid||!rReady||count===0||
+  $('gqResetAttendance').disabled=resetBusy||individualDeleteBusy||!state.teacher||!currentUid||!rReady||count===0||
     $('gqResetPhrase').value.trim()!==resetPhrase;
  }
  $('gqResetPhrase').addEventListener('input',refreshResetControl);
  $('gqResetAttendance').onclick=async()=>{
-  if(resetBusy)return;
+  if(resetBusy||individualDeleteBusy)return;
   const {teacher,db,F,auth,room}=getState();
   if(!teacher||!db||!F||!auth?.currentUser||!rReady||$('gqResetPhrase').value.trim()!==resetPhrase){
    setResetStatus("강사 Google 로그인과 ‘출석초기화’ 입력을 확인해 주세요.");return;
@@ -363,12 +438,27 @@ export function createInstructorQuickPanel({getState}){
   const matching=rr.filter(v=>!q||[v.p.name,v.p.church].some(x=>String(x||'').toLowerCase().includes(q)));
   if(!matching.length)empty(rosterList,rReady?'아직 등록자가 없거나 검색 결과가 없습니다.':'참석자 명단을 불러오는 중…');
   for(const v of matching){
-   const item=row(v.p.name,v.p.church);
+   const item=document.createElement('div');item.className='item roster-item';
+   if(selectedAttendees.has(v.id))item.classList.add('selected');
+   const left=document.createElement('label');left.className='roster-select';
+   const check=document.createElement('input');check.type='checkbox';check.checked=selectedAttendees.has(v.id);
+   check.disabled=individualDeleteBusy||resetBusy;
+   check.setAttribute('aria-label',t(v.p.name,35)+'님 출석 삭제 대상으로 선택');
+   check.onchange=()=>{
+    if(check.checked)selectedAttendees.add(v.id);else selectedAttendees.delete(v.id);
+    item.classList.toggle('selected',check.checked);
+    refreshSelectedDelete();
+   };
+   const person=document.createElement('div');person.className='person';
+   const name=document.createElement('b');name.textContent=t(v.p.name,35)||'이름 없음';
+   const church=document.createElement('small');church.textContent=t(v.p.church,45)||'소속 미기재';
+   person.append(name,church);left.append(check,person);
    const state=document.createElement('span');state.className='state'+(isChecked(v.r,v.v)?' done':'');
    state.textContent=isChecked(v.r,v.v)?'✓ 확인':v.r?'제출 신고':'미제출';
-   item.appendChild(state);rosterList.appendChild(item);
+   item.append(left,state);rosterList.appendChild(item);
   }
   refreshResetControl();
+  refreshSelectedDelete();
   refreshSubmissionReset();
   const search=$('gqFindSubmit').value.trim().toLowerCase();
   const selection=ss.filter(v=>!search||[v.r.name,v.r.church,v.r.fileName].some(x=>String(x||'').toLowerCase().includes(search)));
@@ -426,12 +516,14 @@ export function createInstructorQuickPanel({getState}){
  }
  $('gqTabRoster').onclick=()=>select('roster');
  $('gqTabSubmit').onclick=()=>select('submit');
- $('gqFindRoster').oninput=render;
+ $('gqFindRoster').oninput=()=>{selectedAttendees.clear();selectedStatus('검색이 변경되어 기존 선택을 해제했습니다.');render()};
  $('gqFindSubmit').oninput=render;
  function stop(){
   for(const f of unsub){try{f()}catch(e){}}
   unsub=[];uid=null;roster={};submitted={};rReady=false;sReady=false;known=null;writing.clear();
   $('gqResetPhrase').value='';resetBusy=false;
+  selectedAttendees.clear();individualDeleteBusy=false;
+  selectedStatus('삭제할 참석자를 선택해 주세요.');
   $('gqSubmitResetPhrase').value='';submitResetBusy=false;
   if(reportTimer){clearTimeout(reportTimer);reportTimer=null}
   newReports=[];activeReport=null;submissionToast.hidden=true;$('gqNewReport').hidden=true;render();
