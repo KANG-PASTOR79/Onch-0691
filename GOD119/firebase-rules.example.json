@@ -80,7 +80,8 @@
               ".validate": false
             }
           }
-        }
+        },
+        ".write": "auth != null && auth.uid === 'REPLACE_WITH_PRESENTER_UID' && data.exists() && !newData.exists()"
       }
     },
     "attendance": {
