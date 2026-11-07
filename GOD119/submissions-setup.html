@@ -21,6 +21,18 @@ code{font-size:12px}.warn{color:#ffdfa3}.help{padding:11px 13px;border:1px solid
   }
 }</code></pre>
   <p class="muted">위 코드는 변경 위치를 보여 주는 예시입니다. 기존 <code>$uid</code> 및 <code>profile</code> 규칙을 삭제하지 말고 그대로 유지하세요. 실제 규칙은 아래에서 UID를 넣어 생성해 확인할 수 있습니다.</p>
+  <h2>선택한 참석자만 개별 삭제하려는 경우 (새 기능)</h2>
+  <p>강사 화면의 <strong>전체 참석자 열람</strong>에서 참석자의 체크박스를 선택한 다음 <strong>선택한 참석자 삭제</strong>를 누를 수 있습니다. 이때는 전체 삭제 규칙과 별개로 <code>attendance → god119-seminar → "$uid"</code> 아래에 강사 전용 삭제 허용 규칙 한 줄이 필요합니다.</p>
+  <p><strong>Firebase Realtime Database → 규칙(Rules)</strong>에서 아래처럼 <code>"$uid"</code>의 기존 <code>".read"</code> 바로 다음에 <code>".write"</code> 한 줄만 추가하세요.</p>
+  <pre><code>"$uid": {
+  ".read": "auth != null &amp;&amp; auth.uid === $uid",
+  ".write": "auth != null &amp;&amp; auth.uid === '기존_강사_UID' &amp;&amp; data.exists() &amp;&amp; !newData.exists()",
+  "profile": {
+    ... 기존 내용 그대로 유지 ...
+  }
+}</code></pre>
+  <p class="warn"><strong>주의:</strong> 위 코드는 추가 위치 안내용으로, <code>...</code> 부분을 복사해 게시하시면 안 됩니다. 실제 강사 UID는 기존 <code>attendance → god119-seminar → ".read"</code>에 들어 있는 것과 동일하게 넣으세요. <code>"profile"</code> 안의 기존 출석 등록 규칙은 수정하지 마세요.</p>
+  <p class="muted">이 규칙으로 강사는 기존 참석자의 Firebase 출석 등록 노드 하나를 삭제할 수 있지만, 다른 참석자나 실습 제출 신고·수신 확인 기록을 삭제하지는 않습니다. 엑셀 초대 명단과 MEGA 파일도 영향을 받지 않습니다. 참석자는 이후 다시 출석 등록할 수 있습니다.</p>
   <h2>연습 제출 신고·수신 확인도 0건으로 초기화하려는 경우</h2>
   <p>강사 화면 <strong>결과물 제출 현황 → 연습 제출·수신 확인 기록 일괄 지우기</strong>를 사용하려면, Firebase 규칙에서 <code>submissions → god119-seminar</code>의 <code>".read"</code> 바로 아래에 아래 <code>".write"</code> 조건을 추가하세요. 이 권한은 로그인한 강사가 <strong>해당 제출 자료 전체를 삭제하는 경우에만</strong> 허용됩니다.</p>
   <pre><code>".write": "auth != null &amp;&amp; auth.uid === '기존_강사_UID' &amp;&amp; data.exists() &amp;&amp; !newData.exists()",</code></pre>
@@ -55,7 +67,7 @@ code{font-size:12px}.warn{color:#ffdfa3}.help{padding:11px 13px;border:1px solid
   <h2>3 · Firebase Realtime Database에 규칙 게시</h2>
   <ol>
    <li>Firebase 프로젝트 → <strong>Realtime Database → 규칙</strong>을 엽니다.</li>
-   <li>현재 규칙을 백업한 뒤, 위에서 복사한 전체 규칙으로 바꿉니다.</li>
+   <li>현재 규칙을 먼저 백업하고, 필요한 강사 전용 <code>".write"</code> 조건을 기존 규칙의 정확한 위치에 추가합니다. 이전에 수정한 규칙이 있다면 전체 규칙을 덮어쓰지 마세요.</li>
    <li><strong>게시(Publish)</strong>를 눌러 저장합니다.</li>
   </ol>
   <p class="warn">연습 참석자 초기화와 연습 제출·수신 확인 초기화는 서로 다른 경로에 적용됩니다. 기존 출석·실습 제출 기능은 그대로 두고, 강사 전용 삭제 조건만 추가해 게시하세요. Google 로그인 제공업체는 그대로 유지하세요.</p>
@@ -84,7 +96,7 @@ code{font-size:12px}.warn{color:#ffdfa3}.help{padding:11px 13px;border:1px solid
    if(!response.ok)throw Error("규칙 파일을 읽지 못했습니다.");
    const source=await response.text();
    const rules=JSON.parse(source);
-   if(!rules.rules?.submissions?.["god119-seminar"]?.[".write"]||!rules.rules?.rooms||!rules.rules?.attendance?.["god119-seminar"]?.[".write"])throw Error("강사 전용 출석·제출 일괄 삭제 규칙까지 포함된 최신 규칙이 필요합니다.");
+   if(!rules.rules?.submissions?.["god119-seminar"]?.[".write"]||!rules.rules?.rooms||!rules.rules?.attendance?.["god119-seminar"]?.[".write"]||!rules.rules?.attendance?.["god119-seminar"]?.["$uid"]?.[".write"])throw Error("강사 전용 출석 개별 삭제·일괄 삭제·제출 일괄 삭제 규칙이 포함된 최신 규칙이 필요합니다.");
    const value=source.replaceAll("REPLACE_WITH_PRESENTER_UID",uid);
    JSON.parse(value);
    generated=value;$("rules").textContent=value;
