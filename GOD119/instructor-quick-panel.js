@@ -448,17 +448,26 @@ export function createInstructorQuickPanel({getState}){
    submitted=snap.val()||{};sReady=true;
    const allReports=reports();
    const next=new Map(allReports.map(v=>[v.id,Number(v.r.at)||0]));
-   const now=Date.now();
+   // The first Firebase snapshot contains existing historical submissions.
+   // Treat it as the baseline, not new live events: do not replay old
+   // practice-submission toast popups when the instructor opens/reloads.
+   if(known===null){
+    known=next;render();return;
+   }
+   // If Firebase records are cleared directly in the console (or through
+   // the protected UI), immediately dismiss queued stale submission alerts.
+   if(!allReports.length){
+    newReports=[];activeReport=null;submissionToast.hidden=true;
+    if(reportTimer){clearTimeout(reportTimer);reportTimer=null}
+    known=next;render();return;
+   }
    const changed=allReports.filter(v=>{
     const at=Number(v.r.at)||0;
-    if(!at)return false;
-    if(!known)return !isChecked(v.r,v.v)&&at>=now-60*60*1000&&at<=now+60*1000;
-    return known.get(v.id)!==at;
+    return at>0&&known.get(v.id)!==at;
    });
    known=next;
    render();
-   // Detect repeat submissions by the same account, not only newly seen UIDs.
-   // Restore a few recent unchecked submissions after a presenter reload.
+   // Only a genuinely new/re-submitted report after initial sync pops up.
    changed.sort((a,b)=>(Number(a.r.at)||0)-(Number(b.r.at)||0));
    for(const item of changed.slice(-4))announceReport(item);
   },error=>{$('gqStats').textContent='제출 현황을 읽지 못했습니다. 강사 Google 로그인과 Firebase 보안 규칙을 확인해 주세요. ('+String(error?.code||'권한 오류')+')';}));
