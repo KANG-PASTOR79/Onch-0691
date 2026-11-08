@@ -1,4 +1,4 @@
-// GOD119 slide 55 — one public MEGA sermon HWP/HWPX file, shared to all
+// GOD119 slide 56 — one public MEGA sermon HWP/HWPX file, shared to all
 // instructor and attendee screens. No private MEGA account or file bytes
 // are stored in Firebase: only an intentionally shared individual file URL.
 export function createSlide55SermonHwp({getState,getSlide,notify}){
@@ -53,7 +53,7 @@ export function createSlide55SermonHwp({getState,getSlide,notify}){
  if(teacher){
   config=document.createElement("div");config.id="godSlide55HwpConfig";config.hidden=true;
   config.innerHTML='<div class="god-hwp-dialog" role="dialog" aria-modal="true" aria-labelledby="godSermon55Title">'+
-   '<h3 id="godSermon55Title">55번 · 샘플 설교 한글파일 연결</h3>'+
+   '<h3 id="godSermon55Title">56번 · 샘플 설교 한글파일 연결</h3>'+
    '<p>MEGA 보관함에서 참석자에게 제공할 <b>.hwp 또는 .hwpx 파일 하나</b>를 선택하고 <b>개별 파일 공유 링크</b>를 복사해 붙여넣으세요. 파일 제출 요청 링크나 폴더 주소는 사용할 수 없습니다.</p>'+
    '<input type="url" id="godSermon55URL" aria-label="샘플 설교 한글파일 MEGA 공유 주소" autocomplete="off" placeholder="https://mega.nz/file/파일ID#복호화키">'+
    '<p id="godSermon55SaveStatus" role="status">저장된 링크는 참석자에게도 공개됩니다. 개인정보나 비공개 목회 기록이 없는 샘플 설교만 등록하세요.</p>'+
@@ -75,7 +75,7 @@ export function createSlide55SermonHwp({getState,getSlide,notify}){
     await F.set(F.ref(db,"rooms/"+room+"/"+roomKey),value);
     currentUrl=value;config.hidden=true;update();
     if(inlineStatus)inlineStatus.textContent="✓ 연결 성공 · 강사와 참석자 모두 다운로드할 수 있습니다.";
-    notify("55번 샘플 설교 한글파일 링크가 강사·참석자 화면에 연결되었습니다.");
+    notify("56번 샘플 설교 한글파일 링크가 강사·참석자 화면에 연결되었습니다.");
    }catch(e){configStatus.textContent="저장하지 못했습니다. Firebase 강사 로그인과 쓰기 권한을 확인하세요.";if(inlineStatus)inlineStatus.textContent=configStatus.textContent}
    finally{btn.disabled=false}
   };
@@ -98,11 +98,11 @@ export function createSlide55SermonHwp({getState,getSlide,notify}){
   }
  }
  function mount(hotspots,links){
-  if(getSlide()!==55)return;
+  if(getSlide()!==56)return;
   corner=document.createElement("div");corner.id="godSlide55Sermon";corner.setAttribute("aria-label","샘플 설교 한글파일 다운로드");
   const title=document.createElement("div");title.className="god-hwp-label";
   title.textContent="📄 실습용 샘플 설교 한글파일";
-  const note=document.createElement("small");note.textContent="55번 · 설교 쇼츠 제작 실습 자료 (HWP/HWPX)";
+  const note=document.createElement("small");note.textContent="56번 · 설교 쇼츠 제작 실습 자료 (HWP/HWPX)";
   title.appendChild(note);
   downloadBtn=document.createElement("button");downloadBtn.type="button";
   downloadBtn.onclick=download;
@@ -110,7 +110,7 @@ export function createSlide55SermonHwp({getState,getSlide,notify}){
   if(teacher){
    settingBtn=document.createElement("button");settingBtn.type="button";settingBtn.className="god-hwp-config";
    settingBtn.onclick=()=>{
-    if(getSlide()!==55||!config)return;
+    if(getSlide()!==56||!config)return;
     configInput.value=currentUrl;
     configStatus.textContent=currentUrl?"기존 링크가 연결되어 있습니다. 다른 파일을 공유하려면 주소를 변경하세요.":"MEGA의 샘플 설교 HWP/HWPX 파일에 대한 개별 공유 링크를 붙여넣으세요.";
     config.hidden=false;configInput.focus();
@@ -132,9 +132,9 @@ export function createSlide55SermonHwp({getState,getSlide,notify}){
   // configuration and download controls visible at normal desktop zoom.
   // The stage hotspot above remains an additional shortcut.
   inlinePanel=document.createElement("section");inlinePanel.id="godSermon55Inline";
-  inlinePanel.setAttribute("aria-label","55번 샘플 설교 한글파일 다운로드 및 공유");
+  inlinePanel.setAttribute("aria-label","56번 샘플 설교 한글파일 다운로드 및 공유");
   const heading=document.createElement("strong");
-  heading.textContent="📄 55번 · 실습용 샘플 설교 한글파일 다운로드";
+  heading.textContent="📄 56번 · 실습용 샘플 설교 한글파일 다운로드";
   const intro=document.createElement("div");intro.className="god-sermon-instructions";
   intro.textContent=teacher?
     "강사 설정: MEGA 보관함에서 HWP/HWPX 개별 파일의 공유 주소를 아래에 붙여넣고 저장하세요. 참석자 화면에도 같은 다운로드 버튼이 생깁니다.":
@@ -222,6 +222,6 @@ export function createSlide55SermonHwp({getState,getSlide,notify}){
    setStatus("샘플 설교 파일 링크를 읽지 못했습니다. 강의실 연결을 확인하세요.");
   });
  }
- function onSlide(){if(getSlide()!==55&&config)config.hidden=true}
+ function onSlide(){if(getSlide()!==56&&config)config.hidden=true}
  return {mount,ready,onSlide};
 }
