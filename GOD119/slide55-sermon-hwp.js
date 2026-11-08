@@ -6,6 +6,7 @@ export function createSlide55SermonHwp({getState,getSlide,notify}){
  const roomKey="slide55SampleSermonHwpUrl";
  let currentUrl="",unsubscribe=null,corner=null,downloadBtn=null,settingBtn=null,progress=null,externalLink=null;
  let config=null,configInput=null,configStatus=null,downloading=false;
+ let inlinePanel=null,inlineInput=null,inlineSaveBtn=null,inlineDownloadBtn=null,inlineStatus=null,inlineAltLink=null;
  const allowedURL=raw=>{
   if(typeof raw!=="string"||raw.length>1500)return null;
   try{
@@ -25,7 +26,16 @@ export function createSlide55SermonHwp({getState,getSlide,notify}){
   "#godSlide55Sermon button{pointer-events:auto;min-width:0;border:1px solid #ffe5af;border-radius:9px;background:#f4cb83;color:#102f40;padding:clamp(6px,.7vw,11px) clamp(8px,.85vw,15px);font-size:clamp(11px,1vw,18px);font-weight:900;cursor:pointer;white-space:nowrap}",
   "#godSlide55Sermon button:disabled{opacity:.6;cursor:not-allowed}",
   "#godSlide55Sermon .god-hwp-config{background:#2d5066;color:#fff;border-color:#8caec2;font-size:clamp(9px,.78vw,14px)}",
-  "#godSlide55Sermon .god-hwp-open{font-size:clamp(9px,.8vw,14px);color:#e1f4ff;white-space:nowrap}",
+  "#godSlide55Sermon .god-hwp-open{position:static!important;display:inline-flex!important;border:0!important;background:none!important;font-size:clamp(9px,.8vw,14px);color:#e1f4ff;white-space:nowrap}",
+  "#godSermon55Inline{display:flex;flex-direction:column;gap:10px;box-sizing:border-box;margin:13px 0 15px;padding:16px 18px;border:2px solid #ebbd6d;border-radius:12px;background:linear-gradient(120deg,#152b45,#1b4355);color:#f7fafc;box-shadow:0 8px 22px #0004}",
+  "#godSermon55Inline strong{display:block;font-size:18px;color:#ffe0a1}",
+  "#godSermon55Inline .god-sermon-instructions{font-size:14px;line-height:1.6;color:#dcebf4}",
+  "#godSermon55Inline .god-sermon-controls{display:flex;gap:9px;align-items:center;flex-wrap:wrap}",
+  "#godSermon55Inline input{flex:1;min-width:220px;box-sizing:border-box;min-height:43px;border:1px solid #94b4c9;border-radius:8px;background:#092238;color:#fff;font-size:14px;padding:9px 12px}",
+  "#godSermon55Inline button{min-height:43px;border-radius:8px;border:1px solid #ffd995;padding:9px 14px;cursor:pointer;background:#f2c77f;color:#1a2d3b;font-weight:850;font-size:14px}",
+  "#godSermon55Inline button:disabled{opacity:.5;cursor:not-allowed}",
+  "#godSermon55Inline a{display:inline-flex!important;position:static!important;text-decoration:none;border:1px solid #8fb4c8;padding:10px 13px;margin:0;color:#e2f5ff;background:#23495f;border-radius:8px;font-size:13px;font-weight:700}",
+  "#godSermon55Inline [role=status]{font-size:13px;color:#ffe0a1;line-height:1.5}",
   "#godSlide55HwpConfig[hidden]{display:none!important}",
   "#godSlide55HwpConfig{position:absolute;inset:0;z-index:25;background:#071427ed;display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding:3%}",
   "#godSlide55HwpConfig .god-hwp-dialog{background:#142e49;border:2px solid #e9bf77;border-radius:15px;width:min(92%,760px);color:#f4f9ff;padding:clamp(14px,2vw,30px);box-shadow:0 17px 45px #0009}",
@@ -64,12 +74,13 @@ export function createSlide55SermonHwp({getState,getSlide,notify}){
    try{
     await F.set(F.ref(db,"rooms/"+room+"/"+roomKey),value);
     currentUrl=value;config.hidden=true;update();
+    if(inlineStatus)inlineStatus.textContent="✓ 연결 성공 · 강사와 참석자 모두 다운로드할 수 있습니다.";
     notify("55번 샘플 설교 한글파일 링크가 강사·참석자 화면에 연결되었습니다.");
-   }catch(e){configStatus.textContent="저장하지 못했습니다. Firebase 강사 로그인과 쓰기 권한을 확인하세요."}
+   }catch(e){configStatus.textContent="저장하지 못했습니다. Firebase 강사 로그인과 쓰기 권한을 확인하세요.";if(inlineStatus)inlineStatus.textContent=configStatus.textContent}
    finally{btn.disabled=false}
   };
  }
- function setStatus(message){if(progress)progress.textContent=message}
+ function setStatus(message){if(progress)progress.textContent=message;if(inlineStatus)inlineStatus.textContent=message}
  function update(){
   if(!corner)return;
   if(downloadBtn){
@@ -78,12 +89,15 @@ export function createSlide55SermonHwp({getState,getSlide,notify}){
    downloadBtn.title=currentUrl?"샘플 설교 HWP/HWPX를 GOD119에서 바로 내려받습니다.":"강사가 MEGA 샘플 설교 주소를 연결하면 활성화됩니다.";
   }
   if(settingBtn)settingBtn.textContent=currentUrl?"⚙ 링크 변경":"🔗 MEGA 링크 연결";
+  if(inlineDownloadBtn){inlineDownloadBtn.disabled=!currentUrl||downloading;inlineDownloadBtn.textContent=downloading?"내려받는 중…":currentUrl?"⬇ 샘플 설교 한글파일 다운로드":"⬇ 강사 링크 등록 후 다운로드";}
+  if(inlineAltLink){inlineAltLink.hidden=!currentUrl;if(currentUrl)inlineAltLink.href=currentUrl;}
+  if(inlineSaveBtn)inlineSaveBtn.textContent=currentUrl?"링크 변경 · 참석자에게 공유":"링크 저장 · 참석자에게 공유";
   if(externalLink){
    externalLink.hidden=!currentUrl;
    if(currentUrl)externalLink.href=currentUrl;
   }
  }
- function mount(hotspots){
+ function mount(hotspots,links){
   if(getSlide()!==55)return;
   corner=document.createElement("div");corner.id="godSlide55Sermon";corner.setAttribute("aria-label","샘플 설교 한글파일 다운로드");
   const title=document.createElement("div");title.className="god-hwp-label";
@@ -114,6 +128,50 @@ export function createSlide55SermonHwp({getState,getSlide,notify}){
   progress.style.cssText="position:absolute;left:5.5%;top:93%;width:68%;font-size:clamp(10px,.8vw,14px);color:#ffe0a9;z-index:6;pointer-events:none;";
   progress.setAttribute("role","status");progress.setAttribute("aria-live","polite");
   hotspots.appendChild(progress);
+  // Permanent inline resource card outside the 16:9 image keeps the
+  // configuration and download controls visible at normal desktop zoom.
+  // The stage hotspot above remains an additional shortcut.
+  inlinePanel=document.createElement("section");inlinePanel.id="godSermon55Inline";
+  inlinePanel.setAttribute("aria-label","55번 샘플 설교 한글파일 다운로드 및 공유");
+  const heading=document.createElement("strong");
+  heading.textContent="📄 55번 · 실습용 샘플 설교 한글파일 다운로드";
+  const intro=document.createElement("div");intro.className="god-sermon-instructions";
+  intro.textContent=teacher?
+    "강사 설정: MEGA 보관함에서 HWP/HWPX 개별 파일의 공유 주소를 아래에 붙여넣고 저장하세요. 참석자 화면에도 같은 다운로드 버튼이 생깁니다.":
+    "강사가 등록한 샘플 설교 HWP/HWPX 파일을 내려받아 설교 쇼츠 실습에 이용하세요.";
+  const controls=document.createElement("div");controls.className="god-sermon-controls";
+  if(teacher){
+   inlineInput=document.createElement("input");inlineInput.type="url";
+   inlineInput.placeholder="https://mega.nz/file/파일ID#복호화키";
+   inlineInput.setAttribute("aria-label","MEGA 샘플 설교 한글파일 개별 공유 주소 붙여넣기");
+   inlineInput.autocomplete="off";
+   inlineInput.value=currentUrl;
+   inlineSaveBtn=document.createElement("button");inlineSaveBtn.type="button";
+   inlineSaveBtn.onclick=()=>{
+    if(!config||!configInput)return;
+    const raw=inlineInput.value.trim();
+    if(!allowedURL(raw)){
+     inlineStatus.textContent="MEGA 개별 파일의 전체 공유 주소를 입력하세요. 폴더 링크나 파일 제출 요청 주소는 사용할 수 없습니다.";
+     inlineInput.focus();return;
+    }
+    configInput.value=raw;
+    // The original presenter-only validated save logic, confirmation prompt,
+    // and Firebase write are reused; no second storage location is introduced.
+    config.hidden=false;
+    config.querySelector("#godSermon55Save").click();
+   };
+   controls.append(inlineInput,inlineSaveBtn);
+  }
+  inlineDownloadBtn=document.createElement("button");inlineDownloadBtn.type="button";
+  inlineDownloadBtn.onclick=download;controls.appendChild(inlineDownloadBtn);
+  inlineAltLink=document.createElement("a");inlineAltLink.target="_blank";
+  inlineAltLink.rel="noopener noreferrer";inlineAltLink.textContent="MEGA 파일 화면에서 받기 ↗";
+  controls.appendChild(inlineAltLink);
+  inlineStatus=document.createElement("div");inlineStatus.setAttribute("role","status");
+  inlineStatus.setAttribute("aria-live","polite");
+  inlineStatus.textContent=currentUrl?"✓ 공유 주소 연결됨 · 다운로드 가능":"MEGA 샘플 설교 주소가 아직 연결되지 않았습니다.";
+  inlinePanel.append(heading,intro,controls,inlineStatus);
+  links.appendChild(inlinePanel);
   update();
  }
  async function download(){
@@ -159,7 +217,7 @@ export function createSlide55SermonHwp({getState,getSlide,notify}){
   const {F,db,room}=getState();
   if(!F||!db)return;
   unsubscribe=F.onValue(F.ref(db,"rooms/"+room+"/"+roomKey),snap=>{
-   currentUrl=allowedURL(snap.val())||"";update();
+   currentUrl=allowedURL(snap.val())||"";update();if(inlineStatus)inlineStatus.textContent=currentUrl?"✓ MEGA 샘플 설교 공유 링크 연결 완료":"아직 MEGA 샘플 설교 공유 링크가 없습니다.";
   },()=>{
    setStatus("샘플 설교 파일 링크를 읽지 못했습니다. 강의실 연결을 확인하세요.");
   });
