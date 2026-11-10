@@ -56,11 +56,39 @@ footer{text-align:center;color:#8eaac0;font-size:12px;padding:25px}
 .welcome-contact a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;border-radius:10px;background:#f3c883;padding:10px 18px;color:#152e40;font-size:clamp(14px,1.2vw,17px);font-weight:900;text-decoration:none}
 .welcome-contact a:hover,.welcome-contact a:focus-visible{background:#ffe0ae;outline:2px solid #fff3d3;outline-offset:2px}
 @media(max-width:600px){.welcome-intro{margin:9px}.welcome-body{padding:18px 16px}.welcome-body p{font-size:15px;line-height:1.7}.welcome-body h2{font-size:23px}.welcome-contact a{width:100%}}
+
+/* 66번: 공개 프롬프트 ZIP 실습자료 — 강의 진행과 독립된 슬라이드 */
+#prompt66[hidden],#promptAdmin[hidden]{display:none!important}
+.stage.prompt-mode{aspect-ratio:16/9}
+#prompt66{position:absolute;inset:0;z-index:4;display:flex;flex-direction:column;padding:clamp(15px,3.2%,32px);background:radial-gradient(circle at 92% 12%,#1a6677 0%,#133251 45%,#09182e 100%);color:#fff}
+.prompt66-kicker{color:#f6c47d;font-size:clamp(9px,1.1vw,17px);font-weight:900;letter-spacing:.13em}
+#prompt66 h2{font-size:clamp(28px,3.25vw,50px);margin:.25em 0 .05em;line-height:1.16;color:#ffe5ae}
+.prompt66-sub{font-size:clamp(11px,1.1vw,19px);margin:0 0 2.3%;color:#d1e8f5}
+.prompt66-grid{display:grid;grid-template-columns:1fr 1fr;gap:2.4%;flex:1;min-height:0}
+.prompt66-card{border:2px solid #70b7c6;border-radius:clamp(8px,.8vw,16px);background:linear-gradient(130deg,#1a4263,#0c263f);padding:clamp(12px,1.65vw,27px);display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;min-width:0;min-height:0;box-shadow:0 10px 22px #0004}
+.prompt66-card .num{display:inline-flex;color:#213748;background:#f3ca83;padding:5px 11px;border-radius:999px;font-size:clamp(10px,.92vw,14px);font-weight:900}
+.prompt66-card h3{font-size:clamp(16px,1.7vw,27px);color:#fff;margin:.4em 0;line-height:1.3;word-break:keep-all}
+.prompt66-card p{font-size:clamp(11px,1vw,16px);color:#bed5e7;margin:0 0 .5em;line-height:1.48}
+.prompt66-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:8px}
+.prompt66-actions button,.prompt66-actions a{border:1px solid #ffe4b4;border-radius:8px;background:#f6ca80;color:#142f41;padding:clamp(7px,.76vw,12px) clamp(9px,1.2vw,20px);font-size:clamp(10px,.9vw,15px);font-weight:900;text-decoration:none;cursor:pointer;white-space:nowrap}
+.prompt66-actions button:disabled{opacity:.57;cursor:not-allowed}
+.prompt66-actions a{background:#214c68;border-color:#a9cbdb;color:#e6f5ff}
+.prompt66-status{font-size:clamp(9px,.78vw,12px);color:#ffdfa5;line-height:1.4;margin-top:5px}
+#promptAdmin{border:2px solid #e8c481;background:#0c2c45;margin:13px;padding:18px;border-radius:12px;display:grid;gap:11px}
+#promptAdmin h3{font-size:18px;color:#ffdf9c;margin:0}
+#promptAdmin p,#promptAdmin .auth-status{font-size:13px;color:#d3e8f1;margin:0;line-height:1.6}
+#promptAdmin label{font-size:14px;font-weight:800;display:grid;gap:6px}
+#promptAdmin input{border:1px solid #81a3b8;border-radius:8px;background:#061d30;color:#fff;width:100%;padding:12px;font-size:14px}
+#promptAdmin button{border:1px solid #f1d29a;border-radius:8px;background:#efc77e;color:#172e40;font-weight:900;font-size:14px;min-height:42px;padding:8px 15px}
+#promptAdmin button:disabled{opacity:.5}
+#promptAdmin .admin-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+#promptSaveStatus{font-size:13px;color:#ffdda0;line-height:1.5}
+@media(max-width:710px){.stage.prompt-mode{aspect-ratio:auto;min-height:570px}#prompt66{padding:16px}#prompt66 h2{font-size:35px}.prompt66-sub{font-size:13px;margin-bottom:12px}.prompt66-grid{grid-template-columns:1fr;gap:12px}.prompt66-card{min-height:190px;padding:14px}.prompt66-card h3{font-size:20px}.prompt66-card p{font-size:13px}.prompt66-actions button,.prompt66-actions a{font-size:12px}.prompt66-status{font-size:11px}}
 </style></head><body>
-<header><div class="brand"><div class="logo">GOD119</div><div><strong>강의자료 다시보기</strong><small>AI MINISTRY SEMINAR · 65 SLIDES</small></div></div><div class="always">강사가 접속하지 않아도 열람 가능</div></header>
-<main><h1>AI 목회자 세미나 · 슬라이드와 실습자료</h1><p class="lead">65장 슬라이드를 직접 넘기며 복습하고, 공개된 MEGA 실습자료를 내려받으세요.<br>별도 출석 등록이나 강사 접속이 필요하지 않습니다.</p>
+<header><div class="brand"><div class="logo">GOD119</div><div><strong>강의자료 다시보기</strong><small>AI MINISTRY SEMINAR · 66 SLIDES</small></div></div><div class="always">강사가 접속하지 않아도 열람 가능</div></header>
+<main><h1>AI 목회자 세미나 · 슬라이드와 실습자료</h1><p class="lead">66장 슬라이드를 직접 넘기며 복습하고, 공개된 MEGA 실습자료를 내려받으세요.<br>별도 출석 등록이나 강사 접속이 필요하지 않습니다.</p>
 <div class="layout">
-<section class="panel"><div class="panel-title" id="heading">01 / 65 · AI 목회자 세미나</div>
+<section class="panel"><div class="panel-title" id="heading">01 / 66 · AI 목회자 세미나</div>
 <section id="welcomeIntro" class="welcome-intro" aria-labelledby="welcomeTitle">
  <div class="welcome-top">WELCOME MESSAGE · 제일신목회세미나</div>
  <div class="welcome-body">
@@ -76,40 +104,69 @@ footer{text-align:center;color:#8eaac0;font-size:12px;padding:25px}
   </div>
  </div>
 </section>
-<div class="stage-pad"><div id="stage" class="stage"><div id="err" class="error" hidden>슬라이드 파일을 열 수 없습니다.</div><img id="picture" alt="강의 슬라이드"><div id="hotspots"></div></div></div>
+<div class="stage-pad"><div id="stage" class="stage"><div id="err" class="error" hidden>슬라이드 파일을 열 수 없습니다.</div><img id="picture" alt="강의 슬라이드"><div id="hotspots"></div><div id="prompt66" hidden aria-label="66번 프롬프트 자료 다운로드">
+ <div class="prompt66-kicker">GOD119 · AI MINISTRY · 66 / 66</div>
+ <h2>프롬프트</h2>
+ <p class="prompt66-sub">강의에 활용한 프롬프트 자료를 압축파일로 받아 직접 실습해 보세요.</p>
+ <div class="prompt66-grid">
+  <section class="prompt66-card" aria-labelledby="lectureZipTitle">
+   <div><span class="num">01 · 강의자료</span><h3 id="lectureZipTitle">강의사이트 제작 프롬프트</h3><p>슬라이드 공유 웹사이트 제작과 GitHub·Firebase 연결 안내가 담긴 실습용 ZIP입니다.</p></div>
+   <div><div class="prompt66-actions"><button type="button" id="promptZipLecture">⬇ ZIP 다운로드</button><a id="promptMegaLecture" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" hidden>MEGA에서 받기 ↗</a></div><div class="prompt66-status" id="promptStatusLecture" role="status">MEGA 파일 연결을 확인 중입니다.</div></div>
+  </section>
+  <section class="prompt66-card" aria-labelledby="financeZipTitle">
+   <div><span class="num">02 · 교회 재정</span><h3 id="financeZipTitle">재정웹사이트 제작 프롬프트</h3><p>개인 컴퓨터에서 실행하는 교회 재정관리 웹 제작 실습용 ZIP입니다.</p></div>
+   <div><div class="prompt66-actions"><button type="button" id="promptZipFinance">⬇ ZIP 다운로드</button><a id="promptMegaFinance" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer" hidden>MEGA에서 받기 ↗</a></div><div class="prompt66-status" id="promptStatusFinance" role="status">MEGA 파일 연결을 확인 중입니다.</div></div>
+  </section>
+ </div>
+</div></div></div>
 <div class="controls"><button id="prev" type="button">← 이전</button><button id="next" type="button">다음 →</button><select id="choose" aria-label="슬라이드 선택"></select><button id="fullscreen" type="button">전체화면</button></div>
-<div class="caption">슬라이드 이동은 이 화면에만 적용됩니다. <span id="caption">강사의 실시간 화면과 동기화되지 않는 독립 다시보기입니다.</span></div></section>
+<div class="caption">슬라이드 이동은 이 화면에만 적용됩니다. <span id="caption">강사의 실시간 화면과 동기화되지 않는 독립 다시보기입니다.</span></div><section id="promptAdmin" hidden aria-labelledby="promptAdminTitle">
+ <h3 id="promptAdminTitle">🔐 강사 전용 · 66번 프롬프트 MEGA ZIP 링크 연결</h3>
+ <p>강사만 사용하는 설정입니다. MEGA의 <strong>개별 ZIP 파일 공유 주소</strong>를 아래에 입력하세요. Firebase에서 강사 권한을 확인한 뒤 저장됩니다. 등록된 파일 주소는 참석자에게 공개됩니다.</p>
+ <div class="admin-controls"><button id="promptLogin" type="button">Google 계정으로 강사 로그인</button><button id="promptLogout" type="button" hidden>로그아웃</button><span class="auth-status" id="promptAuthStatus" role="status">강사 로그인 확인 중…</span></div>
+ <label for="promptInputLecture">1. 강의사이트 제작 프롬프트 ZIP의 MEGA 링크<input id="promptInputLecture" type="url" autocomplete="off" placeholder="https://mega.nz/file/파일ID#복호화키"></label>
+ <label for="promptInputFinance">2. 재정웹사이트 제작 프롬프트 ZIP의 MEGA 링크<input id="promptInputFinance" type="url" autocomplete="off" placeholder="https://mega.nz/file/파일ID#복호화키"></label>
+ <div class="admin-controls"><button id="promptSave" type="button" disabled>입력한 링크 저장 · 참석자에게 공개</button><span id="promptSaveStatus" role="status" aria-live="polite">URL을 입력한 후 저장해 주세요. 링크를 등록하지 않은 항목은 나중에 별도로 등록할 수 있습니다.</span></div>
+</section></section>
 <aside class="panel resources"><header><h2>📂 실습자료 다운로드</h2><p>MEGA 공개 공유 링크를 통해 파일을 받습니다.</p></header><span id="resourceStatus" role="status">자료 목록을 확인하고 있습니다.</span><button id="reload" type="button">↻ 자료 목록 새로고침</button><div id="cards"></div></aside>
 </div>
 <div class="info"><strong>안내</strong> · 이 페이지는 강의 후 복습용으로 언제든 열 수 있습니다. 원본 슬라이드와 공개 실습 화면만 제공하며, 실시간 판서·출석 명단·제출 내역·강사 전용 NotebookLM 주소는 포함하지 않습니다. MEGA 파일은 공유가 유지되는 동안 다운로드할 수 있으며, MEGA 사이트에서 <strong>다운로드</strong>를 눌러야 합니다. 링크를 아는 사람은 누구나 열 수 있으므로 불필요한 재배포는 삼가 주세요.</div>
 <footer>GOD119 · AI 목회자 세미나 · 자유 열람 자료실</footer></main>
+<script src="./config.js"></script>
 <script type="module">
 import {createWebsiteWorkshop} from "./website-workshop.js?v=replay-20261110";
 const TITLES=["AI 목회자 세미나","과거 사역활용 및 AI 실제 사용","꿈을 먹고 살지요","여러분의 AI 실력 성장","대심방 시 부재중 합성","5년 전 교회 모습","현재 교회 모습","주보 표지 제작","한 주간 말씀 게시물","AI 영상 활용","설교 Shorts","AI 목회계획서","목회 활용 사례 13","목회 활용 사례 14","목회 활용 사례 15","목회 활용 사례 16","목회 활용 사례 17","목회 활용 사례 18","목회 활용 사례 19","목회 활용 사례 20","목회 활용 사례 21","목회 활용 사례 22","목회 활용 사례 23","목회 활용 사례 24","목회 활용 사례 25","목회 활용 사례 26","목회 활용 사례 27","홍보물 만들기 실습","실전 가이드","프롬프트 정밀화","설교 보조작업","설교 프롬프트 실전","연간 목회계획서 제작","학습 목표","AI와 목회자의 역할","나쁜 프롬프트","좋은 프롬프트","프롬프트 6요소","역할 정의","목적 설정","교회 현황","과업 정의","조건 설정","출력 형식","마스터 프롬프트","실습: 교회 정보 입력","실습: AI와 대화","AI 결과 검증","1단계 · 실제 프롬프트 사용으로 인한 목회계획 제작","프롬프트 용어","단계별 실습","월별 목회계획","결과물 출력","AI는 도구, 목회는 사명","4. 설교 쇼츠 제작","설교 전 요약 영상","AI로 우리 교회 웹사이트 만들기","ChatGPT 실행 및 실습 준비","프롬프트 ① 교회 홈페이지 제작","홈페이지 HTML 저장과 실행","프롬프트 ② 디자인 수정","디자인 수정 결과 확인","프롬프트 ③ 강의 슬라이드 제작","강의 슬라이드 기능 시험","실습 마무리와 안전 점검"];
+TITLES.push("프롬프트");
 const FIXED=[{"id":"choir","title":"삼손중창단 행사 홍보영상","type":"영상","n":10,"url":"https://mega.nz/file/6qxwCIRZ#hjUnv-AjIvEGEq7yZuuf0zLcM4d4SVJgqVyycZsmdrg"},{"id":"summary","title":"주일설교 요약 영상","type":"영상","n":10,"url":"https://mega.nz/file/uqZRHLgA#8AXm5RoZ_QK0uy2VNp1MiKHr5iJt371ERC2n6JV3gGU"},{"id":"plan","title":"목회계획서 참고자료","type":"문서","n":12,"url":"https://mega.nz/file/yy5UURwA#epnjq9xEPVEQPwKDxSq4X1Flz8Ndo-eXwHwqYOjbfvk"},{"id":"jeju","title":"제주 수련회 일정표","type":"문서","n":23,"url":"https://mega.nz/file/vuw1QTSZ#baqzDFqS8A6y5d_grqpyPMpzEUrG32qhALx5kr10x2o"}];
 const DYNAMIC=[
  {id:"pdf",title:"신약주석 PDF",type:"PDF",n:31,path:"resourceLinks/newTestamentPdf"},
  {id:"result",title:"목회계획서 실습 결과물",type:"DOCX",n:53,path:"slide53PlanUrl"},
  {id:"capcut",title:"캡컷 실습자료 ZIP",type:"ZIP",n:55,path:"resourceLinks/capcutMaterialsZip"},
  {id:"hwp",title:"샘플 설교 한글파일",type:"HWP/HWPX",n:56,path:"slide55SampleSermonHwpUrl"},
- {id:"folder",title:"세미나 공유자료 폴더",type:"폴더",n:10,path:"slide10VideosPublished/folder"}
+ {id:"folder",title:"세미나 공유자료 폴더",type:"폴더",n:10,path:"slide10VideosPublished/folder"},
+ {id:"lectureZip",title:"강의사이트 제작 프롬프트",type:"ZIP",n:66,path:"resourceLinks/promptLectureSiteZip"},
+ {id:"financeZip",title:"재정웹사이트 제작 프롬프트",type:"ZIP",n:66,path:"resourceLinks/promptFinanceWebZip"}
 ];
 const $=x=>document.getElementById(x),workshop=createWebsiteWorkshop(),picture=$("picture"),choices=$("choose");
 let current=1,downloadLinks=Object.fromEntries(FIXED.map(x=>[x.id,x.url])),startTouch=null;
 const pad=n=>String(n).padStart(2,"0");
 for(let i=0;i<TITLES.length;i++){const opt=document.createElement("option");opt.value=i+1;opt.textContent=pad(i+1)+" · "+TITLES[i];choices.appendChild(opt)}
 function show(n){
- current=Math.min(65,Math.max(1,Number(n)||1));choices.value=current;
- $("heading").textContent=pad(current)+" / 65 · "+TITLES[current-1];
- $("prev").disabled=current===1;$("next").disabled=current===65;
+ current=Math.min(66,Math.max(1,Number(n)||1));choices.value=current;
+ $("heading").textContent=pad(current)+" / 66 · "+TITLES[current-1];
+ $("prev").disabled=current===1;$("next").disabled=current===66;
  $("welcomeIntro").hidden=current!==1;
- const web=current>=57;picture.hidden=web;$("err").hidden=true;
- workshop.onSlide(current);
- if(!web){
+ const isPrompt=current===66,web=current>=57&&current<=65;
+ picture.hidden=web||isPrompt;$("err").hidden=true;
+ $("prompt66").hidden=!isPrompt;$("stage").classList.toggle("prompt-mode",isPrompt);
+ workshop.onSlide(isPrompt?0:current);
+ if(!web&&!isPrompt){
   picture.onerror=()=>{$("err").hidden=false;$("err").textContent="슬라이드 이미지를 불러올 수 없습니다. 새로고침해 주세요."};
   picture.src="slides/slide-"+pad(current)+".webp";picture.alt="강의 슬라이드 "+current+" · "+TITLES[current-1];
  }
- $("caption").textContent=web?"웹사이트·웹 슬라이드 만들기 실습 · 프롬프트를 복사할 수 있습니다.":"원본 슬라이드 이미지 · 자유롭게 다시보기";
+ $("caption").textContent=isPrompt?"두 개의 ZIP 자료를 개별로 내려받아 실습할 수 있습니다.":web?"웹사이트·웹 슬라이드 만들기 실습 · 프롬프트를 복사할 수 있습니다.":"원본 슬라이드 이미지 · 자유롭게 다시보기";
+ if(isPrompt)refreshPromptButtons();
+ $("promptAdmin").hidden=!(isPrompt&&isTeacherMode);
  const u=new URL(location.href);u.searchParams.set("slide",current);history.replaceState(null,"",u.pathname+u.search);
 }
 function safeMega(raw,folder){
@@ -166,7 +223,7 @@ async function refresh(){
   const a=safeMega(video.value.a,false),b=safeMega(video.value.b,false);
   if(a)downloadLinks.choir=a;if(b)downloadLinks.summary=b;
  }
- render();$("reload").disabled=false;
+ render();refreshPromptButtons();$("reload").disabled=false;
 }
 $("prev").onclick=()=>show(current-1);$("next").onclick=()=>show(current+1);
 choices.onchange=()=>show(choices.value);
@@ -182,6 +239,108 @@ document.addEventListener("keydown",e=>{
 });
 $("stage").addEventListener("touchstart",e=>{if(e.touches.length===1)startTouch=e.touches[0].clientX},{passive:true});
 $("stage").addEventListener("touchend",e=>{if(startTouch===null||!e.changedTouches.length)return;const diff=e.changedTouches[0].clientX-startTouch;startTouch=null;if(Math.abs(diff)>70)show(current+(diff<0?1:-1))},{passive:true});
+
+// 66번 전용 리소스 화면 — 강사는 Google/Firebase 인증 후만 공유 링크 수정 가능.
+const isTeacherMode=new URLSearchParams(location.search).get("teacher")==="1";
+const PROMPT_ITEMS=[
+ {id:"lectureZip",button:"promptZipLecture",link:"promptMegaLecture",status:"promptStatusLecture",input:"promptInputLecture",field:"promptLectureSiteZip"},
+ {id:"financeZip",button:"promptZipFinance",link:"promptMegaFinance",status:"promptStatusFinance",input:"promptInputFinance",field:"promptFinanceWebZip"}
+];
+let promptDownloading=new Set(),promptAuth=null,promptAuthAPI=null,promptDB=null,promptDBAPI=null,promptUser=null;
+function refreshPromptButtons(){
+ for(const item of PROMPT_ITEMS){
+  const url=downloadLinks[item.id]||"";
+  const button=$(item.button),mega=$(item.link),status=$(item.status);
+  if(!button||!mega||!status)continue;
+  button.disabled=!url||promptDownloading.has(item.id);
+  button.textContent=promptDownloading.has(item.id)?"ZIP 내려받는 중…":url?"⬇ ZIP 다운로드":"⬇ 링크 등록 대기";
+  mega.hidden=!url;
+  if(url)mega.href=url;else mega.removeAttribute("href");
+  if(!promptDownloading.has(item.id))status.textContent=url?"✓ 자료 연결됨 · 버튼을 눌러 다운로드하세요.":"강사가 압축파일의 MEGA 공유 링크를 등록하면 다운로드할 수 있습니다.";
+ }
+}
+async function downloadPromptFile(item){
+ const url=downloadLinks[item.id];
+ if(!url||promptDownloading.has(item.id))return;
+ promptDownloading.add(item.id);refreshPromptButtons();
+ const st=$(item.status);
+ try{
+  const {downloadPromptZip}=await import("./single-mega-prompt-zip.js?v=prompt-66-20261110");
+  await downloadPromptZip(url,message=>{st.textContent=message});
+ }catch(e){
+  console.warn("프롬프트 ZIP 다운로드:",e?.message||e);
+  st.textContent="자동 다운로드를 완료하지 못했습니다. 'MEGA에서 받기'를 눌러 다운로드해 주세요.";
+ }finally{
+  promptDownloading.delete(item.id);
+  const button=$(item.button);
+  button.disabled=!url;button.textContent=url?"⬇ ZIP 다운로드":"⬇ 링크 등록 대기";
+ }
+}
+for(const item of PROMPT_ITEMS){$(item.button).onclick=()=>downloadPromptFile(item)}
+// No Firebase authentication is started on the public attendee replay page.
+async function initPromptTeacher(){
+ if(!isTeacherMode)return;
+ $("promptAuthStatus").textContent="Firebase 강사 로그인 준비 중…";
+ const cfg=window.GOD119_CONFIG?.firebase;
+ if(!cfg?.apiKey||!cfg?.databaseURL||!cfg?.appId){
+  $("promptAuthStatus").textContent="Firebase 설정 정보를 확인할 수 없습니다.";return;
+ }
+ try{
+  const root="https://www.gstatic.com/firebasejs/11.10.0/";
+  const [appmod,authmod,dbmod]=await Promise.all([
+   import(root+"firebase-app.js"),import(root+"firebase-auth.js"),import(root+"firebase-database.js")
+  ]);
+  const app=appmod.getApps().length?appmod.getApp():appmod.initializeApp(cfg);
+  promptAuth=authmod.getAuth(app);promptDB=dbmod.getDatabase(app);
+  promptAuthAPI=authmod;promptDBAPI=dbmod;
+  authmod.onAuthStateChanged(promptAuth,u=>{
+   promptUser=u;
+   $("promptLogin").hidden=!!u;
+   $("promptLogout").hidden=!u;
+   $("promptSave").disabled=!u;
+   $("promptAuthStatus").textContent=u?"Google 로그인 완료 · 저장할 때 Firebase 강사 권한을 확인합니다.":"Google 계정으로 로그인해야 링크를 등록할 수 있습니다.";
+  });
+  $("promptLogin").onclick=async()=>{
+   try{await authmod.signInWithPopup(promptAuth,new authmod.GoogleAuthProvider())}
+   catch(e){$("promptAuthStatus").textContent="Google 로그인 실패 · 팝업 허용 및 인증 설정을 확인해 주세요."}
+  };
+  $("promptLogout").onclick=()=>authmod.signOut(promptAuth);
+ }catch(e){
+  $("promptAuthStatus").textContent="Firebase 연결에 실패했습니다. 네트워크를 확인해 주세요.";
+ }
+}
+$("promptSave").onclick=async()=>{
+ if(!isTeacherMode||!promptDB||!promptDBAPI||!promptAuth?.currentUser){
+  $("promptSaveStatus").textContent="강사 Google 로그인 후 다시 시도해 주세요.";return;
+ }
+ const payload={};
+ for(const item of PROMPT_ITEMS){
+  const raw=$(item.input).value.trim();
+  if(!raw)continue;
+  const value=safeMega(raw,false);
+  if(!value){$("promptSaveStatus").textContent="잘못된 MEGA 파일 주소입니다. "+($(item.input).getAttribute("aria-label")||item.id)+" 항목에서 개별 파일 공유 링크를 입력하세요.";return;}
+  payload[item.field]=value;
+ }
+ if(!Object.keys(payload).length){
+  $("promptSaveStatus").textContent="등록할 MEGA 압축파일 주소를 하나 이상 입력해 주세요.";return;
+ }
+ if(!window.confirm("선택한 MEGA 공유 링크를 참석자 모두에게 공개하시겠습니까?\n개인정보가 없는 ZIP 파일인지 확인해 주세요."))return;
+ const button=$("promptSave");button.disabled=true;
+ $("promptSaveStatus").textContent="Firebase 강사 권한 확인 후 저장 중…";
+ try{
+  await promptDBAPI.update(promptDBAPI.ref(promptDB,"rooms/god119-seminar/resourceLinks"),payload);
+  for(const item of PROMPT_ITEMS){if(payload[item.field])downloadLinks[item.id]=payload[item.field]}
+  render();refreshPromptButtons();
+  $("promptSaveStatus").textContent="✓ 연결 완료 · 66번 슬라이드와 참석자 자료실에서 다운로드할 수 있습니다.";
+ }catch(e){
+  $("promptSaveStatus").textContent="저장 실패 · 강사 Google 계정과 Firebase 강사 UID 쓰기 권한을 확인해 주세요.";
+ }finally{button.disabled=!promptAuth?.currentUser}
+};
+if(isTeacherMode){
+ $("promptAdmin").hidden=false;
+ initPromptTeacher();
+}
+
 const initial=new URL(location.href).searchParams.get("slide");
 show(initial&&/^\d{1,2}$/.test(initial)?Number(initial):1);
 render();refresh();
