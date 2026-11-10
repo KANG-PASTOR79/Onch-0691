@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><meta name="theme-color" content="#0a1c32">
+<title>GOD119 · 강의자료 다시보기 및 다운로드</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at 20% 0%,#294b6a,#091729 60%);color:#f4f8ff;font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+button,select{font:inherit}button{cursor:pointer}a{color:#d9f1ff}
+header{background:#071525;border-bottom:1px solid #395471;padding:16px clamp(15px,4vw,56px);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:15px}
+.brand{display:flex;align-items:center;gap:13px}.logo{background:linear-gradient(130deg,#ffe1a6,#b98029);border-radius:12px;padding:10px;color:#16283b;font-size:20px;font-weight:900}
+.brand strong{font-size:clamp(19px,2vw,26px)}.brand small{display:block;color:#b4cde2;font-size:12px}
+header .always{color:#f1ca88;font-size:13px;font-weight:700}
+main{max-width:1290px;width:96%;margin:24px auto 48px}
+h1{font-size:clamp(21px,3vw,31px);margin:0 0 9px}p{line-height:1.6}
+.lead{color:#c5d8e7;margin:0 0 19px}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,330px);gap:19px;align-items:start}
+.panel{border:1px solid #355474;background:#102b45e8;border-radius:15px;overflow:hidden;box-shadow:0 15px 30px #0003}
+.panel-title{padding:13px 16px;border-bottom:1px solid #3c5b79;font-weight:800;font-size:15px;color:#ffe0a2}
+.stage-pad{padding:9px}.stage{width:100%;aspect-ratio:16/9;position:relative;background:#06162b;overflow:hidden;border-radius:9px;isolation:isolate}
+.stage img{display:block;width:100%;height:100%;object-fit:contain}.error{position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;background:#11243b;color:#fff;text-align:center}
+.error[hidden]{display:none}#hotspots{position:absolute;inset:0;z-index:0;pointer-events:none}
+.controls{border-top:1px solid #355474;padding:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.controls button,.controls select{min-height:42px;border-radius:9px;border:1px solid #7c9cb4;color:#f7fcff;background:#254763;padding:9px 13px;font-weight:700}
+.controls select{flex:1;min-width:180px;background:#061c33;font-size:13px}
+.controls button:disabled{opacity:.4;cursor:default}
+.caption{padding:0 16px 16px;color:#c5d9e8;font-size:13px;line-height:1.5}
+.resources header{padding:17px 15px;display:block;background:none;border:0}
+.resources header h2{margin:0 0 6px;font-size:21px}
+.resources header p{font-size:13px;color:#c7d9e5;margin:0}
+#resourceStatus{padding:7px 15px;display:block;font-size:12px;color:#bfd4e5}
+#reload{margin:4px 15px 13px;background:#294c69;border:1px solid #80a1b9;color:white;border-radius:8px;padding:8px 12px;font-size:12px}
+#cards{padding:0 12px 14px;display:grid;gap:9px}
+.card{border:1px solid #345879;background:#153551;border-radius:11px;padding:13px}
+.card h3{font-size:14px;margin:0 0 4px}.card small{display:block;color:#b6d0df;font-size:11px;margin-bottom:10px}
+.buttons{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.card a,.card button{border:1px solid #7196ae;border-radius:8px;padding:8px 11px;text-decoration:none;font-size:12px;font-weight:800}
+.card a{background:#f2cb8c;color:#162e40;border-color:#fce2ae}
+.card button{background:#305675;color:#f3faff}
+.card span{color:#b7c8d4;font-size:12px;line-height:1.5}
+.info{margin-top:20px;padding:15px;border:1px solid #406485;border-radius:11px;background:#102b43;color:#d5e7f1;font-size:13px;line-height:1.75}
+.info strong{color:#f6cb80}
+footer{text-align:center;color:#8eaac0;font-size:12px;padding:25px}
+@media(max-width:900px){.layout{grid-template-columns:1fr}}
+@media(max-width:600px){main{width:98%;margin:14px auto}.stage-pad{padding:3px}.controls{padding:8px}.controls select{order:1;flex-basis:100%}.panel{border-radius:9px}}
+</style></head><body>
+<header><div class="brand"><div class="logo">GOD119</div><div><strong>강의자료 다시보기</strong><small>AI MINISTRY SEMINAR · 65 SLIDES</small></div></div><div class="always">강사가 접속하지 않아도 열람 가능</div></header>
+<main><h1>AI 목회자 세미나 · 슬라이드와 실습자료</h1><p class="lead">65장 슬라이드를 직접 넘기며 복습하고, 공개된 MEGA 실습자료를 내려받으세요.<br>별도 출석 등록이나 강사 접속이 필요하지 않습니다.</p>
+<div class="layout">
+<section class="panel"><div class="panel-title" id="heading">01 / 65 · AI 목회자 세미나</div>
+<div class="stage-pad"><div id="stage" class="stage"><div id="err" class="error" hidden>슬라이드 파일을 열 수 없습니다.</div><img id="picture" alt="강의 슬라이드"><div id="hotspots"></div></div></div>
+<div class="controls"><button id="prev" type="button">← 이전</button><button id="next" type="button">다음 →</button><select id="choose" aria-label="슬라이드 선택"></select><button id="fullscreen" type="button">전체화면</button></div>
+<div class="caption">슬라이드 이동은 이 화면에만 적용됩니다. <span id="caption">강사의 실시간 화면과 동기화되지 않는 독립 다시보기입니다.</span></div></section>
+<aside class="panel resources"><header><h2>📂 실습자료 다운로드</h2><p>MEGA 공개 공유 링크를 통해 파일을 받습니다.</p></header><span id="resourceStatus" role="status">자료 목록을 확인하고 있습니다.</span><button id="reload" type="button">↻ 자료 목록 새로고침</button><div id="cards"></div></aside>
+</div>
+<div class="info"><strong>안내</strong> · 이 페이지는 강의 후 복습용으로 언제든 열 수 있습니다. 원본 슬라이드와 공개 실습 화면만 제공하며, 실시간 판서·출석 명단·제출 내역·강사 전용 NotebookLM 주소는 포함하지 않습니다. MEGA 파일은 공유가 유지되는 동안 다운로드할 수 있으며, MEGA 사이트에서 <strong>다운로드</strong>를 눌러야 합니다. 링크를 아는 사람은 누구나 열 수 있으므로 불필요한 재배포는 삼가 주세요.</div>
+<footer>GOD119 · AI 목회자 세미나 · 자유 열람 자료실</footer></main>
+<script type="module">
+import {createWebsiteWorkshop} from "./website-workshop.js?v=replay-20261110";
+const TITLES=["AI 목회자 세미나","과거 사역활용 및 AI 실제 사용","꿈을 먹고 살지요","여러분의 AI 실력 성장","대심방 시 부재중 합성","5년 전 교회 모습","현재 교회 모습","주보 표지 제작","한 주간 말씀 게시물","AI 영상 활용","설교 Shorts","AI 목회계획서","목회 활용 사례 13","목회 활용 사례 14","목회 활용 사례 15","목회 활용 사례 16","목회 활용 사례 17","목회 활용 사례 18","목회 활용 사례 19","목회 활용 사례 20","목회 활용 사례 21","목회 활용 사례 22","목회 활용 사례 23","목회 활용 사례 24","목회 활용 사례 25","목회 활용 사례 26","목회 활용 사례 27","홍보물 만들기 실습","실전 가이드","프롬프트 정밀화","설교 보조작업","설교 프롬프트 실전","연간 목회계획서 제작","학습 목표","AI와 목회자의 역할","나쁜 프롬프트","좋은 프롬프트","프롬프트 6요소","역할 정의","목적 설정","교회 현황","과업 정의","조건 설정","출력 형식","마스터 프롬프트","실습: 교회 정보 입력","실습: AI와 대화","AI 결과 검증","1단계 · 실제 프롬프트 사용으로 인한 목회계획 제작","프롬프트 용어","단계별 실습","월별 목회계획","결과물 출력","AI는 도구, 목회는 사명","4. 설교 쇼츠 제작","설교 전 요약 영상","AI로 우리 교회 웹사이트 만들기","ChatGPT 실행 및 실습 준비","프롬프트 ① 교회 홈페이지 제작","홈페이지 HTML 저장과 실행","프롬프트 ② 디자인 수정","디자인 수정 결과 확인","프롬프트 ③ 강의 슬라이드 제작","강의 슬라이드 기능 시험","실습 마무리와 안전 점검"];
+const FIXED=[{"id":"choir","title":"삼손중창단 행사 홍보영상","type":"영상","n":10,"url":"https://mega.nz/file/6qxwCIRZ#hjUnv-AjIvEGEq7yZuuf0zLcM4d4SVJgqVyycZsmdrg"},{"id":"summary","title":"주일설교 요약 영상","type":"영상","n":10,"url":"https://mega.nz/file/uqZRHLgA#8AXm5RoZ_QK0uy2VNp1MiKHr5iJt371ERC2n6JV3gGU"},{"id":"plan","title":"목회계획서 참고자료","type":"문서","n":12,"url":"https://mega.nz/file/yy5UURwA#epnjq9xEPVEQPwKDxSq4X1Flz8Ndo-eXwHwqYOjbfvk"},{"id":"jeju","title":"제주 수련회 일정표","type":"문서","n":23,"url":"https://mega.nz/file/vuw1QTSZ#baqzDFqS8A6y5d_grqpyPMpzEUrG32qhALx5kr10x2o"}];
+const DYNAMIC=[
+ {id:"pdf",title:"신약주석 PDF",type:"PDF",n:31,path:"resourceLinks/newTestamentPdf"},
+ {id:"result",title:"목회계획서 실습 결과물",type:"DOCX",n:53,path:"slide53PlanUrl"},
+ {id:"capcut",title:"캡컷 실습자료 ZIP",type:"ZIP",n:55,path:"resourceLinks/capcutMaterialsZip"},
+ {id:"hwp",title:"샘플 설교 한글파일",type:"HWP/HWPX",n:56,path:"slide55SampleSermonHwpUrl"},
+ {id:"folder",title:"세미나 공유자료 폴더",type:"폴더",n:10,path:"slide10VideosPublished/folder"}
+];
+const $=x=>document.getElementById(x),workshop=createWebsiteWorkshop(),picture=$("picture"),choices=$("choose");
+let current=1,downloadLinks=Object.fromEntries(FIXED.map(x=>[x.id,x.url])),startTouch=null;
+const pad=n=>String(n).padStart(2,"0");
+for(let i=0;i<TITLES.length;i++){const opt=document.createElement("option");opt.value=i+1;opt.textContent=pad(i+1)+" · "+TITLES[i];choices.appendChild(opt)}
+function show(n){
+ current=Math.min(65,Math.max(1,Number(n)||1));choices.value=current;
+ $("heading").textContent=pad(current)+" / 65 · "+TITLES[current-1];
+ $("prev").disabled=current===1;$("next").disabled=current===65;
+ const web=current>=57;picture.hidden=web;$("err").hidden=true;
+ workshop.onSlide(current);
+ if(!web){
+  picture.onerror=()=>{$("err").hidden=false;$("err").textContent="슬라이드 이미지를 불러올 수 없습니다. 새로고침해 주세요."};
+  picture.src="slides/slide-"+pad(current)+".webp";picture.alt="강의 슬라이드 "+current+" · "+TITLES[current-1];
+ }
+ $("caption").textContent=web?"웹사이트·웹 슬라이드 만들기 실습 · 프롬프트를 복사할 수 있습니다.":"원본 슬라이드 이미지 · 자유롭게 다시보기";
+ const u=new URL(location.href);u.searchParams.set("slide",current);history.replaceState(null,"",u.pathname+u.search);
+}
+function safeMega(raw,folder){
+ if(typeof raw!=="string"||raw.length>1500)return "";
+ try{
+  const u=new URL(raw.trim());
+  if(u.protocol!=="https:"||!["mega.nz","www.mega.nz"].includes(u.hostname)||u.username||u.password||u.search)return "";
+  const type=folder?"folder":"file";
+  if(!new RegExp("^/"+type+"/[A-Za-z0-9_-]{6,}/?$").test(u.pathname)||!/^#[A-Za-z0-9_-]{10,}$/.test(u.hash))return "";
+  return u.href;
+ }catch(_){return ""}
+}
+function makeCard(data){
+ const card=document.createElement("article");card.className="card";
+ const title=document.createElement("h3");title.textContent=data.title;
+ const caption=document.createElement("small");caption.textContent=data.n+"번 슬라이드 · "+data.type;
+ const buttons=document.createElement("div");buttons.className="buttons";
+ const url=downloadLinks[data.id];
+ if(url){
+  const a=document.createElement("a");a.href=url;a.target="_blank";a.rel="noopener noreferrer";a.referrerPolicy="no-referrer";
+  a.textContent=data.type==="폴더"?"MEGA 자료실 열기 ↗":"MEGA에서 다운로드 ↗";buttons.appendChild(a);
+ }else{
+  const msg=document.createElement("span");msg.textContent="연결된 공유 링크가 없습니다. 강사의 자료 등록 상태를 확인해 주세요.";buttons.appendChild(msg);
+ }
+ const go=document.createElement("button");go.type="button";go.textContent=data.n+"번 보기";
+ go.onclick=()=>{show(data.n);window.scrollTo({top:0,behavior:"smooth"})};buttons.appendChild(go);
+ card.append(title,caption,buttons);return card;
+}
+function render(){
+ const list=$("cards");list.replaceChildren();
+ const items=[...FIXED,...DYNAMIC];
+ for(const d of items)list.appendChild(makeCard(d));
+ $("resourceStatus").textContent=items.length+"개 항목 · 공유 링크 연결 "+items.filter(x=>downloadLinks[x.id]).length+"개";
+}
+function getPublic(path){
+ const controller=new AbortController();const id=setTimeout(()=>controller.abort(),11000);
+ const db="https://god119-default-rtdb.firebaseio.com/rooms/god119-seminar/";
+ const url=db+path.split("/").map(encodeURIComponent).join("/")+".json";
+ return fetch(url,{credentials:"omit",cache:"no-store",mode:"cors",signal:controller.signal})
+   .then(x=>{if(!x.ok)throw Error("자료를 읽지 못했습니다.");return x.json()}).finally(()=>clearTimeout(id));
+}
+async function refresh(){
+ $("reload").disabled=true;$("resourceStatus").textContent="공유자료 주소를 확인하고 있습니다…";
+ // Public resource keys only. Never retrieve participant profiles, submissions or private instructor links.
+ const req=DYNAMIC.map(x=>x.path).concat(["slide10VideosPublished"]);
+ const responses=await Promise.allSettled(req.map(getPublic));
+ DYNAMIC.forEach((item,i)=>{
+  if(responses[i].status!=="fulfilled")return;
+  const value=safeMega(responses[i].value,item.type==="폴더");
+  if(value)downloadLinks[item.id]=value;
+ });
+ const video=responses[responses.length-1];
+ if(video.status==="fulfilled"&&video.value&&typeof video.value==="object"){
+  const a=safeMega(video.value.a,false),b=safeMega(video.value.b,false);
+  if(a)downloadLinks.choir=a;if(b)downloadLinks.summary=b;
+ }
+ render();$("reload").disabled=false;
+}
+$("prev").onclick=()=>show(current-1);$("next").onclick=()=>show(current+1);
+choices.onchange=()=>show(choices.value);
+$("reload").onclick=refresh;
+$("fullscreen").onclick=()=>{
+ if(document.fullscreenElement)document.exitFullscreen();
+ else $("stage").requestFullscreen?.().catch(()=>{});
+};
+document.addEventListener("keydown",e=>{
+ if(["TEXTAREA","INPUT","SELECT"].includes(document.activeElement?.tagName))return;
+ if(e.key==="ArrowRight"||e.key==="PageDown"){e.preventDefault();show(current+1)}
+ if(e.key==="ArrowLeft"||e.key==="PageUp"){e.preventDefault();show(current-1)}
+});
+$("stage").addEventListener("touchstart",e=>{if(e.touches.length===1)startTouch=e.touches[0].clientX},{passive:true});
+$("stage").addEventListener("touchend",e=>{if(startTouch===null||!e.changedTouches.length)return;const diff=e.changedTouches[0].clientX-startTouch;startTouch=null;if(Math.abs(diff)>70)show(current+(diff<0?1:-1))},{passive:true});
+const initial=new URL(location.href).searchParams.get("slide");
+show(initial&&/^\d{1,2}$/.test(initial)?Number(initial):1);
+render();refresh();
+</script></body></html>
