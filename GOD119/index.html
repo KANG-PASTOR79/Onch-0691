@@ -230,11 +230,7 @@
 </div>
 <div id="attendanceBadge" class="attendance-badge" hidden>
 <span id="attLabel">✓ 출석 등록됨</span><button id="attEdit" type="button">이름·소속 수정</button>
-</div><p class="subtitle"><span class="gold" id="number">01 / 65</span>　<span id="subtitle">실시간 공유 강의실</span></p>
-<div class="submit-banner" role="region" aria-label="실습 결과물 제출">
-<div><strong>📂 세미나 실습 결과물 제출</strong><p>이미지 · PDF · TXT · MP4 | MEGA 무료 제출함 · 파일 1개 200MB 이하 권장</p></div>
-<a class="submit-button" href="./submit.html?v=20261106-2047">실습 결과물 제출하기 ↗</a>
-</div>
+</div><p class="subtitle"><span class="gold" id="number">01 · 총 63장</span>　<span id="subtitle">실시간 공유 강의실</span></p>
 <div class="stage-wrap"><div class="stage" id="stage"><div class="slide-content"><b>GOD119 / AI MINISTRY SEMINAR</b><h2 id="title">AI 목회자 세미나</h2><p>개인정보 보호를 위해 원본 PPT 이미지는 아직 게시하지 않았습니다.</p><em id="bigNumber">01</em></div><img id="picture" hidden alt="실제 PPT 강의 슬라이드">
 <div id="slide02Motion" aria-hidden="true" hidden><span class="slide02-static-cover"></span><div class="slide02-motion-body"><span class="slide02-trails"></span><span class="slide02-ghost"></span><span class="slide02-arrow"></span></div></div>
 <div id="hotspots" aria-label="현재 슬라이드 하이퍼링크"></div><canvas id="penCanvas"></canvas><div id="laser" hidden></div></div></div>
@@ -267,7 +263,7 @@ function createWebsiteWorkshop(){
   const c=configs[n-57];host.style.display=c?'block':'none';if(!c){host.replaceChildren();return;}
   const points=c[3]?'<div class="gp-points">'+c[3].map(x=>'<div class="gp-point">'+escapeHtml(x)+'</div>').join('')+'</div>':'';
   const prompt=c[4]?'<button class="gp-copy" type="button">📋 프롬프트 복사</button><div class="gp-code" tabindex="0">'+escapeHtml(c[4])+'</div>':'';
-  host.innerHTML='<span class="gp-footer">GOD119 · '+n+' / 65</span><div class="gp-kicker">'+escapeHtml(c[0])+'</div><h2>'+escapeHtml(c[1])+'</h2><p class="gp-lead">'+escapeHtml(c[2])+'</p>'+points+prompt+'<div class="gp-note">'+escapeHtml(c[5])+'</div>';
+  host.innerHTML='<span class="gp-footer">GOD119 · '+n+' · 총 63장</span><div class="gp-kicker">'+escapeHtml(c[0])+'</div><h2>'+escapeHtml(c[1])+'</h2><p class="gp-lead">'+escapeHtml(c[2])+'</p>'+points+prompt+'<div class="gp-note">'+escapeHtml(c[5])+'</div>';
   if(c[4]){const btn=host.querySelector('.gp-copy');btn.addEventListener('click',async()=>{
    try{if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(c[4]);else{const t=document.createElement('textarea');t.value=c[4];t.style.position='fixed';t.style.opacity='0';document.body.appendChild(t);t.select();const ok=document.execCommand('copy');t.remove();if(!ok)throw Error('copy failed');}btn.textContent='✓ 복사 완료';}
    catch(e){btn.textContent='복사할 텍스트를 직접 선택해 주세요';}
@@ -277,6 +273,12 @@ function createWebsiteWorkshop(){
 const titles=["AI 목회자 세미나","과거 사역활용 및 AI 실제 사용","꿈을 먹고 살지요","여러분의 AI 실력 성장","대심방 시 부재중 합성","5년 전 교회 모습","현재 교회 모습","주보 표지 제작","한 주간 말씀 게시물","AI 영상 활용","설교 Shorts","AI 목회계획서","목회 활용 사례 13","목회 활용 사례 14","목회 활용 사례 15","목회 활용 사례 16","목회 활용 사례 17","목회 활용 사례 18","목회 활용 사례 19","목회 활용 사례 20","목회 활용 사례 21","목회 활용 사례 22","목회 활용 사례 23","목회 활용 사례 24","목회 활용 사례 25","목회 활용 사례 26","목회 활용 사례 27","홍보물 만들기 실습","실전 가이드","프롬프트 정밀화","설교 보조작업","설교 프롬프트 실전","연간 목회계획서 제작","학습 목표","AI와 목회자의 역할","나쁜 프롬프트","좋은 프롬프트","프롬프트 6요소","역할 정의","목적 설정","교회 현황","과업 정의","조건 설정","출력 형식","마스터 프롬프트","실습: 교회 정보 입력","실습: AI와 대화","AI 결과 검증","1단계 · 실제 프롬프트 사용으로 인한 목회계획 제작","프롬프트 용어","단계별 실습","월별 목회계획","결과물 출력","AI는 도구, 목회는 사명","4. 설교 쇼츠 제작","설교 전 요약 영상"];
 titles.push("AI로 우리 교회 웹사이트 만들기","ChatGPT 실행 및 실습 준비","프롬프트 ① 교회 홈페이지 제작","홈페이지 HTML 저장과 실행","프롬프트 ② 디자인 수정","디자인 수정 결과 확인","프롬프트 ③ 강의 슬라이드 제작","강의 슬라이드 기능 시험","실습 마무리와 안전 점검");
 const SLIDE_COUNT=titles.length;
+const HIDDEN_SLIDES=new Set([4,5]);
+const VISIBLE_SLIDE_COUNT=SLIDE_COUNT-HIDDEN_SLIDES.size;
+function visibleSlide(n,previous=slide){
+ const next=Math.max(1,Math.min(SLIDE_COUNT,Number(n)||1));
+ return HIDDEN_SLIDES.has(next)?(previous>next?3:6):next;
+}
 const $=id=>document.getElementById(id), params=new URLSearchParams(location.search);
 const teacher=params.get("teacher")==="1", conf=(window.GOD119_CONFIG&&window.GOD119_CONFIG.firebase)||{}, room="god119-seminar";
 const configured=!!(conf.apiKey&&conf.projectId&&conf.databaseURL&&conf.authDomain&&conf.appId);
@@ -298,6 +300,7 @@ let workshopActive=false,latestCurrentSlide=1;
 let pendingSlide=null,remoteSlide=1;
 function showRemoteSlide(target){
  if(!Number.isInteger(target)||target<1||target>SLIDE_COUNT)return;
+ target=visibleSlide(target,slide);
  remoteSlide=target;
  // A local click is authoritative until its server write confirms or fails.
  if(pendingSlide){
@@ -320,13 +323,9 @@ function regionForSlideLink(n,rec){
 const slideResources={
 7:[{label:"CAFE 0691 카페 블로그",url:"https://naver.me/Gzd4TJVw",rect:[12.8,64.6,18.0,15.3],type:"cafeBlog"}],
 3:[{label:"경남일보 기사",url:"https://www.gnnews.co.kr/news/articleView.html?idxno=177660",rect:[6.875,38.333,28.594,24.514]},{label:"교회 자료 사이트",url:"https://www.mgchurch.or.kr/bbs/board.php?bo_table=church65&wr_id=567&page=25&frame=2",rect:[7.289,20.472,26.531,6.722]}],
-10:[{label:"삼손중창단 행사 홍보영상 · MEGA 영상",url:"https://mega.nz/file/6qxwCIRZ#hjUnv-AjIvEGEq7yZuuf0zLcM4d4SVJgqVyycZsmdrg",rect:[6.2,26.8,42.6,63.8]},{label:"주일설교요약영상 · MEGA 영상",url:"https://mega.nz/file/uqZRHLgA#8AXm5RoZ_QK0uy2VNp1MiKHr5iJt371ERC2n6JV3gGU",rect:[50.8,26.8,42.6,63.8]}],
 11:[{label:"설교 쇼츠 영상",url:"https://www.youtube.com/shorts/ywMLfSwuM5g",rect:[5.938,29.167,21.562,56.167]}],
-12:[{label:"창원온천교회 목회계획서 · MEGA 파일",url:"https://mega.nz/file/yy5UURwA#epnjq9xEPVEQPwKDxSq4X1Flz8Ndo-eXwHwqYOjbfvk",rect:[15.5,6.1,69.0,90.5],type:"document"}],
-23:[{label:"제주 수련회 일정표 · MEGA 파일",url:"https://mega.nz/file/vuw1QTSZ#baqzDFqS8A6y5d_grqpyPMpzEUrG32qhALx5kr10x2o",rect:[66.0,22.9,25.5,69.0],type:"document"}],
 25:[{label:"유튜브 쇼츠 원본 영상",url:"https://www.youtube.com/shorts/Pj5PScSJ0Q4",rect:[0,0.417,100,99.167]}],
 44:[{label:"2027_목회계획서.docx",local:true}],
-53:[{label:"목회계획서 샘플제작 결과물.docx",local:true}]
 };
 function openSlideResource(event,rec,page){
  // Only an authorized lecturer opens shared resources inside the current
@@ -420,196 +419,9 @@ function launchPrivateNotebookLM(event,slideNumber=32){
  // Opens locally in a Google-authenticated tab; no Firebase broadcast.
  window.open(url,"_blank","noopener,noreferrer");
 }
-// Share ONLY a MEGA individual-file URL for the 31st exercise; never folder access.
-let testamentPdfUrl="";
-function validTestamentPdfUrl(input){
- try{
-  const u=new URL(String(input||"").trim());
-  if(u.protocol!=="https:"||u.hostname!=="mega.nz"||!u.pathname.startsWith("/file/"))return "";
-  if(!/^[A-Za-z0-9_-]+$/.test(u.pathname.slice(6))||!/^#[A-Za-z0-9_-]{16,}$/.test(u.hash))return "";
-  if(u.search)return "";
-  return u.href;
- }catch(_){return ""}
-}
-async function configureTestamentPdf(){
- if(!teacher||!allowed||!F||!db){notify("강사 Google 로그인 후 설정해 주세요.");return}
- const answer=window.prompt("MEGA에서 '제일신목회세미나' 폴더 안의 '신약주석' PDF 하나를 선택하고 [링크 가져오기]로 만든 개별 파일 공유 주소만 붙여 넣으세요.\n폴더 링크와 MEGA 로그인 주소는 허용하지 않습니다.\n\n등록한 파일 링크는 참석자에게 공개됩니다.",testamentPdfUrl);
- if(answer===null)return;
- const url=validTestamentPdfUrl(answer);
- if(!url){notify("MEGA 개별 파일 링크(https://mega.nz/file/…#…)만 등록해 주세요.");return}
- if(!confirm("선택한 공유 링크 하나를 31번 슬라이드의 신약주석 PDF 다운로드 주소로 공개하시겠습니까?\n폴더 전체 링크가 아닌지 먼저 확인해 주세요."))return;
- try{
-  await F.set(F.ref(db,remote("resourceLinks/newTestamentPdf")),url);
-  testamentPdfUrl=url;if(slide===31)showResources(31);
-  notify("PDF 개별 공유 링크 등록 완료. 참석자 화면에도 표시됩니다.");
- }catch(e){notify("링크 등록 실패: 강사 Firebase 권한과 연결 상태를 확인해 주세요.")}
-}
-function addTestamentPdfButton(n,links,hotspots){
- if(n!==31)return;
- const wrap=document.createElement("div");wrap.className="god-testament-pdf-download";
- const url=validTestamentPdfUrl(testamentPdfUrl),button=document.createElement("button");
- button.className="god-testament-pdf-button";
- button.type="button";
- button.textContent=url?"⬇ 신약주석 PDF 내려받기":teacher?"🔗 신약주석 링크 등록":"신약주석 PDF · 강사 준비 중";
- if(url){
-  button.title="GOD119 화면에서 신약주석 PDF만 내려받습니다. MEGA 계정 창은 열지 않습니다.";
-  const progress=document.createElement("span");
-  progress.className="god-testament-pdf-status";
-  progress.setAttribute("role","status");progress.setAttribute("aria-live","polite");
-  wrap.appendChild(progress);
-  button.onclick=async()=>{
-   if(button.disabled)return;
-   button.disabled=true;
-   button.textContent="⬇ PDF 다운로드 준비 중…";
-   progress.textContent="PDF 파일만 안전하게 내려받는 중입니다.";
-   try{
-    const {downloadSingleMegaPdf}=await import("./single-mega-pdf-download.js?v=20261105-v1");
-    await downloadSingleMegaPdf(url,(message)=>{progress.textContent=message});
-    progress.textContent="✓ 신약주석 PDF 다운로드를 시작했습니다. 브라우저의 다운로드 목록을 확인하세요.";
-   }catch(err){
-    progress.textContent="다운로드 실패: 네트워크 연결을 확인한 후 다시 눌러주세요.";
-    console.warn("신약주석 다운로드 실패:",err?.message||err);
-   }finally{
-    button.disabled=false;
-    button.textContent="⬇ 신약주석 PDF 내려받기";
-   }
-  };
- }else if(teacher){button.onclick=configureTestamentPdf}
- else{button.disabled=true}
- wrap.prepend(button);
- if(teacher&&url){const edit=document.createElement("button");edit.type="button";edit.className="god-testament-pdf-edit";edit.textContent="⚙ 링크 변경";edit.onclick=configureTestamentPdf;wrap.appendChild(edit)}
- hotspots.appendChild(wrap);
- // Secondary action below the slide: no external MEGA page, even when an
- // attendee taps outside the picture's clickable region on mobile.
- if(url){
-  const extra=document.createElement("button");
-  extra.type="button";
-  extra.className="god-slide31-inline-download";
-  extra.textContent="⬇ GOD119에서 신약주석 PDF 저장 (MEGA 화면 이동 없음)";
-  extra.onclick=()=>button.click();
-  links.appendChild(extra);
- }
- if(teacher){const guide=document.createElement("small");guide.className="muted";guide.textContent="31번 실습자료 · 신약주석 MEGA 개별 파일 링크만 공개";links.appendChild(guide)}
-}
-
-// Slide 55: CapCut practical-session materials, shared as ONE ZIP file.
-// Never accepts a MEGA folder link. Attendee-side download stays within GOD119.
-let capcutZipUrl="";
-let capcutLinkChecked=false,capcutLinkReadError=false,capcutLinkRefreshPending=false;
-let capcutDownloadStatus="";
-async function refreshCapcutZipLink(){
- if(capcutLinkRefreshPending)return;
- if(!F||!db){notify("실시간 연결을 확인하고 다시 시도해 주세요.");return}
- capcutLinkRefreshPending=true;
- try{
-  const snapshot=await F.get(F.ref(db,remote("resourceLinks/capcutMaterialsZip")));
-  capcutZipUrl=validCapcutZipUrl(snapshot.val());
-  capcutLinkChecked=true;capcutLinkReadError=false;
-  capcutDownloadStatus=capcutZipUrl?"자료 링크 연결 확인 완료":"캡컷 자료 주소가 서버에서 확인되지 않습니다.";
-  if(slide===55)showResources(55);
-  if(!capcutZipUrl)notify("55번 캡컷 자료 링크가 서버에 등록되지 않았습니다. 강사 화면에서 MEGA 개별 ZIP 파일 링크를 다시 등록해 주세요.");
- }catch(err){
-  capcutLinkReadError=true;capcutLinkChecked=true;
-  capcutDownloadStatus="자료 주소 읽기 오류: Firebase 실시간 연결 및 읽기 권한을 확인하세요.";
-  notify("캡컷 자료 공유 정보를 읽지 못했습니다. 실시간 연결 상태를 확인해 주세요.");
-  if(slide===55)showResources(55);
- }finally{capcutLinkRefreshPending=false}
-}
-function validCapcutZipUrl(input){
- try{
-  const u=new URL(String(input||"").trim());
-  if(u.protocol!=="https:"||u.hostname!=="mega.nz"||!/^\/file\/[A-Za-z0-9_-]+$/.test(u.pathname)||!/^#[A-Za-z0-9_-]{16,}$/.test(u.hash)||u.search)return "";
-  return u.href;
- }catch(_){return ""}
-}
-async function configureCapcutZip(){
- if(!teacher||!allowed||!F||!db){notify("강사 Google 로그인 후 등록해 주세요.");return}
- const input=prompt("MEGA의 '제일신목회세미나/캡컷' 폴더 내용만 ZIP으로 압축해서 업로드한 뒤, ZIP 파일 하나의 '개별 파일 공유 링크'를 붙여 넣으세요.\n\n폴더 링크는 허용하지 않습니다. 압축파일에는 배포할 캡컷 자료만 넣어 주세요.",capcutZipUrl);
- if(input===null)return;
- const url=validCapcutZipUrl(input);
- if(!url){notify("MEGA 개별 ZIP 파일 주소(https://mega.nz/file/...#...)만 사용할 수 있습니다.");return}
- if(!confirm("55번 슬라이드에 캡컷 자료 ZIP 파일 하나를 공개하시겠습니까?\n다른 개인정보나 파일은 ZIP에 넣지 않았는지 확인하세요."))return;
- try{
-  const target=F.ref(db,remote("resourceLinks/capcutMaterialsZip"));
-  await F.set(target,url);
-  const saved=await F.get(target);
-  if(validCapcutZipUrl(saved.val())!==url)throw new Error("CAPCUT_LINK_NOT_CONFIRMED");
-  capcutZipUrl=url;capcutLinkChecked=true;capcutLinkReadError=false;
-  capcutDownloadStatus="등록 완료: 참석자 화면에 링크가 반영됩니다.";
-  if(slide===55)showResources(55);
-  notify("캡컷 실습자료 ZIP 링크가 서버에 저장된 것을 확인했습니다. 참석자 화면에서 새로고침해 주세요.");
- }catch(e){notify("등록에 실패했습니다. 강사 Firebase 권한과 연결 상태를 확인해 주세요.")}
-}
-function addCapcutZipButton(n,links,hotspots){
- if(n!==55)return;
- const url=validCapcutZipUrl(capcutZipUrl);
- const button=document.createElement("button");
- button.type="button";button.className="god-capcut-download";
- button.textContent=url?"⬇ 캡컷 실습자료 전체 내려받기":teacher?"🔗 캡컷 ZIP 링크 등록":capcutLinkReadError?"↻ 자료 연결 확인": "↻ 캡컷 자료 연결 확인";
- const status=document.createElement("span");
- status.className="god-capcut-download-status";
- status.setAttribute("role","status");status.setAttribute("aria-live","polite");
- status.textContent=capcutDownloadStatus||(!capcutLinkChecked?"자료 연결 상태 확인 중…":!url?"링크가 보이지 않으면 버튼을 눌러 다시 확인하세요.":"");
- const wrap=document.createElement("div");wrap.className="god-capcut-download-wrap";
- wrap.append(button,status);hotspots.appendChild(wrap);
- if(url){
-  button.title="MEGA 웹사이트로 이동하지 않고 캡컷 실습 ZIP을 내려받습니다.";
-  button.onclick=async()=>{
-   if(button.disabled)return;
-   button.disabled=true;button.textContent="⬇ ZIP 준비 중…";
-   capcutDownloadStatus="GOD119 화면에서 다운로드 중…";status.textContent=capcutDownloadStatus;
-   try{
-    const {downloadSingleMegaCapcutZip}=await import("./single-mega-capcut-zip.js?v=20261106-large-stream-v2");
-    await downloadSingleMegaCapcutZip(url,message=>{capcutDownloadStatus=message;status.textContent=message});
-    capcutDownloadStatus="✓ 캡컷 ZIP 저장 완료 또는 다운로드 시작 · 저장한 폴더를 확인하세요.";status.textContent=capcutDownloadStatus;
-   }catch(e){
-    const reason=String(e?.message||"");
-    capcutDownloadStatus=reason==="NOT_ZIP"?"다운로드 불가: MEGA 파일명이 .zip으로 끝나지 않습니다.":
-      reason==="ZIP_SIZE_LIMIT"?"저장 제한: 파일이 2GB 제한을 넘었습니다.":
-      reason==="ZIP_SIZE_UNKNOWN"?"다운로드 불가: MEGA에서 ZIP 파일 크기를 확인할 수 없습니다.":
-      reason==="ZIP_TOO_LARGE"?"다운로드 불가: ZIP이 2GB를 초과합니다. 여러 ZIP으로 나누어 주세요.":
-      reason==="STREAM_SAVE_UNSUPPORTED"?"이 브라우저는 큰 ZIP 직접 저장을 지원하지 않습니다. 최신 Chrome/Edge 컴퓨터에서 열어 주세요.":
-      reason==="DOWNLOAD_CANCELLED"?"다운로드 취소: 파일 저장 위치를 다시 선택해 주세요.":
-      reason==="ZIP_STALLED"?"다운로드 중단: 60초 동안 데이터가 수신되지 않았습니다. 다시 시도해 주세요.":
-      reason==="ZIP_INCOMPLETE"?"다운로드 실패: ZIP 일부만 수신됐습니다. 다시 시도해 주세요.":
-      reason==="INVALID_ZIP"?"다운로드 불가: ZIP 파일이 손상되었거나 형식을 확인할 수 없습니다.":
-      reason==="MEGA_MODULE_TIMEOUT"?"다운로드 불가: MEGA 연결 모듈을 불러오지 못했습니다.":
-      reason==="MEGA_INFO_TIMEOUT"?"다운로드 불가: MEGA 파일 정보를 가져오지 못했습니다. 공유 링크를 확인하세요.":
-      reason==="ZIP_DOWNLOAD_TIMEOUT"?"다운로드 시간 초과: 파일 크기 또는 인터넷 속도를 확인하세요.":
-      reason==="INVALID_INDIVIDUAL_FILE_URL"?"다운로드 불가: MEGA 개별 파일 공유 링크가 잘못되었습니다.":
-      "다운로드 실패: 파일 공유 설정 또는 네트워크 연결을 확인하세요.";
-    status.textContent=capcutDownloadStatus;
-    console.warn("CapCut ZIP download:",reason);
-   }finally{button.disabled=false;button.textContent="⬇ 캡컷 실습자료 전체 내려받기"}
-  };
- }else if(teacher){button.onclick=configureCapcutZip}
- else{button.onclick=refreshCapcutZipLink;button.title="캡컷 자료 링크를 서버에서 다시 확인합니다. 로그인이나 MEGA 사이트 이동은 하지 않습니다."}
- const line=document.createElement("div");line.className="god-capcut-inline";
- if(url){
-  const secondary=document.createElement("button");secondary.type="button";
-  secondary.className="god-slide31-inline-download";
-  secondary.textContent="⬇ GOD119에서 캡컷 자료 ZIP 저장 (MEGA 화면 이동 없음)";
-  secondary.onclick=()=>button.click();line.appendChild(secondary);
- }
- if(teacher){
-  const setup=document.createElement("button");setup.type="button";
-  setup.textContent=url?"⚙ 캡컷 ZIP 링크 변경":"🔗 캡컷 ZIP 자료 연결";
-  setup.onclick=configureCapcutZip;line.appendChild(setup);
- }
- links.appendChild(line);
-}
-
+// MEGA download controls and link setup removed.
 function showResources(n){
  const links=$("links"),hotspots=$("hotspots");links.replaceChildren();hotspots.replaceChildren();
- if(n===56){
-  if(slide55SermonController)slide55SermonController.mount(hotspots,links);
-  else{
-   const loading=document.createElement("div");
-   loading.style.cssText="margin:12px 0;padding:15px;border:2px solid #e9c17d;border-radius:12px;background:#163b4d;color:#ffe0a1;font-size:15px;font-weight:800";
-   loading.textContent="📄 56번 · 샘플 설교 한글파일 다운로드 · 코너를 준비하는 중입니다…";
-   links.appendChild(loading);
-  }
- }
  if(n===7){
   const caption=document.createElement("span");
   caption.className="god-slide07-cafe-ministry";
@@ -700,22 +512,6 @@ function showResources(n){
    hot.addEventListener("click",event=>openSlideResource(event,rec,n));
    hotspots.appendChild(hot);
   }
- }
- if(n===10&&teacher){
-  // Click the same left and right visual examples as in the original PPT.
-  const areas=[[6.2,26.8,42.6,63.8],[50.8,26.8,42.6,63.8]];
-  areas.forEach(([x,y,w,h],i)=>{
-   // If MEGA has a shared URL, the regular hyperlink hotspot above owns this
-   // region. Never lay a local-file button over it and swallow the click.
-   if(!slideResources[10][i]?.local)return;
-   const button=document.createElement("button");
-   button.type="button";button.className="god-local-video-hotspot";
-   button.setAttribute("aria-label",(i===0?"삼손중창단 행사 홍보영상":"주일설교요약영상")+" MEGA 영상 연결 및 재생");
-   button.title=(i===0?"삼손중창단 행사 홍보영상":"주일설교요약영상")+" · 클릭하여 MEGA 영상 연결";
-   button.style.left=x+"%";button.style.top=y+"%";button.style.width=w+"%";button.style.height=h+"%";
-   button.onclick=()=>slide10VideoController?.play(i);
-   hotspots.appendChild(button);
-  });
  }
  if(n===28&&teacher){
   // First practical-session card: poster exercise starts at slide 29,
@@ -857,8 +653,6 @@ function showResources(n){
    hotspots.appendChild(button);
   }
  }
- addTestamentPdfButton(n,links,hotspots);
- addCapcutZipButton(n,links,hotspots);
  if(n>=33&&n<=54&&teacher){
   // 22-slide ministry-plan section. The lecturer can proceed sequentially
   // or return to the practice menu from ANY page of this section.
@@ -883,25 +677,6 @@ function showResources(n){
    button.onclick=()=>navigate(action.target);
    hotspots.appendChild(button);
   }
- }
- if(n===53&&teacher&&(slideResources[53]||[]).some(rec=>rec.local)){
-  // Exact DOCX icon in the centre of slide 53.
-  // Once linked, the existing real MEGA hyperlink hotspot takes its place.
-  const docButton=document.createElement("button");
-  docButton.type="button";
-  docButton.className="god-local-video-hotspot";
-  docButton.title="목회계획서 실습 결과물 DOCX · MEGA에 저장한 문서 열기";
-  docButton.setAttribute("aria-label","목회계획서 실습 결과물 · MEGA 문서 연결");
-  docButton.style.left="42.8%";docButton.style.top="36.8%";
-  docButton.style.width="13.8%";docButton.style.height="27.7%";
-  docButton.classList.add("god-open-hotspot");
-  const docBadge=document.createElement("span");
-  docBadge.className="god-open-badge god-open-badge-docx";
-  docBadge.textContent="OPEN";
-  docBadge.setAttribute("aria-hidden","true");
-  docButton.appendChild(docBadge);
-  docButton.onclick=()=>slide53PlanController?.configure();
-  hotspots.appendChild(docButton);
  }
  if(n===55&&teacher){
   // Return to the exercise menu from slide 55. The button is placed
@@ -1125,12 +900,12 @@ function binding(){
 }
 function saveLocal(){if(!db)localStorage.setItem(localKey(),JSON.stringify(strokes))}
 function show(){
- slide=Math.max(1,Math.min(SLIDE_COUNT,slide));
+ slide=visibleSlide(slide);
  // Both the presenter and every attendee render the same slide number.
  // No Firebase writes are made for this visual effect.
  $("slide02Motion").hidden=slide!==2||!slide02CleanActive;
  $("title").textContent=titles[slide-1];$("subtitle").textContent=titles[slide-1];
- $("number").textContent=String(slide).padStart(2,"0")+" / "+SLIDE_COUNT;
+ $("number").textContent=String(slide).padStart(2,"0")+" · 총 "+VISIBLE_SLIDE_COUNT+"장";
  $("bigNumber").textContent=String(slide).padStart(2,"0");$("slideSelect").value=String(slide);
  const img=$("picture"),here=slide,filename="slide-"+String(slide).padStart(2,"0");
   if(slide>=57){img.hidden=true;img.removeAttribute("src");websiteWorkshop.onSlide(slide);$("notice").textContent="AI 웹사이트 제작 실습 "+slide+" / "+SLIDE_COUNT+" · 참석자는 프롬프트 복사 버튼으로 실습합니다.";showResources(slide);binding();sharedLinks?.onSlide();slide10VideoController?.onSlide();slide53PlanController?.onSlide();slide55SermonController?.onSlide();return;}
@@ -1140,7 +915,7 @@ function show(){
   if(here!==slide)return;
   img.hidden=false;
   $("notice").textContent="실제 강의 PPT "+here+" / 56 · 슬라이드 판서는 실시간으로 공유됩니다. 강사 컴퓨터에 저장된 MP4·DOCX 링크는 별도 연결해야 합니다.";
-  if(here<56){const preload=new Image();preload.src="slides/slide-"+String(here+1).padStart(2,"0")+".webp"+(redesignedImagesActive?"?design="+DESIGN_VERSION:"")}
+  if(here<56){const preload=new Image();preload.src="slides/slide-"+String(visibleSlide(here+1,here)).padStart(2,"0")+".webp"+(redesignedImagesActive?"?design="+DESIGN_VERSION:"")}
  };
  img.onerror=()=>{
   if(here!==slide)return;
@@ -1153,7 +928,7 @@ function show(){
 }
 function navigate(n){
  if(!allowed||clearingStrokes||undoInProgress)return;
- const target=Math.max(1,Math.min(SLIDE_COUNT,n));
+ const target=visibleSlide(n,slide);
  if(target===slide)return;
  workshopActive=target>=57;
  slide=target;show();
@@ -1200,7 +975,7 @@ $("stage").addEventListener("pointerup",e=>{
 $("stage").addEventListener("pointercancel",()=>navigationTap=null);
 $("stage").addEventListener("pointerleave",()=>navigationTap=null);
 $("prev").onclick=()=>navigate(slide-1);$("next").onclick=()=>navigate(slide+1);$("slideSelect").onchange=()=>navigate(Number($("slideSelect").value));
-for(let i=1;i<=SLIDE_COUNT;i++){const o=document.createElement("option");o.value=i;o.textContent=String(i).padStart(2,"0")+" · "+titles[i-1];$("slideSelect").appendChild(o)}
+for(let i=1;i<=SLIDE_COUNT;i++){if(HIDDEN_SLIDES.has(i))continue;const o=document.createElement("option");o.value=i;o.textContent=String(i).padStart(2,"0")+" · "+titles[i-1];$("slideSelect").appendChild(o)}
 function fit(){
  const r=canvas.getBoundingClientRect(),dpr=Math.min(window.devicePixelRatio||1,2);
  const width=Math.max(1,Math.round(r.width*dpr)),height=Math.max(1,Math.round(r.height*dpr));
@@ -1475,19 +1250,6 @@ d.onValue(d.ref(db,remote("workshopSlide")),snapshot=>{
  remoteWorkshopSlide=snapshot.exists()&&Number.isInteger(n)&&n>=57&&n<=SLIDE_COUNT?n:null;
  syncSlideSignals();
 },error=>notify("웹사이트 실습 슬라이드 동기화 정보를 읽지 못했습니다."));
-d.onValue(d.ref(db,remote("resourceLinks/capcutMaterialsZip")),snapshot=>{
- capcutZipUrl=validCapcutZipUrl(snapshot.val());capcutLinkChecked=true;capcutLinkReadError=false;
- capcutDownloadStatus=capcutZipUrl?"캡컷 자료 링크 연결됨. ZIP 내려받기를 누르세요.":"캡컷 자료 링크가 서버에서 확인되지 않습니다. 다시 확인하거나 강사에게 문의하세요.";
- if(slide===55)showResources(55);
-},error=>{
- capcutLinkReadError=true;capcutLinkChecked=true;
- capcutDownloadStatus="자료 연결 오류: Firebase 읽기 권한 또는 연결 상태를 확인해야 합니다.";
- if(slide===55){showResources(55);notify("캡컷 ZIP 공유 링크를 읽지 못했습니다. Firebase 연결과 읽기 권한을 확인해 주세요.")}
-});
-d.onValue(d.ref(db,remote("resourceLinks/newTestamentPdf")),snapshot=>{
- testamentPdfUrl=validTestamentPdfUrl(snapshot.val());
- if(slide===31)showResources(31);
-},error=>{if(slide===31)notify("신약주석 공유 링크를 읽지 못했습니다.")});
 d.onValue(d.ref(db,remote("pointer")),s=>{if(teacher&&allowed&&tool==="laser")return;const p=s.val();$("laser").hidden=!(p&&p.active&&Date.now()-(p.at||0)<2500);if(!$("laser").hidden){$("laser").style.left=p.x*100+"%";$("laser").style.top=p.y*100+"%";clearTimeout(laserTimeout);laserTimeout=setTimeout(()=>$("laser").hidden=true,750)}});
 binding();b.onAuthStateChanged(auth,u=>{user=u;allowed=teacher&&!!u;permission();if(teacher){installPrivateNotebook56FromLink();attendanceAlerts?.sync();instructorQuickPanel?.sync();if(allowed)sharedLinks?.cleanupRemovedSlide7Link?.()}else{loadAttendeeProfile(u);attendeeFeedbackNotification?.sync(u)}});
 $("login").onclick=async()=>{try{await b.signInWithPopup(auth,new b.GoogleAuthProvider())}catch(e){notify("Google 로그인 설정을 확인하세요.")}};
@@ -1593,43 +1355,7 @@ import("./shared-links.js?v=cafe07-naver-no-iframe-20261106").then(({createShare
  sharedLinks.ready();
  sharedLinks.onSlide();
 }).catch(()=>notify("웹자료 공유 기능을 불러오지 못했습니다. 새로고침해 주세요."));
-// Keep the two seminar video addresses editable without changing PowerPoint.
-// Registered URLs are shared through Firebase and are visible on all devices.
-import("./slide10-videos.js?v=seminar-folder-fast-20261105").then(({createSlide10Videos})=>{
- slide10VideoController=createSlide10Videos({
-  getState:()=>({teacher,allowed,F,db,auth,room}),
-  getSlide:()=>slide,
-  resources:slideResources,
-  openShared:(rec,page)=>sharedLinks?.broadcast(rec,page),
-  onChange:()=>{if(slide===10){showResources(10);sharedLinks?.onSlide()}},
-  notify
- });
- slide10VideoController.ready();
-}).catch(()=>notify("10번 컴퓨터 영상 재생 기능을 불러오지 못했습니다. 새로고침해 주세요."));
-// Slide 53's DOCX result is a separate output from the older plan on slide 12.
-// Its MEGA link is registered only on first icon click and then shared live.
-import("./slide53-plan.js?v=slide53-mega-docx-v1").then(({createSlide53Plan})=>{
- slide53PlanController=createSlide53Plan({
-  getState:()=>({teacher,allowed,F,db,auth,room}),
-  getSlide:()=>slide,
-  resources:slideResources,
-  openShared:(rec,page)=>sharedLinks?.broadcast(rec,page),
-  onChange:()=>{if(slide===53){showResources(53);sharedLinks?.onSlide()}},
-  notify
- });
- slide53PlanController.ready();
-}).catch(()=>notify("53번 목회계획서 문서 연결 기능을 불러오지 못했습니다. 새로고침해 주세요."));
-// Slide 55: one instructor-configured public MEGA sermon document, downloaded
-// by instructors and attendees independently without a MEGA account login.
-import("./slide55-sermon-hwp.js?v=move-to-slide56-20261108-2215").then(({createSlide55SermonHwp})=>{
- slide55SermonController=createSlide55SermonHwp({
-  getState:()=>({teacher,allowed,F,db,auth,room}),
-  getSlide:()=>slide,
-  notify
- });
- slide55SermonController.ready();
- if(slide===56)showResources(56);
-}).catch(()=>{notify("56번 샘플 설교 한글파일 다운로드 기능을 불러오지 못했습니다. 새로고침해 주세요.");if(slide===56){const area=document.getElementById("links");if(area){const panel=area.firstElementChild;if(panel&&panel.textContent.includes("코너를 준비하는 중"))panel.textContent="56번 샘플 설교 다운로드 기능을 불러오지 못했습니다. ⌘+Shift+R로 새로고침해 주세요."}}});
+// MEGA video and document controllers removed.
 // Only the authenticated participant's own submissions/<room>/<uid> may be read.
 // Personal feedback appears in a live modal in the existing lecture view.
 if(!teacher)import("./attendee-feedback-notification.js?v=feedback-live-20261106").then(mod=>{
